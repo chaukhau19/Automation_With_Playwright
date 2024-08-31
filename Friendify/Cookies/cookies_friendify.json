@@ -1,0 +1,42 @@
+[
+  {
+    "name": "test_cookie",
+    "value": "CheckForPermission",
+    "domain": ".doubleclick.net",
+    "path": "/",
+    "expires": 1725070282.83667,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "OTZ",
+    "value": "7712756_28_28__28_",
+    "domain": "accounts.google.com",
+    "path": "/",
+    "expires": 1727661386,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "NID",
+    "value": "517=kyKD3n4wjR8t9TTlrNkY1HjWkXdBc_gSBvmJl9VnoZoCsETRgv79UkhRepXHPgNxOpHerYfkgGtJitwJsOlS_h5DRuewOvrsu9uAR4PerBJQN5bfZfBqVa3PbB3Y-1E4wXZyBM8glYPzBYh-3z6Jl8DRCpBIHsgOQIapbN1Yaih8yxgm",
+    "domain": ".google.com",
+    "path": "/",
+    "expires": 1740880587.052795,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "__Host-GAPS",
+    "value": "1:iVBeliYbMby1zwDkY3RUTfMdItGLmA:tEguQLJSjxhwelHJ",
+    "domain": "accounts.google.com",
+    "path": "/",
+    "expires": 1759629392.195394,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "Lax"
+  }
+]
