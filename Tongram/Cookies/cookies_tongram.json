@@ -1,0 +1,72 @@
+[
+  {
+    "name": "NEXT_LOCALE",
+    "value": "en",
+    "domain": "tongram.app",
+    "path": "/",
+    "expires": 1756433823.240989,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "_ga_LL3CFL35SX",
+    "value": "GS1.1.1724897825.1.0.1724897825.0.0.0",
+    "domain": ".tongram.app",
+    "path": "/",
+    "expires": 1759457825.063395,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "_ga",
+    "value": "GA1.1.705588805.1724897825",
+    "domain": ".tongram.app",
+    "path": "/",
+    "expires": 1759457825.064005,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "stel_ssid",
+    "value": "293fb846e0018d669b_9288791194582086814",
+    "domain": "oauth.telegram.org",
+    "path": "/",
+    "expires": 1756761843.198161,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "stel_token",
+    "value": "7191c8d1b776b699175e12f86adb31f27191c8c67190c5552696898e29828d159c53d",
+    "domain": "oauth.telegram.org",
+    "path": "/",
+    "expires": 1756333663.832714,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "token",
+    "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NmNjODRmNTUxZDFmM2U1YjQyOGUzM2QiLCJyb2xlSWQiOiI2NjdiN2I4MzQ2MmEzNWQwZmJlNWQyNTEiLCJuYW1lIjoiQsOpICIsImlhdCI6MTcyNDg5NzgzMywiZXhwIjoxNzI1NzYxODMzLCJpc3MiOiJwbGF5Z3JvdW5keCJ9.1Xg9fJqJwTxhiPVwheXgQfUcEwdAZBUlHXfwcdKdT9s",
+    "domain": "tongram.app",
+    "path": "/",
+    "expires": 1725070634.629342,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "refreshToken",
+    "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NmNjODRmNTUxZDFmM2U1YjQyOGUzM2QiLCJpYXQiOjE3MjQ4OTc4MzMsImV4cCI6MTcyNzQ4OTgzMywiaXNzIjoicGxheWdyb3VuZHgifQ.BAsEF54d5pOszstwZ8TyZQWMkCs0kYRleI9Q15RMCYw",
+    "domain": "tongram.app",
+    "path": "/",
+    "expires": 1725070634,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  }
+]
