@@ -13,26 +13,26 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      # Step 1: Checkout code from repository
+      # Bước 1: Checkout code từ repository
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Step 2: Set up Node.js environment
+      # Bước 2: Thiết lập môi trường Node.js với phiên bản 18
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: '18'
 
-      # Step 3: (Optional) Install Playwright if not in package.json
-      #- name: Install Playwright
-      #  run: npx playwright install
+      # Bước 3: Cài đặt Playwright
+      - name: Install Playwright
+        run: npx playwright install
 
-      # Step 4: Run FD_Auto.bat directly using full path
+      # Bước 4: Chạy script FD_Auto.bat từ thư mục Friendify
       - name: Run FD_Auto.bat
         run: |
           ./Friendify/FD_Auto.bat
 
-      # Step 5: Save test results
+      # Bước 5: Lưu kết quả test
       - name: Archive test results
         if: always()
         uses: actions/upload-artifact@v2
