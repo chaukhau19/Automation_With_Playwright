@@ -26,9 +26,9 @@ jobs:
         with:
           node-version: '16'
 
-      # Bước 3: Cài đặt các dependency của dự án
-      - name: Install dependencies
-        run: npm install
+      # Bước 3: Cài đặt Playwright (nếu không có trong package.json)
+      - name: Install Playwright
+        run: npx playwright install
 
       # Bước 4: Chạy script FD_Auto.bat từ thư mục Friendify
       - name: Run FD_Auto.bat
