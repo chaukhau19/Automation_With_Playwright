@@ -30,9 +30,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Bước 4: Chạy script FD_Auto.bat
+      # Bước 4: Chạy script FD_Auto.bat từ thư mục Friendify
       - name: Run FD_Auto.bat
         run: |
+          cd Friendify
           ./FD_Auto.bat
 
       # Bước 5: Lưu kết quả test
