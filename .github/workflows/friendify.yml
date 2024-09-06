@@ -1,4 +1,4 @@
-name: Playwright CI - Friendify
+name: Playwright CI
 
 on:
   push:
@@ -8,36 +8,50 @@ on:
     branches:
       - master
   schedule:
-    - cron: '05 22 * * *' # Chạy vào 10:05 PM UTC mỗi ngày
+    - cron: '00 22 * * *' # Chạy vào 10:05 PM UTC mỗi ngày
 
 jobs:
   build-and-test:
     runs-on: windows-latest
 
     steps:
+      # Bước 1: Checkout code từ repository
       - name: Checkout code
         uses: actions/checkout@v2
 
+      # Bước 2: Thiết lập Node.js phiên bản 18
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '18'
 
+      # Bước 3: Di chuyển vào thư mục chứa package.json và cài đặt các dependencies
       - name: Install Dependencies
         working-directory: ./Friendify
         run: |
           npm install
 
+      # Bước 4: Cài đặt các trình duyệt Playwright
       - name: Install Playwright Browsers
         working-directory: ./Friendify
         run: |
           npx playwright install
 
+      # Bước 5: Danh sách nội dung thư mục để debug
+      - name: List directory contents
+        working-directory: ./Friendify
+        run: |
+          dir
+
+      # Bước 6: Chạy test
       - name: Run Playwright tests
         working-directory: ./Friendify
         run: |
-          npx playwright test --headed --reporter=line --workers=1
+          npx playwright test FD_Register.spec.js --headed --reporter=line --workers=1
+          npx playwright test FD_Login.spec.js --headed --reporter=line --workers=1
+          npx playwright test FD_Actions.spec.js --headed --reporter=line --workers=1
 
+      # Bước 7: Lưu kết quả test
       - name: Archive test results
         if: always()
         uses: actions/upload-artifact@v2
