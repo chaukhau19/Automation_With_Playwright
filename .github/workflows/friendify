@@ -1,0 +1,46 @@
+name: Playwright CI - Friendify
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  schedule:
+    - cron: '05 22 * * *' # Chạy vào 10:05 PM UTC mỗi ngày
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies
+        working-directory: ./Friendify
+        run: |
+          npm install
+
+      - name: Install Playwright Browsers
+        working-directory: ./Friendify
+        run: |
+          npx playwright install
+
+      - name: Run Playwright tests
+        working-directory: ./Friendify
+        run: |
+          npx playwright test --headed --reporter=line --workers=1
+
+      - name: Archive test results
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: playwright-results
+          path: ./Friendify/playwright-report/
