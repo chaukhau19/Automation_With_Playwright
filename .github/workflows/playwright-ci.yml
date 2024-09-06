@@ -1,0 +1,41 @@
+name: Playwright CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+
+    steps:
+      # Bước 1: Checkout code từ repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Bước 2: Thiết lập môi trường Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      # Bước 3: Cài đặt các dependency của dự án
+      - name: Install dependencies
+        run: npm install
+
+      # Bước 4: Chạy script FDAUTO.bat
+      - name: Run FD_Auto.bat
+        run: |
+          ./FD_Auto.bat
+
+      # Bước 5: Lưu kết quả test
+      - name: Archive test results
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: playwright-results
+          path: playwright-report/
