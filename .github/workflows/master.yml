@@ -17,20 +17,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Bước 2: Thiết lập môi trường Node.js với phiên bản 18
+      # Bước 2: Thiết lập Node.js phiên bản 18
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '18'
 
-      # Bước 3: Cài đặt Playwright
-      - name: Install Playwright
-        run: npx playwright install
-
-      # Bước 4: Chạy script FD_Auto.bat từ thư mục Friendify
-      - name: Run FD_Auto.bat
+      # Bước 3: Cài đặt các dependencies và Playwright
+      - name: Install Dependencies
         run: |
-          ./Friendify/FD_Auto.bat
+          npm install
+      - name: Install Playwright
+        run: |
+          npx playwright install
+
+      # Bước 4: Chạy test
+      - name: Run Playwright tests
+        run: |
+          npx playwright test FD_Register.spec.js --headed --reporter=line --workers=1
 
       # Bước 5: Lưu kết quả test
       - name: Archive test results
