@@ -35,13 +35,21 @@ jobs:
         run: |
           npx playwright install
 
-      # Bước 5: Chạy test
+      # Bước 5: Danh sách nội dung thư mục để debug
+      - name: List directory contents
+        working-directory: ./Friendify
+        run: |
+          dir
+
+      # Bước 6: Chạy test
       - name: Run Playwright tests
         working-directory: ./Friendify
         run: |
           npx playwright test FD_Register.spec.js --headed --reporter=line --workers=1
+          npx playwright test FD_Login.spec.js --headed --reporter=line --workers=1
+          npx playwright test FD_Actions.spec.js --headed --reporter=line --workers=1
 
-      # Bước 6: Lưu kết quả test
+      # Bước 7: Lưu kết quả test
       - name: Archive test results
         if: always()
         uses: actions/upload-artifact@v2
