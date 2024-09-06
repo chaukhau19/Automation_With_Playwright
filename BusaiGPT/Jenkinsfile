@@ -1,0 +1,47 @@
+pipeline {
+    agent any
+    environment {
+        // Github
+        GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
+        REPO_NAME = 'BusaiGPT'
+        SERVER_PATH = 'Automation_With_Playwright/BusaiGPT' // Cập nhật đường dẫn
+        BRANCH_NAME = 'master'
+        JENKINS_USERNAME = 'khauntc'  
+        JENKINS_ADDRESS = 'https://jenkins.playgroundvina.com/'  
+        COMMANDS = './BS_Auto.bat'  
+    }
+    stages {
+        stage('Checkout code') {
+            steps {
+                git branch: "${BRANCH_NAME}", url: "${GITHUB_URL}"
+            }
+        }
+        stage('Deploying...') {
+            when {
+                anyOf {
+                    branch 'master'
+                    branch 'main'
+                }
+            }
+            steps {
+                dir("${SERVER_PATH}") {
+                    script {
+                        echo "Deploying to '${BRANCH_NAME}'..."
+                        sh 'git pull'
+                        sh "sudo make deploy repo_name=${REPO_NAME} branch_name=${BRANCH_NAME}"
+                        sh "ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS}'"
+                    }
+                }
+            }
+        }
+    }
+    post {
+        always {
+            script {
+                def status = currentBuild.result ?: 'SUCCESS'
+                echo "Build status: ${status}"
+                sh "rm -rf ./* ./.??*"
+            }
+        }
+    }
+}
