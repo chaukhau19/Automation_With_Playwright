@@ -4,7 +4,7 @@ pipeline {
         // Github
         GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
         REPO_NAME = 'Friendify'
-        SERVER_PATH = 'Automation_With_Playwright'
+        SERVER_PATH = 'Automation_With_Playwright/Friendify' // Cập nhật đường dẫn
         BRANCH_NAME = 'master'
         JENKINS_USERNAME = 'khauntc'  
         JENKINS_ADDRESS = 'https://jenkins.playgroundvina.com/'  
