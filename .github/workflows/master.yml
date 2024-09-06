@@ -8,12 +8,12 @@ on:
     branches:
       - master
   schedule:
-    - cron: '05 22 * * *' # Chạy vào 10:05 PM UTC mỗi ngày
+    - cron: '40 22 * * *' # Chạy vào 10:05 PM UTC mỗi ngày
 
 jobs:
-  build-and-test:
+  # Job cho Friendify
+  build-and-test-friendify:
     runs-on: windows-latest
-
     steps:
       # Bước 1: Checkout code từ repository
       - name: Checkout code
@@ -43,8 +43,8 @@ jobs:
         run: |
           dir
 
-      # Bước 6: Chạy test
-      - name: Run Playwright tests
+      # Bước 6: Chạy các test case với Playwright
+      - name: Run Playwright tests for Friendify
         working-directory: ./Friendify
         run: |
           npx playwright test FD_Register.spec.js --headed --reporter=line --workers=1
@@ -52,9 +52,101 @@ jobs:
           npx playwright test FD_Actions.spec.js --headed --reporter=line --workers=1
 
       # Bước 7: Lưu kết quả test
-      - name: Archive test results
-        if: always()
+      - name: Archive test results for Friendify
+        if: always() # Đảm bảo rằng bước này luôn được thực hiện, ngay cả khi các bước trước đó thất bại
         uses: actions/upload-artifact@v2
         with:
-          name: playwright-results
+          name: playwright-results-friendify
           path: ./Friendify/playwright-report/
+
+  # Job cho Busai
+  build-and-test-busai:
+    runs-on: windows-latest
+    steps:
+      # Bước 1: Checkout code từ repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Bước 2: Thiết lập Node.js phiên bản 18
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      # Bước 3: Di chuyển vào thư mục chứa package.json và cài đặt các dependencies
+      - name: Install Dependencies
+        working-directory: ./BusaiGPT
+        run: |
+          npm install
+
+      # Bước 4: Cài đặt các trình duyệt Playwright
+      - name: Install Playwright Browsers
+        working-directory: ./BusaiGPT
+        run: |
+          npx playwright install
+
+      # Bước 5: Danh sách nội dung thư mục để debug
+      - name: List directory contents
+        working-directory: ./Busai
+        run: |
+          dir
+
+      # Bước 6: Chạy các test case với Playwright
+      - name: Run Playwright tests for Busai
+        working-directory: ./BusaiGPT
+        run: |
+          npx playwright test BS_Actions.spec.js --headed --reporter=line --workers=1
+
+      # Bước 7: Lưu kết quả test
+      - name: Archive test results for Busai
+        if: always() # Đảm bảo rằng bước này luôn được thực hiện, ngay cả khi các bước trước đó thất bại
+        uses: actions/upload-artifact@v2
+        with:
+          name: playwright-results-busai
+          path: ./Busai/playwright-report/
+
+  # Job cho Tongram
+  build-and-test-tongram:
+    runs-on: windows-latest
+    steps:
+      # Bước 1: Checkout code từ repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Bước 2: Thiết lập Node.js phiên bản 18
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      # Bước 3: Di chuyển vào thư mục chứa package.json và cài đặt các dependencies
+      - name: Install Dependencies
+        working-directory: ./Tongram
+        run: |
+          npm install
+
+      # Bước 4: Cài đặt các trình duyệt Playwright
+      - name: Install Playwright Browsers
+        working-directory: ./Tongram
+        run: |
+          npx playwright install
+
+      # Bước 5: Danh sách nội dung thư mục để debug
+      - name: List directory contents
+        working-directory: ./Tongram
+        run: |
+          dir
+
+      # Bước 6: Chạy các test case với Playwright
+      - name: Run Playwright tests for Tongram
+        working-directory: ./Tongram
+        run: |
+          npx playwright test TG_Actions.spec.js --headed --reporter=line --workers=1
+
+      # Bước 7: Lưu kết quả test
+      - name: Archive test results for Tongram
+        if: always() # Đảm bảo rằng bước này luôn được thực hiện, ngay cả khi các bước trước đó thất bại
+        uses: actions/upload-artifact@v2
+        with:
+          name: playwright-results-tongram
+          path: ./Tongram/playwright-report/
