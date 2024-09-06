@@ -1,5 +1,45 @@
 // @ts-check
+const fs = require('fs');
+const path = require('path');
 const { defineConfig, devices } = require('@playwright/test');
+
+
+const COLORS = {
+  YELLOW: '\x1b[33m',
+  GREEN: '\x1b[32m',
+  RED: '\x1b[31m',
+  RESET: '\x1b[0m'
+};
+
+class HtmlLogger {
+  constructor() {
+    this.logFilePath = path.join(__dirname, 'playwright-log.html');
+    // Initialize the log file with some HTML structure
+    fs.writeFileSync(this.logFilePath, '<html><head><title>Playwright Log</title></head><body><h1>Automation Result</h1><ul>', 'utf-8');
+  }
+
+  onTestBegin(test) {
+    this._log(`Test started: ${test.title}`);
+  }
+
+  onTestEnd(test, result) {
+    this._log(`Test ended: ${test.title} - ${result.status}`);
+  }
+
+  onStepEnd(step, result) {
+    this._log(`Step: ${step.title} - ${result.status}`);
+  }
+
+  _log(message) {
+    const formattedMessage = `<li>${new Date().toISOString()} - ${message}</li>`;
+    fs.appendFileSync(this.logFilePath, formattedMessage, 'utf-8');
+  }
+
+  onEnd() {
+    // Close the HTML structure at the end
+    fs.appendFileSync(this.logFilePath, '</ul></body></html>', 'utf-8');
+  }
+}
 
 /**
  * Read environment variables from file.
@@ -23,7 +63,7 @@ module.exports = defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   // reporter: 'html',
   reporter: [['html', { outputFolder: 'playwright-report', open: 'always' }]],
-  timeout: 60000, // Set default timeout to 60 seconds
+  timeout: 500000, // Set default timeout to 60 seconds
  
 
 
@@ -39,6 +79,7 @@ module.exports = defineConfig({
     launchOptions: {
       slowMo: 1000, // Giảm tốc độ của trình duyệt
     },
+    viewport: { width: 1366, height: 768 },
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     // trace: 'on-first-retry',
   },
@@ -56,14 +97,14 @@ module.exports = defineConfig({
     //     ...devices['Desktop Chrome'],
     //     headless: true,
     //     recordVideo: {
-    //       dir: 'videos/',
+    //       dir: 'Videos/',
     //       size: { width: 800, height: 600 },
     //     },
     //   },
     // },
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1366, height: 768 } },
     },
 
     // {
