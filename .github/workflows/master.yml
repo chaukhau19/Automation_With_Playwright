@@ -23,18 +23,21 @@ jobs:
         with:
           node-version: '18'
 
-      # Bước 3: Cài đặt các dependencies
+      # Bước 3: Di chuyển vào thư mục chứa package.json và cài đặt các dependencies
       - name: Install Dependencies
+        working-directory: ./Friendify
         run: |
           npm install
 
       # Bước 4: Cài đặt các trình duyệt Playwright
       - name: Install Playwright Browsers
+        working-directory: ./Friendify
         run: |
           npx playwright install
 
       # Bước 5: Chạy test
       - name: Run Playwright tests
+        working-directory: ./Friendify
         run: |
           npx playwright test FD_Register.spec.js --headed --reporter=line --workers=1
 
@@ -44,4 +47,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: playwright-results
-          path: playwright-report/
+          path: ./Friendify/playwright-report/
