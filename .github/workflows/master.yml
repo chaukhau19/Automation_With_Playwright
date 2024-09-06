@@ -23,20 +23,22 @@ jobs:
         with:
           node-version: '18'
 
-      # Bước 3: Cài đặt các dependencies và Playwright
-      #- name: Install Dependencies
-      #  run: |
-      #    npm install
-      - name: Install Playwright
+      # Bước 3: Cài đặt các dependencies
+      - name: Install Dependencies
         run: |
-          npm install @playwright/test --save-dev
+          npm install
 
-      # Bước 4: Chạy test
+      # Bước 4: Cài đặt các trình duyệt Playwright
+      - name: Install Playwright Browsers
+        run: |
+          npx playwright install
+
+      # Bước 5: Chạy test
       - name: Run Playwright tests
         run: |
           npx playwright test FD_Register.spec.js --headed --reporter=line --workers=1
 
-      # Bước 5: Lưu kết quả test
+      # Bước 6: Lưu kết quả test
       - name: Archive test results
         if: always()
         uses: actions/upload-artifact@v2
