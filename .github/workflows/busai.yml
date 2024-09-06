@@ -1,4 +1,4 @@
-name: Playwright CI - Busai
+name: Playwright CI - BusaiGPT
 
 on:
   push:
@@ -24,17 +24,17 @@ jobs:
           node-version: '18'
 
       - name: Install Dependencies
-        working-directory: ./Busai
+        working-directory: ./BusaiGPT
         run: |
           npm install
 
       - name: Install Playwright Browsers
-        working-directory: ./Busai
+        working-directory: ./BusaiGPT
         run: |
           npx playwright install
 
       - name: Run Playwright tests
-        working-directory: ./Busai
+        working-directory: ./BusaiGPT
         run: |
           npx playwright test BS_Actions.spec.js --headed --reporter=line --workers=1
 
@@ -43,4 +43,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: playwright-results
-          path: ./Busai/playwright-report/
+          path: ./BusaiGPT/playwright-report/
