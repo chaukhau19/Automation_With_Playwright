@@ -24,12 +24,12 @@ jobs:
           node-version: '18'
 
       # Bước 3: Cài đặt các dependencies và Playwright
-      - name: Install Dependencies
-        run: |
-          npm install
+      #- name: Install Dependencies
+      #  run: |
+      #    npm install
       - name: Install Playwright
         run: |
-          npx playwright install
+          npm install @playwright/test --save-dev
 
       # Bước 4: Chạy test
       - name: Run Playwright tests
