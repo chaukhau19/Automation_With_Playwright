@@ -7,7 +7,9 @@ export class ActionsPage {
     this.page = page;
     this.chatPointSelector = config.chatPointSelector;
   }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////                  FUNCTION                //////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   async loginWithAccount() {
     await this.page.goto(config.url);
     await this.page.getByText('Login').click();
@@ -16,12 +18,13 @@ export class ActionsPage {
     await this.page.getByRole('button', { name: 'Login' }).click();
     await expect(this.page).toHaveTitle('Friendify GPT - Your AI Personal Assistant');
   }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////                 TEST CASE                //////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   async performFirstChat() {
     const pointBeforeFirstChat = parseInt(await this.page.locator(this.chatPointSelector).innerText(), 10);
     console.log('Point before first chat: ', pointBeforeFirstChat);
 
-    // Start a new chat and send a message
     await this.page.getByText('AskContactChatFeedAssist').first().click();
     await this.page.getByRole('link', { name: 'Ask' }).click();
     await this.page.waitForTimeout(2000);
@@ -29,61 +32,51 @@ export class ActionsPage {
     await this.page.getByText('AI Chat GPTNew chat').click();
     await this.page.waitForTimeout(2000);
     await this.page.getByRole('link', { name: 'New chat' }).click();
-    await this.page.getByPlaceholder('Type something...').fill('Từ "xin chào" trong tiếng anh là gì?');
+    await this.page.getByPlaceholder('Type something...').fill(config.message_chat1);
     await this.page.keyboard.press('Enter');
     await this.page.waitForTimeout(2000);
 
-    // Verify the chat response
-    await expect(this.page.getByText('hello')).toBeVisible();
+    await expect(this.page.getByText(config.expect_message1)).toBeVisible();
 
-    // Get the points after the first chat
     const pointAfterFirstChat = parseInt(await this.page.locator(this.chatPointSelector).innerText(), 10);
     console.log('Point of Speed after first chat: ', pointAfterFirstChat);
 
-    // Calculate the points used
     const totalPointUsedFirstChat = pointBeforeFirstChat - pointAfterFirstChat;
     console.log('Total of Speed points used after first chat: ', totalPointUsedFirstChat);
 
-    // Verify that points decreased correctly by 1
     if (totalPointUsedFirstChat === 1) {
       console.log('The points decreased correctly by 1 after the first chat.');
     } else {
       console.log('The points did not decrease correctly after the first chat.');
     }
   }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   async performSecondChat() {
     const pointBeforeSecondChat = parseInt(await this.page.locator(this.chatPointSelector).innerText(), 10);
     console.log('Point before second chat: ', pointBeforeSecondChat);
 
-    // Start a new chat and send a message
     await this.page.getByRole('link', { name: 'New chat' }).click();
     await this.page.getByRole('switch', { name: 'Speed Intelligent' }).click();
-    await this.page.getByPlaceholder('Type something...').fill('Từ "xin chào" trong tiếng hàn là gì?');
+    await this.page.getByPlaceholder('Type something...').fill(config.message_chat2);
     await this.page.keyboard.press('Enter');
     await this.page.waitForTimeout(2000);
 
-    // Verify the chat response
-    await expect(this.page.getByText('안녕하세요')).toBeVisible();
+    await expect(this.page.getByText(config.expect_message2)).toBeVisible();
 
-    // Get the points after the second chat
     const pointAfterSecondChat = parseInt(await this.page.locator(this.chatPointSelector).innerText(), 10);
     console.log('Point of Intelligent after second chat: ', pointAfterSecondChat);
 
-    // Calculate the points used
     const totalPointUsedSecondChat = pointBeforeSecondChat - pointAfterSecondChat;
     console.log('Total of Intelligent points used after second chat: ', totalPointUsedSecondChat);
 
-    // Verify that points decreased correctly by 1
     if (totalPointUsedSecondChat === 1) {
       console.log('The points decreased correctly by 1 after the second chat.');
     } else {
       console.log('The points did not decrease correctly after the second chat.');
     }
   }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   async performOtherActions() {
-    // Perform other actions
     await this.page.getByText('AskContactChatFeedAssist').first().click();
     await this.page.getByRole('link', { name: 'Ask' }).click();
     await this.page.waitForTimeout(1000);
@@ -119,4 +112,5 @@ export class ActionsPage {
     await this.page.getByText('Image').click();
     await this.page.locator('label:has-text("Upload File (Max 5MB .png | .")').waitFor({ state: 'visible', timeout: 10000 });
   }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }
