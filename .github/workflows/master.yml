@@ -1,4 +1,4 @@
-name: Playwright CI
+name: Playwright CI-CD
 
 on:
   push:
@@ -68,11 +68,16 @@ jobs:
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
-          $env:SSH_PRIVATE_KEY | Out-File -FilePath $env:USERPROFILE/.ssh/id_rsa -Encoding ascii
-          icacls $env:USERPROFILE/.ssh/id_rsa /inheritance:r
-          icacls $env:USERPROFILE/.ssh/id_rsa /grant:r "${env:USERNAME}:(R,W)"
-          ssh-keyscan -H $env:DEPLOY_HOST | Out-File -FilePath $env:USERPROFILE/.ssh/known_hosts -Append
-          ssh -i $env:USERPROFILE/.ssh/id_rsa -o StrictHostKeyChecking=no $env:DEPLOY_USER@$env:DEPLOY_HOST "cd $env:GITHUB_WORKSPACE/Friendify && git pull origin master && npm install && npm run build"
+          # Create .ssh directory if it does not exist
+          if (-not (Test-Path -Path "$env:USERPROFILE/.ssh")) {
+            New-Item -Path "$env:USERPROFILE/.ssh" -ItemType Directory
+          }
+          # Write SSH private key to file
+          $env:SSH_PRIVATE_KEY | Out-File -FilePath "$env:USERPROFILE/.ssh/id_rsa" -Encoding ascii
+          icacls "$env:USERPROFILE/.ssh/id_rsa" /inheritance:r
+          icacls "$env:USERPROFILE/.ssh/id_rsa" /grant:r "${env:USERNAME}:(R,W)"
+          ssh-keyscan -H $env:DEPLOY_HOST | Out-File -FilePath "$env:USERPROFILE/.ssh/known_hosts" -Append
+          ssh -i "$env:USERPROFILE/.ssh/id_rsa" -o StrictHostKeyChecking=no $env:DEPLOY_USER@$env:DEPLOY_HOST "cd $env:GITHUB_WORKSPACE/Friendify && git pull origin master && npm install && npm run build"
 
   # Job for Busai
   build-and-test-busai:
@@ -129,11 +134,16 @@ jobs:
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
-          $env:SSH_PRIVATE_KEY | Out-File -FilePath $env:USERPROFILE/.ssh/id_rsa -Encoding ascii
-          icacls $env:USERPROFILE/.ssh/id_rsa /inheritance:r
-          icacls $env:USERPROFILE/.ssh/id_rsa /grant:r "${env:USERNAME}:(R,W)"
-          ssh-keyscan -H $env:DEPLOY_HOST | Out-File -FilePath $env:USERPROFILE/.ssh/known_hosts -Append
-          ssh -i $env:USERPROFILE/.ssh/id_rsa -o StrictHostKeyChecking=no $env:DEPLOY_USER@$env:DEPLOY_HOST "cd $env:GITHUB_WORKSPACE/BusaiGPT && git pull origin master && npm install && npm run build"
+          # Create .ssh directory if it does not exist
+          if (-not (Test-Path -Path "$env:USERPROFILE/.ssh")) {
+            New-Item -Path "$env:USERPROFILE/.ssh" -ItemType Directory
+          }
+          # Write SSH private key to file
+          $env:SSH_PRIVATE_KEY | Out-File -FilePath "$env:USERPROFILE/.ssh/id_rsa" -Encoding ascii
+          icacls "$env:USERPROFILE/.ssh/id_rsa" /inheritance:r
+          icacls "$env:USERPROFILE/.ssh/id_rsa" /grant:r "${env:USERNAME}:(R,W)"
+          ssh-keyscan -H $env:DEPLOY_HOST | Out-File -FilePath "$env:USERPROFILE/.ssh/known_hosts" -Append
+          ssh -i "$env:USERPROFILE/.ssh/id_rsa" -o StrictHostKeyChecking=no $env:DEPLOY_USER@$env:DEPLOY_HOST "cd $env:GITHUB_WORKSPACE/BusaiGPT && git pull origin master && npm install && npm run build"
 
   # Job for Tongram
   build-and-test-tongram:
@@ -190,8 +200,13 @@ jobs:
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
-          $env:SSH_PRIVATE_KEY | Out-File -FilePath $env:USERPROFILE/.ssh/id_rsa -Encoding ascii
-          icacls $env:USERPROFILE/.ssh/id_rsa /inheritance:r
-          icacls $env:USERPROFILE/.ssh/id_rsa /grant:r "${env:USERNAME}:(R,W)"
-          ssh-keyscan -H $env:DEPLOY_HOST | Out-File -FilePath $env:USERPROFILE/.ssh/known_hosts -Append
-          ssh -i $env:USERPROFILE/.ssh/id_rsa -o StrictHostKeyChecking=no $env:DEPLOY_USER@$env:DEPLOY_HOST "cd $env:GITHUB_WORKSPACE/Tongram && git pull origin master && npm install && npm run build"
+          # Create .ssh directory if it does not exist
+          if (-not (Test-Path -Path "$env:USERPROFILE/.ssh")) {
+            New-Item -Path "$env:USERPROFILE/.ssh" -ItemType Directory
+          }
+          # Write SSH private key to file
+          $env:SSH_PRIVATE_KEY | Out-File -FilePath "$env:USERPROFILE/.ssh/id_rsa" -Encoding ascii
+          icacls "$env:USERPROFILE/.ssh/id_rsa" /inheritance:r
+          icacls "$env:USERPROFILE/.ssh/id_rsa" /grant:r "${env:USERNAME}:(R,W)"
+          ssh-keyscan -H $env:DEPLOY_HOST | Out-File -FilePath "$env:USERPROFILE/.ssh/known_hosts" -Append
+          ssh -i "$env:USERPROFILE/.ssh/id_rsa" -o StrictHostKeyChecking=no $env:DEPLOY_USER@$env:DEPLOY_HOST "cd $env:GITHUB_WORKSPACE/Tongram && git pull origin master && npm install && npm run build"
