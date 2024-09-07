@@ -32,11 +32,12 @@ export const config = {
   expect_title_Image_RemoveText: '/^Image_2KB\.jpg$/',
 
   //Path on PC
-  path_generateDocs: 'D:/Automation/Playwright/Data/PDF_1MB.pdf',
-  path_generateAudio: 'D:/Automation/Playwright/Data/file_example_MP3_700KB.MP3',
-  path_generateImage_Summary: 'D:/Automation/Playwright/Data/Image_4KB.PNG',
-  path_generateImage_RemoveObject: 'D:/Automation/Playwright/Data/Image_4KB.PNG',
-  path_generateImage_RemoveText: 'D:/Automation/Playwright/Data/Image_2KB.JPG',
+  path_generateDocs: './Data/PDF_1MB.pdf',
+  path_generateAudio: './Data/file_example_MP3_700KB.MP3',
+  path_generateImage_Summary: './Data/Image_4KB.PNG',
+  path_generateImage_RemoveObject: './Data/Image_4KB.PNG',
+  path_generateImage_RemoveText: './Data/Image_2KB.JPG',
+  
 
   //N/A
   chatPointSelector: 'span.font-bold.leading-none.text-black',
