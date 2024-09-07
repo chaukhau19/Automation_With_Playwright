@@ -1,7 +1,10 @@
 // @ts-check
-const fs = require('fs');
-const path = require('path');
-const { defineConfig, devices } = require('@playwright/test');
+import { writeFileSync, appendFileSync } from 'fs';
+import { join } from 'path';
+import { defineConfig, devices } from '@playwright/test';
+// const fs = require('fs');
+// const path = require('path');
+// const { defineConfig, devices } = require('@playwright/test');
 
 
 const COLORS = {
@@ -10,36 +13,6 @@ const COLORS = {
   RED: '\x1b[31m',
   RESET: '\x1b[0m'
 };
-
-class HtmlLogger {
-  constructor() {
-    this.logFilePath = path.join(__dirname, 'playwright-log.html');
-    // Initialize the log file with some HTML structure
-    fs.writeFileSync(this.logFilePath, '<html><head><title>Playwright Log</title></head><body><h1>Automation Result</h1><ul>', 'utf-8');
-  }
-
-  onTestBegin(test) {
-    this._log(`Test started: ${test.title}`);
-  }
-
-  onTestEnd(test, result) {
-    this._log(`Test ended: ${test.title} - ${result.status}`);
-  }
-
-  onStepEnd(step, result) {
-    this._log(`Step: ${step.title} - ${result.status}`);
-  }
-
-  _log(message) {
-    const formattedMessage = `<li>${new Date().toISOString()} - ${message}</li>`;
-    fs.appendFileSync(this.logFilePath, formattedMessage, 'utf-8');
-  }
-
-  onEnd() {
-    // Close the HTML structure at the end
-    fs.appendFileSync(this.logFilePath, '</ul></body></html>', 'utf-8');
-  }
-}
 
 /**
  * Read environment variables from file.
@@ -50,7 +23,7 @@ class HtmlLogger {
 /**
  * @see https://playwright.dev/docs/test-configuration
  */
-module.exports = defineConfig({
+export default defineConfig({
   testDir: './Tests',
   /* Run tests in files in parallel */
   fullyParallel: true,

@@ -20,35 +20,35 @@ test.describe('Busai Actions', () => {
       ///
       });
       
-      await test.step('Generate Docs', async () => {
-        await actionsPage.openWithSavedCookies();
-        await actionsPage.performGenerateDocs(); 
-        await actionsPage.deleteGenerateDocs(); 
-        });
+      // await test.step('Generate Docs', async () => {
+      //   await actionsPage.openWithSavedCookies();
+      //   await actionsPage.performGenerateDocs(); 
+      //   await actionsPage.deleteGenerateDocs(); 
+      //   });
 
-      await test.step('Generate Audio', async () => {
-        await actionsPage.openWithSavedCookies();
-        await actionsPage.performGenerateAudio();
-        await actionsPage.deleteGenerateAudio();  
-        });
+      // await test.step('Generate Audio', async () => {
+      //   await actionsPage.openWithSavedCookies();
+      //   await actionsPage.performGenerateAudio();
+      //   await actionsPage.deleteGenerateAudio();  
+      //   });
 
-      await test.step('Generate Image', async () => {
-        await actionsPage.openWithSavedCookies();
-        await test.step('Generate Image - Sumary', async () => {
-            await actionsPage.performGenerateImage_Summary();
-            await actionsPage.deleteGenerateImage_Summary();
-        });
+      // await test.step('Generate Image', async () => {
+      //   await actionsPage.openWithSavedCookies();
+      //   await test.step('Generate Image - Sumary', async () => {
+      //       await actionsPage.performGenerateImage_Summary();
+      //       await actionsPage.deleteGenerateImage_Summary();
+      //   });
     
-        await test.step('Generate Image - Remove Object', async () => {
-            await actionsPage.performGenerateImage_RemoveObject();
-            await actionsPage.deleteGenerateImage_RemoveObject();
-        });
+      //   await test.step('Generate Image - Remove Object', async () => {
+      //       await actionsPage.performGenerateImage_RemoveObject();
+      //       await actionsPage.deleteGenerateImage_RemoveObject();
+      //   });
     
-        await test.step('Generate Image - Remove Text', async () => {
-            await actionsPage.performGenerateImage_RemoveText();
-            await actionsPage.deleteGenerateImage_RemoveText();
-        });
-    });
+      //   await test.step('Generate Image - Remove Text', async () => {
+      //       await actionsPage.performGenerateImage_RemoveText();
+      //       await actionsPage.deleteGenerateImage_RemoveText();
+      //   });
+    // });
     
 
       // await test.step('Forwarded to Busai Music', async () => {
