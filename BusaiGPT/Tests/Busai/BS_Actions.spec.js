@@ -6,19 +6,19 @@ test.describe('Busai Actions', () => {
   test('Group Busai', async ({ browser }) => {
     const actionsPage = new ActionsPage(browser);
 
-      // await test.step('Login with Telegram', async () => {
+      await test.step('Login with Telegram', async () => {
+        await actionsPage.openWithSavedCookies();
+      });
+
+      // await test.step('AI Chat GPT', async () => {
       //   await actionsPage.openWithSavedCookies();
+      //   await actionsPage.performFirstChat(config.message1); 
+      //   await actionsPage.performSecondChat(config.message2); 
       // });
 
-      await test.step('AI Chat GPT', async () => {
-        await actionsPage.openWithSavedCookies();
-        await actionsPage.performFirstChat(config.message1); 
-        await actionsPage.performSecondChat(config.message2); 
-      });
-
-      await test.step('AI Generate Image', async () => {
-      ///
-      });
+      // await test.step('AI Generate Image', async () => {
+      // ///
+      // });
       
       // await test.step('Generate Docs', async () => {
       //   await actionsPage.openWithSavedCookies();
