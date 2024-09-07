@@ -15,7 +15,13 @@ pipeline {
         COMMANDS_WIN = './FD_Auto.bat'
         COMMANDS_UNIX = './FD_Auto.sh'  // Nếu bạn có script bash cho Linux/macOS
         ENVIRONMENT = 'windows'  // Cập nhật giá trị này thành 'windows', 'linux' hoặc 'macos' tùy theo môi trường
-    }
+        DEPLOY_ENV = 'Local' 
+
+        //My PC
+        DEPLOY_HOST = '192.168.1.227'  // Thay thế với địa chỉ IP hoặc hostname của server
+        DEPLOY_USER = 'khau'  // Thay thế với tên người dùng SSH
+        SSH_PRIVATE_KEY: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC6HN0eszMcqEHA41ivY9AJEzWeFPYd7zBYxy3xdo3TiC83HI3mOUiao+fTbWKSP3qnQagOY/0kCGIYSlAAPqsQp3h32QcO8CzF3FKLidtRdX6sZacVTLnZASDH0qczlCbmsIWy1dI9f+mfb0w7MyNHiUIS9U5DSLIT6xF74Pk1TkgX+7OHRUk0lA7U1ARPD3b8bax4QQ093iR7JUBQOg1JoiH9geyrhyux9Y+EjeGwt17rbRnrKCfIEqsMUn+4yT8fUqmTWK3cpJswCYq0Nb7kGjBDxaae2Tusj99yoV5XLSpo8bNaEpuMQTmtJxWsL5XusYY8/Oy2J8d4iESeX4xBAkPDBZktuuDIHWs4DHBzmyMcaRIxGxnhPBkQg3UNPiJVSOnk1qNEu3AABnOergTnvSmEQ6Wl8vuh9JQPm5mFThKGhapENsqOG+sCEjtyWihfxMH3aKz7b6c8GEtEPNTGZB2Uk3fcHxgLZxM75z5y6zNiu0V/QZLBZpnvytp19iWy0FJl+u6BEIEYG+Y8KnaqYWg2F15oH33IF0PlvJizPFZybp9pvX873GTiPz7A/tAWZRWYqe8fm7e8Ep56ChdrqBShhY7ORLXQFchJIUgNSYQGU5aG/RCRl4kGZYvzODohVs+MJKa4ccky+yv2EA8TIUJuaUTwF8LGArlnxde0zw== chaukhau2000@gmail.com'
+    }   
     
     stages {
         // Stage CI: Checkout code từ repository GitHub
@@ -30,22 +36,27 @@ pipeline {
         stage('CD: Deploying...') {
             when {
                 anyOf {
-                    branch 'master'  // Chạy deploy nếu nhánh là 'master'
-                    branch 'main'    // Hoặc là 'main'
+                    branch 'master'  // Deploy if the branch is 'master'
+                    branch 'main'    // Or if it is 'main'
+                }
+            expression {
+                    // Chạy stage nếu DEPLOY_ENV có giá trị tương ứng
+                    return ['Local', 'Test', 'Staging', 'Dev'].contains(env.DEPLOY_ENV)
                 }
             }
             // FOR USERNAME/PASSWORD
-            steps {
+           steps {
                 dir("${SERVER_PATH}") {
                     script {
-                        echo "Deploying to '${BRANCH_NAME}'..."
+                        echo "Deploying to '${BRANCH_NAME}' on environment '${ENVIRONMENT}'..."
                         if (ENVIRONMENT == 'windows') {
-                            bat 'git pull --rebase'  // Sử dụng bat thay vì sh cho Windows
-                            bat "plink.exe -pw ${JENKINS_PASSWORD} ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS_WIN}'"
-                        } else {
-                            sh 'git pull --rebase'  // Sử dụng sh cho Linux/macOS
-                            if (ENVIRONMENT == 'linux' || ENVIRONMENT == 'macos') {
-                                sh "sshpass -p '${JENKINS_PASSWORD}' ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS_UNIX}'"
+                            bat 'git pull --rebase'
+                            bat "plink.exe -ssh -l ${DEPLOY_USER} -pw ${JENKINS_PASSWORD} ${DEPLOY_HOST} '${COMMANDS_WIN}'"
+                        } else if (ENVIRONMENT == 'linux' || ENVIRONMENT == 'macos') {
+                            sh 'git pull --rebase'
+                            // Sử dụng ssh-agent với SSH key từ Jenkins Credentials
+                            sshagent (credentials: [JENKINS_CREDENTIALS_ID]) {
+                                sh "ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_HOST} '${COMMANDS_UNIX}'"
                             }
                         }
                     }
