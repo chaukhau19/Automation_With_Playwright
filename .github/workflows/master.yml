@@ -8,42 +8,42 @@ on:
     branches:
       - master
   schedule:
-    - cron: '40 22 * * *' # Chạy vào 10:05 PM UTC mỗi ngày
+    - cron: '40 22 * * *' # Runs at 10:40 PM UTC daily
 
 jobs:
-  # Job cho Friendify
+  # Job for Friendify
   build-and-test-friendify:
     runs-on: windows-latest
     steps:
-      # Bước 1: Checkout code từ repository
+      # Step 1: Checkout code from repository
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Bước 2: Thiết lập Node.js phiên bản 18
+      # Step 2: Set up Node.js version 18
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '18'
 
-      # Bước 3: Di chuyển vào thư mục chứa package.json và cài đặt các dependencies
+      # Step 3: Navigate to the directory with package.json and install dependencies
       - name: Install Dependencies
         working-directory: ./Friendify
         run: |
           npm install
 
-      # Bước 4: Cài đặt các trình duyệt Playwright
+      # Step 4: Install Playwright browsers
       - name: Install Playwright Browsers
         working-directory: ./Friendify
         run: |
           npx playwright install
 
-      # Bước 5: Danh sách nội dung thư mục để debug
+      # Step 5: List directory contents for debugging
       - name: List directory contents
         working-directory: ./Friendify
         run: |
           dir
 
-      # Bước 6: Chạy các test case với Playwright
+      # Step 6: Run Playwright tests
       - name: Run Playwright tests for Friendify
         working-directory: ./Friendify
         run: |
@@ -51,102 +51,147 @@ jobs:
           npx playwright test FD_Login.spec.js --headed --reporter=line --workers=1
           npx playwright test FD_Actions.spec.js --headed --reporter=line --workers=1
 
-      # Bước 7: Lưu kết quả test
+      # Step 7: Archive test results
       - name: Archive test results for Friendify
-        if: always() # Đảm bảo rằng bước này luôn được thực hiện, ngay cả khi các bước trước đó thất bại
+        if: always() # Ensure this step runs even if previous steps fail
         uses: actions/upload-artifact@v2
         with:
           name: playwright-results-friendify
           path: ./Friendify/playwright-report/
 
-  # Job cho Busai
+      # Step 8: Deploy to Production
+      - name: Deploy to Production for Friendify
+        if: success() # Only run if previous steps succeeded
+        shell: pwsh
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          $env:SSH_PRIVATE_KEY | Out-File -FilePath $env:USERPROFILE/.ssh/id_rsa -Encoding ascii
+          icacls $env:USERPROFILE/.ssh/id_rsa /inheritance:r
+          icacls $env:USERPROFILE/.ssh/id_rsa /grant:r "${env:USERNAME}:(R,W)"
+          ssh-keyscan -H $env:DEPLOY_HOST | Out-File -FilePath $env:USERPROFILE/.ssh/known_hosts -Append
+          ssh -i $env:USERPROFILE/.ssh/id_rsa -o StrictHostKeyChecking=no $env:DEPLOY_USER@$env:DEPLOY_HOST "cd $env:GITHUB_WORKSPACE/Friendify && git pull origin master && npm install && npm run build"
+
+  # Job for Busai
   build-and-test-busai:
     runs-on: windows-latest
     steps:
-      # Bước 1: Checkout code từ repository
+      # Step 1: Checkout code from repository
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Bước 2: Thiết lập Node.js phiên bản 18
+      # Step 2: Set up Node.js version 18
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '18'
 
-      # Bước 3: Di chuyển vào thư mục chứa package.json và cài đặt các dependencies
+      # Step 3: Navigate to the directory with package.json and install dependencies
       - name: Install Dependencies
         working-directory: ./BusaiGPT
         run: |
           npm install
 
-      # Bước 4: Cài đặt các trình duyệt Playwright
+      # Step 4: Install Playwright browsers
       - name: Install Playwright Browsers
         working-directory: ./BusaiGPT
         run: |
           npx playwright install
 
-      # Bước 5: Danh sách nội dung thư mục để debug
+      # Step 5: List directory contents for debugging
       - name: List directory contents
         working-directory: ./BusaiGPT
         run: |
           dir
 
-      # Bước 6: Chạy các test case với Playwright
+      # Step 6: Run Playwright tests
       - name: Run Playwright tests for Busai
         working-directory: ./BusaiGPT
         run: |
           npx playwright test BS_Actions.spec.js --headed --reporter=line --workers=1
 
-      # Bước 7: Lưu kết quả test
+      # Step 7: Archive test results
       - name: Archive test results for Busai
-        if: always() # Đảm bảo rằng bước này luôn được thực hiện, ngay cả khi các bước trước đó thất bại
+        if: always() # Ensure this step runs even if previous steps fail
         uses: actions/upload-artifact@v2
         with:
           name: playwright-results-busai
-          path: ./Busai/playwright-report/
+          path: ./BusaiGPT/playwright-report/
 
-  # Job cho Tongram
+      # Step 8: Deploy to Production
+      - name: Deploy to Production for Busai
+        if: success() # Only run if previous steps succeeded
+        shell: pwsh
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          $env:SSH_PRIVATE_KEY | Out-File -FilePath $env:USERPROFILE/.ssh/id_rsa -Encoding ascii
+          icacls $env:USERPROFILE/.ssh/id_rsa /inheritance:r
+          icacls $env:USERPROFILE/.ssh/id_rsa /grant:r "${env:USERNAME}:(R,W)"
+          ssh-keyscan -H $env:DEPLOY_HOST | Out-File -FilePath $env:USERPROFILE/.ssh/known_hosts -Append
+          ssh -i $env:USERPROFILE/.ssh/id_rsa -o StrictHostKeyChecking=no $env:DEPLOY_USER@$env:DEPLOY_HOST "cd $env:GITHUB_WORKSPACE/BusaiGPT && git pull origin master && npm install && npm run build"
+
+  # Job for Tongram
   build-and-test-tongram:
     runs-on: windows-latest
     steps:
-      # Bước 1: Checkout code từ repository
+      # Step 1: Checkout code from repository
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Bước 2: Thiết lập Node.js phiên bản 18
+      # Step 2: Set up Node.js version 18
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '18'
 
-      # Bước 3: Di chuyển vào thư mục chứa package.json và cài đặt các dependencies
+      # Step 3: Navigate to the directory with package.json and install dependencies
       - name: Install Dependencies
         working-directory: ./Tongram
         run: |
           npm install
 
-      # Bước 4: Cài đặt các trình duyệt Playwright
+      # Step 4: Install Playwright browsers
       - name: Install Playwright Browsers
         working-directory: ./Tongram
         run: |
           npx playwright install
 
-      # Bước 5: Danh sách nội dung thư mục để debug
+      # Step 5: List directory contents for debugging
       - name: List directory contents
         working-directory: ./Tongram
         run: |
           dir
 
-      # Bước 6: Chạy các test case với Playwright
+      # Step 6: Run Playwright tests
       - name: Run Playwright tests for Tongram
         working-directory: ./Tongram
         run: |
           npx playwright test TG_Actions.spec.js --headed --reporter=line --workers=1
 
-      # Bước 7: Lưu kết quả test
+      # Step 7: Archive test results
       - name: Archive test results for Tongram
-        if: always() # Đảm bảo rằng bước này luôn được thực hiện, ngay cả khi các bước trước đó thất bại
+        if: always() # Ensure this step runs even if previous steps fail
         uses: actions/upload-artifact@v2
         with:
           name: playwright-results-tongram
           path: ./Tongram/playwright-report/
+
+      # Step 8: Deploy to Production
+      - name: Deploy to Production for Tongram
+        if: success() # Only run if previous steps succeeded
+        shell: pwsh
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          $env:SSH_PRIVATE_KEY | Out-File -FilePath $env:USERPROFILE/.ssh/id_rsa -Encoding ascii
+          icacls $env:USERPROFILE/.ssh/id_rsa /inheritance:r
+          icacls $env:USERPROFILE/.ssh/id_rsa /grant:r "${env:USERNAME}:(R,W)"
+          ssh-keyscan -H $env:DEPLOY_HOST | Out-File -FilePath $env:USERPROFILE/.ssh/known_hosts -Append
+          ssh -i $env:USERPROFILE/.ssh/id_rsa -o StrictHostKeyChecking=no $env:DEPLOY_USER@$env:DEPLOY_HOST "cd $env:GITHUB_WORKSPACE/Tongram && git pull origin master && npm install && npm run build"
