@@ -1,40 +1,70 @@
 pipeline {
     agent any
     environment {
-        // Github
-        GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
-        REPO_NAME = 'Friendify'
-        SERVER_PATH = 'Automation_With_Playwright/Friendify' // Cập nhật đường dẫn
-        BRANCH_NAME = 'master'
-        JENKINS_USERNAME = 'khauntc'  
-        JENKINS_ADDRESS = 'https://jenkins.playgroundvina.com/'  
-        COMMANDS = './FD_Auto.bat'  
+        // Github repository information
+        GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'  
+        REPO_NAME = ''  
+        SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"  
+        BRANCH_NAME = 'master'  
+        
+        // Jenkins Credentials (sử dụng Jenkins Credentials Plugin với ID)
+        //Trong pipeline của bạn, thay vì hardcode mật khẩu hoặc khóa SSH, sử dụng Jenkins Credentials
+        JENKINS_CREDENTIALS_ID = 'jenkins-ssh-credentials'  // ID của SSH credentials lưu trữ trong Jenkins
+        JENKINS_USERNAME = 'your-username'  
+        JENKINS_PASSWORD = 'your-password' 
+        JENKINS_ADDRESS = 'https://jenkins.playgroundvina.com/'
+        COMMANDS = './FD_Auto.bat' 
     }
+    
     stages {
-        stage('Checkout code') {
+        // Stage CI: Checkout code từ repository GitHub
+        stage('CI: Checkout code') {
             steps {
+                // Tải code từ nhánh 'master' của GitHub
                 git branch: "${BRANCH_NAME}", url: "${GITHUB_URL}"
             }
         }
-        stage('Deploying...') {
+        
+        // Stage CD: Deploy code lên server
+        stage('CD: Deploying...') {
             when {
                 anyOf {
-                    branch 'master'
-                    branch 'main'
+                    branch 'master'  // Chạy deploy nếu nhánh là 'master'
+                    branch 'main'    // Hoặc là 'main'
                 }
             }
+            // FOR JENKINS_CREDENTIALS_ID
+            // steps {
+            //     dir("${SERVER_PATH}") {  // Chuyển tới đường dẫn của project
+            //         script {
+            //             echo "Deploying to '${BRANCH_NAME}'..."
+            //             // Cập nhật code với git pull --rebase để đảm bảo không có merge conflict
+            //             sh 'git pull --rebase'
+
+            //             // Sử dụng ssh-agent với SSH key từ Jenkins Credentials
+            //             sshagent (credentials: ['jenkins-ssh-credentials']) {
+            //                 // Thực hiện deploy với lệnh make và các biến repo_name và branch_name
+            //                 sh "sudo make deploy repo_name=${REPO_NAME} branch_name=${BRANCH_NAME}"
+            //                 // Kết nối SSH và thực thi lệnh từ Jenkins
+            //                 sh "ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS}'"
+            //             }
+            //         }
+            //     }
+            // }
+            // FOR JENKINS_USERNAME/PASSWORD
             steps {
                 dir("${SERVER_PATH}") {
                     script {
                         echo "Deploying to '${BRANCH_NAME}'..."
-                        sh 'git pull'
-                        sh "sudo make deploy repo_name=${REPO_NAME} branch_name=${BRANCH_NAME}"
-                        sh "ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS}'"
+                        sh 'git pull --rebase'  
+
+                        sh "sshpass -p '${JENKINS_PASSWORD}' ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS}'"
                     }
                 }
             }
         }
     }
+    
     post {
         always {
             script {
