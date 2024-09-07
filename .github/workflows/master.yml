@@ -87,7 +87,7 @@ jobs:
 
       # Bước 5: Danh sách nội dung thư mục để debug
       - name: List directory contents
-        working-directory: ./Busai
+        working-directory: ./BusaiGPT
         run: |
           dir
 
