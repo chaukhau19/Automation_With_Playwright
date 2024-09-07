@@ -10,6 +10,9 @@ on:
   schedule:
     - cron: '40 22 * * *' # Runs at 10:40 PM UTC daily
 
+env:
+  DEPLOY_ENV: 'Local' # Thay đổi giá trị này thành 'Test', 'Staging', 'Dev', hoặc 'Local' tùy theo nhu cầu
+
 jobs:
   # Job for Friendify
   build-and-test-friendify:
@@ -59,29 +62,72 @@ jobs:
           name: playwright-results-friendify
           path: ./Friendify/playwright-report/
 
-      # Deploy to Production
-      - name: Deploy to Production for Friendify
-        if: success()
+      # Deploy to Test Environment for Friendify
+      - name: Deploy to Test Environment for Friendify
+        if: env.DEPLOY_ENV == 'Test' && success()
         shell: pwsh
+        env:
+          DEPLOY_HOST: ${{ secrets.TEST_DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.TEST_DEPLOY_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          if (-not (Test-Path -Path "$env:USERPROFILE/.ssh")) {
+            New-Item -Path "$env:USERPROFILE/.ssh" -ItemType Directory
+          }
+          $env:SSH_PRIVATE_KEY | Out-File -FilePath "$env:USERPROFILE/.ssh/id_rsa" -Encoding ascii
+          icacls "$env:USERPROFILE/.ssh/id_rsa" /inheritance:r
+          icacls "$env:USERPROFILE/.ssh/id_rsa" /grant:r "${env:USERNAME}:(R,W)"
+          ssh-keyscan -H $env:DEPLOY_HOST | Out-File -FilePath "$env:USERPROFILE/.ssh/known_hosts" -Append
+          ssh -i "$env:USERPROFILE/.ssh/id_rsa" -o StrictHostKeyChecking=no $env:DEPLOY_USER@$env:DEPLOY_HOST "cd $env:GITHUB_WORKSPACE/Friendify && git pull origin master && npm install && npm run build"
+
+      # Deploy to Staging Environment for Friendify
+      - name: Deploy to Staging Environment for Friendify
+        if: env.DEPLOY_ENV == 'Staging' && success()
+        shell: pwsh
+        env:
+          DEPLOY_HOST: ${{ secrets.STAGING_DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.STAGING_DEPLOY_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          if (-not (Test-Path -Path "$env:USERPROFILE/.ssh")) {
+            New-Item -Path "$env:USERPROFILE/.ssh" -ItemType Directory
+          }
+          $env:SSH_PRIVATE_KEY | Out-File -FilePath "$env:USERPROFILE/.ssh/id_rsa" -Encoding ascii
+          icacls "$env:USERPROFILE/.ssh/id_rsa" /inheritance:r
+          icacls "$env:USERPROFILE/.ssh/id_rsa" /grant:r "${env:USERNAME}:(R,W)"
+          ssh-keyscan -H $env:DEPLOY_HOST | Out-File -FilePath "$env:USERPROFILE/.ssh/known_hosts" -Append
+          ssh -i "$env:USERPROFILE/.ssh/id_rsa" -o StrictHostKeyChecking=no $env:DEPLOY_USER@$env:DEPLOY_HOST "cd $env:GITHUB_WORKSPACE/Friendify && git pull origin master && npm install && npm run build"
+
+      # Deploy to Dev Environment for Friendify
+      - name: Deploy to Dev Environment for Friendify
+        if: env.DEPLOY_ENV == 'Dev' && success()
+        shell: pwsh
+        env:
+          DEPLOY_HOST: ${{ secrets.DEV_DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEV_DEPLOY_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          if (-not (Test-Path -Path "$env:USERPROFILE/.ssh")) {
+            New-Item -Path "$env:USERPROFILE/.ssh" -ItemType Directory
+          }
+          $env:SSH_PRIVATE_KEY | Out-File -FilePath "$env:USERPROFILE/.ssh/id_rsa" -Encoding ascii
+          icacls "$env:USERPROFILE/.ssh/id_rsa" /inheritance:r
+          icacls "$env:USERPROFILE/.ssh/id_rsa" /grant:r "${env:USERNAME}:(R,W)"
+          ssh-keyscan -H $env:DEPLOY_HOST | Out-File -FilePath "$env:USERPROFILE/.ssh/known_hosts" -Append
+          ssh -i "$env:USERPROFILE/.ssh/id_rsa" -o StrictHostKeyChecking=no $env:DEPLOY_USER@$env:DEPLOY_HOST "cd $env:GITHUB_WORKSPACE/Friendify && git pull origin master && npm install && npm run build"
+
+      # Deploy to Local Environment for Friendify
+      - name: Deploy to Local Environment for Friendify
+        if: env.DEPLOY_ENV == 'Local' && success()
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
-          # Create .ssh directory if it does not exist
-          if (-not (Test-Path -Path "$env:USERPROFILE/.ssh")) {
-            New-Item -Path "$env:USERPROFILE/.ssh" -ItemType Directory
-          }
-          # Write SSH private key to file
-          $env:SSH_PRIVATE_KEY | Out-File -FilePath "$env:USERPROFILE/.ssh/id_rsa" -Encoding ascii
-          icacls "$env:USERPROFILE/.ssh/id_rsa" /inheritance:r
-          icacls "$env:USERPROFILE/.ssh/id_rsa" /grant:r "${env:USERNAME}:(R,W)"
-          # Add known hosts to avoid SSH prompt
-          ssh-keyscan -H $env:DEPLOY_HOST | Out-File -FilePath "$env:USERPROFILE/.ssh/known_hosts" -Append
-          # Debugging connectivity
-          Test-NetConnection -ComputerName $env:DEPLOY_HOST -Port 22
-          # Execute deployment
-          ssh -i "$env:USERPROFILE/.ssh/id_rsa" -o StrictHostKeyChecking=no $env:DEPLOY_USER@$env:DEPLOY_HOST "cd $env:GITHUB_WORKSPACE/Friendify && git pull origin master && npm install && npm run build"
+          # Add your local deployment steps here
+          echo "Deploying to local environment for Friendify"
+          echo "DEPLOY_HOST: $env:DEPLOY_HOST"
+          echo "DEPLOY_USER: $env:DEPLOY_USER"
 
   # Job for Busai
   build-and-test-busai:
@@ -116,44 +162,86 @@ jobs:
           dir
 
       # Run Playwright tests
-      - name: Run Playwright tests for Busai
+      - name: Run Playwright tests for BusaiGPT
         working-directory: ./BusaiGPT
         run: |
           npx playwright test BS_Actions.spec.js --headed --reporter=line --workers=1
 
       # Archive test results
-      - name: Archive test results for Busai
+      - name: Archive test results for BusaiGPT
         if: always()
         uses: actions/upload-artifact@v2
         with:
           name: playwright-results-busai
           path: ./BusaiGPT/playwright-report/
 
-      # Deploy to Production
-      - name: Deploy to Production for Busai
-        if: success()
+      # Deploy to Test Environment for BusaiGPT
+      - name: Deploy to Test Environment for BusaiGPT
+        if: env.DEPLOY_ENV == 'Test' && success()
         shell: pwsh
+        env:
+          DEPLOY_HOST: ${{ secrets.TEST_DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.TEST_DEPLOY_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          if (-not (Test-Path -Path "$env:USERPROFILE/.ssh")) {
+            New-Item -Path "$env:USERPROFILE/.ssh" -ItemType Directory
+          }
+          $env:SSH_PRIVATE_KEY | Out-File -FilePath "$env:USERPROFILE/.ssh/id_rsa" -Encoding ascii
+          icacls "$env:USERPROFILE/.ssh/id_rsa" /inheritance:r
+          icacls "$env:USERPROFILE/.ssh/id_rsa" /grant:r "${env:USERNAME}:(R,W)"
+          ssh-keyscan -H $env:DEPLOY_HOST | Out-File -FilePath "$env:USERPROFILE/.ssh/known_hosts" -Append
+          ssh -i "$env:USERPROFILE/.ssh/id_rsa" -o StrictHostKeyChecking=no $env:DEPLOY_USER@$env:DEPLOY_HOST "cd $env:GITHUB_WORKSPACE/BusaiGPT && git pull origin master && npm install && npm run build"
+
+      # Deploy to Staging Environment for BusaiGPT
+      - name: Deploy to Staging Environment for BusaiGPT
+        if: env.DEPLOY_ENV == 'Staging' && success()
+        shell: pwsh
+        env:
+          DEPLOY_HOST: ${{ secrets.STAGING_DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.STAGING_DEPLOY_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          if (-not (Test-Path -Path "$env:USERPROFILE/.ssh")) {
+            New-Item -Path "$env:USERPROFILE/.ssh" -ItemType Directory
+          }
+          $env:SSH_PRIVATE_KEY | Out-File -FilePath "$env:USERPROFILE/.ssh/id_rsa" -Encoding ascii
+          icacls "$env:USERPROFILE/.ssh/id_rsa" /inheritance:r
+          icacls "$env:USERPROFILE/.ssh/id_rsa" /grant:r "${env:USERNAME}:(R,W)"
+          ssh-keyscan -H $env:DEPLOY_HOST | Out-File -FilePath "$env:USERPROFILE/.ssh/known_hosts" -Append
+          ssh -i "$env:USERPROFILE/.ssh/id_rsa" -o StrictHostKeyChecking=no $env:DEPLOY_USER@$env:DEPLOY_HOST "cd $env:GITHUB_WORKSPACE/BusaiGPT && git pull origin master && npm install && npm run build"
+
+      # Deploy to Dev Environment for BusaiGPT
+      - name: Deploy to Dev Environment for BusaiGPT
+        if: env.DEPLOY_ENV == 'Dev' && success()
+        shell: pwsh
+        env:
+          DEPLOY_HOST: ${{ secrets.DEV_DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEV_DEPLOY_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          if (-not (Test-Path -Path "$env:USERPROFILE/.ssh")) {
+            New-Item -Path "$env:USERPROFILE/.ssh" -ItemType Directory
+          }
+          $env:SSH_PRIVATE_KEY | Out-File -FilePath "$env:USERPROFILE/.ssh/id_rsa" -Encoding ascii
+          icacls "$env:USERPROFILE/.ssh/id_rsa" /inheritance:r
+          icacls "$env:USERPROFILE/.ssh/id_rsa" /grant:r "${env:USERNAME}:(R,W)"
+          ssh-keyscan -H $env:DEPLOY_HOST | Out-File -FilePath "$env:USERPROFILE/.ssh/known_hosts" -Append
+          ssh -i "$env:USERPROFILE/.ssh/id_rsa" -o StrictHostKeyChecking=no $env:DEPLOY_USER@$env:DEPLOY_HOST "cd $env:GITHUB_WORKSPACE/BusaiGPT && git pull origin master && npm install && npm run build"
+
+      # Deploy to Local Environment for BusaiGPT
+      - name: Deploy to Local Environment for BusaiGPT
+        if: env.DEPLOY_ENV == 'Local' && success()
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
-          # Create .ssh directory if it does not exist
-          if (-not (Test-Path -Path "$env:USERPROFILE/.ssh")) {
-            New-Item -Path "$env:USERPROFILE/.ssh" -ItemType Directory
-          }
-          # Write SSH private key to file
-          $env:SSH_PRIVATE_KEY | Out-File -FilePath "$env:USERPROFILE/.ssh/id_rsa" -Encoding ascii
-          icacls "$env:USERPROFILE/.ssh/id_rsa" /inheritance:r
-          icacls "$env:USERPROFILE/.ssh/id_rsa" /grant:r "${env:USERNAME}:(R,W)"
-          # Add known hosts to avoid SSH prompt
-          ssh-keyscan -H $env:DEPLOY_HOST | Out-File -FilePath "$env:USERPROFILE/.ssh/known_hosts" -Append
-          # Debugging connectivity
-          Test-NetConnection -ComputerName $env:DEPLOY_HOST -Port 22
-          # Execute deployment
-          ssh -i "$env:USERPROFILE/.ssh/id_rsa" -o StrictHostKeyChecking=no $env:DEPLOY_USER@$env:DEPLOY_HOST "cd $env:GITHUB_WORKSPACE/BusaiGPT && git pull origin master && npm install && npm run build"
-
-  # Job for Tongram
+          # Add your local deployment steps here
+          echo "Deploying to local environment for BusaiGPT"
+          echo "DEPLOY_HOST: $env:DEPLOY_HOST"
+          echo "DEPLOY_USER: $env:DEPLOY_USER"
+ # Job for Tongram
   build-and-test-tongram:
     runs-on: windows-latest
     steps:
@@ -199,26 +287,69 @@ jobs:
           name: playwright-results-tongram
           path: ./Tongram/playwright-report/
 
-      # Deploy to Production
-      - name: Deploy to Production for Tongram
-        if: success()
+      # Deploy to Test Environment for Tongram
+      - name: Deploy to Test Environment for Tongram
+        if: env.DEPLOY_ENV == 'Test' && success()
         shell: pwsh
+        env:
+          DEPLOY_HOST: ${{ secrets.TEST_DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.TEST_DEPLOY_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          if (-not (Test-Path -Path "$env:USERPROFILE/.ssh")) {
+            New-Item -Path "$env:USERPROFILE/.ssh" -ItemType Directory
+          }
+          $env:SSH_PRIVATE_KEY | Out-File -FilePath "$env:USERPROFILE/.ssh/id_rsa" -Encoding ascii
+          icacls "$env:USERPROFILE/.ssh/id_rsa" /inheritance:r
+          icacls "$env:USERPROFILE/.ssh/id_rsa" /grant:r "${env:USERNAME}:(R,W)"
+          ssh-keyscan -H $env:DEPLOY_HOST | Out-File -FilePath "$env:USERPROFILE/.ssh/known_hosts" -Append
+          ssh -i "$env:USERPROFILE/.ssh/id_rsa" -o StrictHostKeyChecking=no $env:DEPLOY_USER@$env:DEPLOY_HOST "cd $env:GITHUB_WORKSPACE/Tongram && git pull origin master && npm install && npm run build"
+
+      # Deploy to Staging Environment for Tongram
+      - name: Deploy to Staging Environment for Tongram
+        if: env.DEPLOY_ENV == 'Staging' && success()
+        shell: pwsh
+        env:
+          DEPLOY_HOST: ${{ secrets.STAGING_DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.STAGING_DEPLOY_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          if (-not (Test-Path -Path "$env:USERPROFILE/.ssh")) {
+            New-Item -Path "$env:USERPROFILE/.ssh" -ItemType Directory
+          }
+          $env:SSH_PRIVATE_KEY | Out-File -FilePath "$env:USERPROFILE/.ssh/id_rsa" -Encoding ascii
+          icacls "$env:USERPROFILE/.ssh/id_rsa" /inheritance:r
+          icacls "$env:USERPROFILE/.ssh/id_rsa" /grant:r "${env:USERNAME}:(R,W)"
+          ssh-keyscan -H $env:DEPLOY_HOST | Out-File -FilePath "$env:USERPROFILE/.ssh/known_hosts" -Append
+          ssh -i "$env:USERPROFILE/.ssh/id_rsa" -o StrictHostKeyChecking=no $env:DEPLOY_USER@$env:DEPLOY_HOST "cd $env:GITHUB_WORKSPACE/Tongram && git pull origin master && npm install && npm run build"
+
+      # Deploy to Dev Environment for Tongram
+      - name: Deploy to Dev Environment for Tongram
+        if: env.DEPLOY_ENV == 'Dev' && success()
+        shell: pwsh
+        env:
+          DEPLOY_HOST: ${{ secrets.DEV_DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEV_DEPLOY_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          if (-not (Test-Path -Path "$env:USERPROFILE/.ssh")) {
+            New-Item -Path "$env:USERPROFILE/.ssh" -ItemType Directory
+          }
+          $env:SSH_PRIVATE_KEY | Out-File -FilePath "$env:USERPROFILE/.ssh/id_rsa" -Encoding ascii
+          icacls "$env:USERPROFILE/.ssh/id_rsa" /inheritance:r
+          icacls "$env:USERPROFILE/.ssh/id_rsa" /grant:r "${env:USERNAME}:(R,W)"
+          ssh-keyscan -H $env:DEPLOY_HOST | Out-File -FilePath "$env:USERPROFILE/.ssh/known_hosts" -Append
+          ssh -i "$env:USERPROFILE/.ssh/id_rsa" -o StrictHostKeyChecking=no $env:DEPLOY_USER@$env:DEPLOY_HOST "cd $env:GITHUB_WORKSPACE/Tongram && git pull origin master && npm install && npm run build"
+
+      # Deploy to Local Environment for Tongram
+      - name: Deploy to Local Environment for Tongram
+        if: env.DEPLOY_ENV == 'Local' && success()
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
-          # Create .ssh directory if it does not exist
-          if (-not (Test-Path -Path "$env:USERPROFILE/.ssh")) {
-            New-Item -Path "$env:USERPROFILE/.ssh" -ItemType Directory
-          }
-          # Write SSH private key to file
-          $env:SSH_PRIVATE_KEY | Out-File -FilePath "$env:USERPROFILE/.ssh/id_rsa" -Encoding ascii
-          icacls "$env:USERPROFILE/.ssh/id_rsa" /inheritance:r
-          icacls "$env:USERPROFILE/.ssh/id_rsa" /grant:r "${env:USERNAME}:(R,W)"
-          # Add known hosts to avoid SSH prompt
-          ssh-keyscan -H $env:DEPLOY_HOST | Out-File -FilePath "$env:USERPROFILE/.ssh/known_hosts" -Append
-          # Debugging connectivity
-          Test-NetConnection -ComputerName $env:DEPLOY_HOST -Port 22
-          # Execute deployment
-          ssh -i "$env:USERPROFILE/.ssh/id_rsa" -o StrictHostKeyChecking=no $env:DEPLOY_USER@$env:DEPLOY_HOST "cd $env:GITHUB_WORKSPACE/Tongram && git pull origin master && npm install && npm run build"
+          # Add your local deployment steps here
+          echo "Deploying to local environment for Tongram"
+          echo "DEPLOY_HOST: $env:DEPLOY_HOST"
+          echo "DEPLOY_USER: $env:DEPLOY_USER"
