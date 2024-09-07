@@ -3,17 +3,18 @@ pipeline {
     environment {
         // Github repository information
         GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'  
-        REPO_NAME = ''  
+        REPO_NAME = 'Friendify'  
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"  
         BRANCH_NAME = 'master'  
         
         // Jenkins Credentials (sử dụng Jenkins Credentials Plugin với ID)
-        //Trong pipeline của bạn, thay vì hardcode mật khẩu hoặc khóa SSH, sử dụng Jenkins Credentials
         JENKINS_CREDENTIALS_ID = 'jenkins-ssh-credentials'  // ID của SSH credentials lưu trữ trong Jenkins
         JENKINS_USERNAME = 'khauntc'  
         JENKINS_PASSWORD = 'KhauNTC123!@#' 
         JENKINS_ADDRESS = 'https://jenkins.playgroundvina.com/'
-        COMMANDS = './FD_Auto.bat' 
+        COMMANDS_WIN = './FD_Auto.bat'
+        COMMANDS_UNIX = './FD_Auto.sh'  // Nếu bạn có script bash cho Linux/macOS
+        ENVIRONMENT = 'windows'  // Cập nhật giá trị này thành 'windows', 'linux' hoặc 'macos' tùy theo môi trường
     }
     
     stages {
@@ -33,35 +34,46 @@ pipeline {
                     branch 'main'    // Hoặc là 'main'
                 }
             }
-            // FOR JENKINS_CREDENTIALS_ID
-            // steps {
-            //     dir("${SERVER_PATH}") {  // Chuyển tới đường dẫn của project
-            //         script {
-            //             echo "Deploying to '${BRANCH_NAME}'..."
-            //             // Cập nhật code với git pull --rebase để đảm bảo không có merge conflict
-            //             sh 'git pull --rebase'
-
-            //             // Sử dụng ssh-agent với SSH key từ Jenkins Credentials
-            //             sshagent (credentials: ['jenkins-ssh-credentials']) {
-            //                 // Thực hiện deploy với lệnh make và các biến repo_name và branch_name
-            //                 sh "sudo make deploy repo_name=${REPO_NAME} branch_name=${BRANCH_NAME}"
-            //                 // Kết nối SSH và thực thi lệnh từ Jenkins
-            //                 sh "ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS}'"
-            //             }
-            //         }
-            //     }
-            // }
-            // FOR JENKINS_USERNAME/PASSWORD
+            // FOR USERNAME/PASSWORD
             steps {
                 dir("${SERVER_PATH}") {
                     script {
                         echo "Deploying to '${BRANCH_NAME}'..."
-                        sh 'git pull --rebase'  
-
-                        sh "sshpass -p '${JENKINS_PASSWORD}' ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS}'"
+                        if (ENVIRONMENT == 'windows') {
+                            bat 'git pull --rebase'  // Sử dụng bat thay vì sh cho Windows
+                            bat "plink.exe -pw ${JENKINS_PASSWORD} ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS_WIN}'"
+                        } else {
+                            sh 'git pull --rebase'  // Sử dụng sh cho Linux/macOS
+                            if (ENVIRONMENT == 'linux' || ENVIRONMENT == 'macos') {
+                                sh "sshpass -p '${JENKINS_PASSWORD}' ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS_UNIX}'"
+                            }
+                        }
                     }
                 }
             }
+            // FOR JENKINS_CREDENTIALS_ID
+            // steps {
+            //     dir("${SERVER_PATH}") {
+            //         script {
+            //             echo "Deploying to '${BRANCH_NAME}'..."
+            //             if (ENVIRONMENT == 'windows') {
+            //                 bat 'git pull --rebase'  // Sử dụng bat thay vì sh cho Windows
+            //                 bat "plink.exe -pw ${JENKINS_PASSWORD} ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS_WIN}'"
+            //             } else {
+            //                 // Sử dụng ssh-agent với SSH key từ Jenkins Credentials
+            //                 sshagent (credentials: [JENKINS_CREDENTIALS_ID]) {
+            //                     sh 'git pull --rebase'  // Cập nhật code với git pull --rebase
+            //                     if (ENVIRONMENT == 'linux' || ENVIRONMENT == 'macos') {
+            //                         // Thực hiện deploy với lệnh make và các biến repo_name và branch_name
+            //                         sh "sudo make deploy repo_name=${REPO_NAME} branch_name=${BRANCH_NAME}"
+            //                         // Kết nối SSH và thực thi lệnh từ Jenkins
+            //                         sh "ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS_UNIX}'"
+            //                     }
+            //                 }
+            //             }
+            //         }
+            //     }
+            // }
         }
     }
     
@@ -70,7 +82,11 @@ pipeline {
             script {
                 def status = currentBuild.result ?: 'SUCCESS'
                 echo "Build status: ${status}"
-                sh "rm -rf ./* ./.??*"
+                if (ENVIRONMENT == 'windows') {
+                    bat "del /q .\\* .\\.??*"
+                } else {
+                    sh "rm -rf ./* ./.??*"
+                }
             }
         }
     }
