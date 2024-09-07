@@ -132,6 +132,13 @@ jobs:
   # Job for Busai
   build-and-test-busai:
     runs-on: windows-latest
+    env:
+      PATH_GENERATE_DOCS: 'https://github.com/chaukhau19/Automation_With_Playwright/BusaiGPT/Data/PDF_1MB.pdf'
+      PATH_GENERATE_AUDIO: 'https://github.com/chaukhau19/Automation_With_Playwright/BusaiGPT/Data/file_example_MP3_700KB.MP3'
+      PATH_GENERATE_IMAGE_SUMMARY: 'https://github.com/chaukhau19/Automation_With_Playwright/BusaiGPT/Data/Image_4KB.PNG'
+      PATH_GENERATE_IMAGE_REMOVE_OBJECT: 'https://github.com/chaukhau19/Automation_With_Playwright/BusaiGPT/Data/Image_4KB.PNG'
+      PATH_GENERATE_IMAGE_REMOVE_TEXT: 'https://github.com/chaukhau19/Automation_With_Playwright/BusaiGPT/Data/Image_2KB.JPG'
+
     steps:
       # Checkout code
       - name: Checkout code
