@@ -76,10 +76,16 @@ module.exports = defineConfig({
     video: 'on', // Đảm bảo video được bật
     trace: 'on',
     screenshot: 'on',
+    
     launchOptions: {
       slowMo: 1000, // Giảm tốc độ của trình duyệt
     },
     viewport: { width: 1366, height: 768 },
+    pathGenerateDocs: process.env.PATH_GENERATE_DOCS || 'D:/Automation/Playwright/Data/PDF_1MB.pdf',
+    pathGenerateAudio: process.env.PATH_GENERATE_AUDIO || 'D:/Automation/Playwright/Data/file_example_MP3_700KB.MP3',
+    pathGenerateImageSummary: process.env.PATH_GENERATE_IMAGE_SUMMARY || 'D:/Automation/Playwright/Data/Image_4KB.PNG',
+    pathGenerateImageRemoveObject: process.env.PATH_GENERATE_IMAGE_REMOVE_OBJECT || 'D:/Automation/Playwright/Data/Image_4KB.PNG',
+    pathGenerateImageRemoveText: process.env.PATH_GENERATE_IMAGE_REMOVE_TEXT || 'D:/Automation/Playwright/Data/Image_2KB.JPG',
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     // trace: 'on-first-retry',
   },
