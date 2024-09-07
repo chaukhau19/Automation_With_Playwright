@@ -15,35 +15,35 @@ jobs:
   build-and-test-friendify:
     runs-on: windows-latest
     steps:
-      # Step 1: Checkout code from repository
+      # Checkout code
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Step 2: Set up Node.js version 18
+      # Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '18'
 
-      # Step 3: Navigate to the directory with package.json and install dependencies
+      # Install Dependencies
       - name: Install Dependencies
         working-directory: ./Friendify
         run: |
           npm install
 
-      # Step 4: Install Playwright browsers
+      # Install Playwright Browsers
       - name: Install Playwright Browsers
         working-directory: ./Friendify
         run: |
           npx playwright install
 
-      # Step 5: List directory contents for debugging
+      # List directory contents
       - name: List directory contents
         working-directory: ./Friendify
         run: |
           dir
 
-      # Step 6: Run Playwright tests
+      # Run Playwright tests
       - name: Run Playwright tests for Friendify
         working-directory: ./Friendify
         run: |
@@ -51,17 +51,17 @@ jobs:
           npx playwright test FD_Login.spec.js --headed --reporter=line --workers=1
           npx playwright test FD_Actions.spec.js --headed --reporter=line --workers=1
 
-      # Step 7: Archive test results
+      # Archive test results
       - name: Archive test results for Friendify
-        if: always() # Ensure this step runs even if previous steps fail
+        if: always()
         uses: actions/upload-artifact@v2
         with:
           name: playwright-results-friendify
           path: ./Friendify/playwright-report/
 
-      # Step 8: Deploy to Production
+      # Deploy to Production
       - name: Deploy to Production for Friendify
-        if: success() # Only run if previous steps succeeded
+        if: success()
         shell: pwsh
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
@@ -76,58 +76,62 @@ jobs:
           $env:SSH_PRIVATE_KEY | Out-File -FilePath "$env:USERPROFILE/.ssh/id_rsa" -Encoding ascii
           icacls "$env:USERPROFILE/.ssh/id_rsa" /inheritance:r
           icacls "$env:USERPROFILE/.ssh/id_rsa" /grant:r "${env:USERNAME}:(R,W)"
+          # Add known hosts to avoid SSH prompt
           ssh-keyscan -H $env:DEPLOY_HOST | Out-File -FilePath "$env:USERPROFILE/.ssh/known_hosts" -Append
+          # Debugging connectivity
+          Test-NetConnection -ComputerName $env:DEPLOY_HOST -Port 22
+          # Execute deployment
           ssh -i "$env:USERPROFILE/.ssh/id_rsa" -o StrictHostKeyChecking=no $env:DEPLOY_USER@$env:DEPLOY_HOST "cd $env:GITHUB_WORKSPACE/Friendify && git pull origin master && npm install && npm run build"
 
   # Job for Busai
   build-and-test-busai:
     runs-on: windows-latest
     steps:
-      # Step 1: Checkout code from repository
+      # Checkout code
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Step 2: Set up Node.js version 18
+      # Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '18'
 
-      # Step 3: Navigate to the directory with package.json and install dependencies
+      # Install Dependencies
       - name: Install Dependencies
         working-directory: ./BusaiGPT
         run: |
           npm install
 
-      # Step 4: Install Playwright browsers
+      # Install Playwright Browsers
       - name: Install Playwright Browsers
         working-directory: ./BusaiGPT
         run: |
           npx playwright install
 
-      # Step 5: List directory contents for debugging
+      # List directory contents
       - name: List directory contents
         working-directory: ./BusaiGPT
         run: |
           dir
 
-      # Step 6: Run Playwright tests
+      # Run Playwright tests
       - name: Run Playwright tests for Busai
         working-directory: ./BusaiGPT
         run: |
           npx playwright test BS_Actions.spec.js --headed --reporter=line --workers=1
 
-      # Step 7: Archive test results
+      # Archive test results
       - name: Archive test results for Busai
-        if: always() # Ensure this step runs even if previous steps fail
+        if: always()
         uses: actions/upload-artifact@v2
         with:
           name: playwright-results-busai
           path: ./BusaiGPT/playwright-report/
 
-      # Step 8: Deploy to Production
+      # Deploy to Production
       - name: Deploy to Production for Busai
-        if: success() # Only run if previous steps succeeded
+        if: success()
         shell: pwsh
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
@@ -142,58 +146,62 @@ jobs:
           $env:SSH_PRIVATE_KEY | Out-File -FilePath "$env:USERPROFILE/.ssh/id_rsa" -Encoding ascii
           icacls "$env:USERPROFILE/.ssh/id_rsa" /inheritance:r
           icacls "$env:USERPROFILE/.ssh/id_rsa" /grant:r "${env:USERNAME}:(R,W)"
+          # Add known hosts to avoid SSH prompt
           ssh-keyscan -H $env:DEPLOY_HOST | Out-File -FilePath "$env:USERPROFILE/.ssh/known_hosts" -Append
+          # Debugging connectivity
+          Test-NetConnection -ComputerName $env:DEPLOY_HOST -Port 22
+          # Execute deployment
           ssh -i "$env:USERPROFILE/.ssh/id_rsa" -o StrictHostKeyChecking=no $env:DEPLOY_USER@$env:DEPLOY_HOST "cd $env:GITHUB_WORKSPACE/BusaiGPT && git pull origin master && npm install && npm run build"
 
   # Job for Tongram
   build-and-test-tongram:
     runs-on: windows-latest
     steps:
-      # Step 1: Checkout code from repository
+      # Checkout code
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Step 2: Set up Node.js version 18
+      # Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '18'
 
-      # Step 3: Navigate to the directory with package.json and install dependencies
+      # Install Dependencies
       - name: Install Dependencies
         working-directory: ./Tongram
         run: |
           npm install
 
-      # Step 4: Install Playwright browsers
+      # Install Playwright Browsers
       - name: Install Playwright Browsers
         working-directory: ./Tongram
         run: |
           npx playwright install
 
-      # Step 5: List directory contents for debugging
+      # List directory contents
       - name: List directory contents
         working-directory: ./Tongram
         run: |
           dir
 
-      # Step 6: Run Playwright tests
+      # Run Playwright tests
       - name: Run Playwright tests for Tongram
         working-directory: ./Tongram
         run: |
           npx playwright test TG_Actions.spec.js --headed --reporter=line --workers=1
 
-      # Step 7: Archive test results
+      # Archive test results
       - name: Archive test results for Tongram
-        if: always() # Ensure this step runs even if previous steps fail
+        if: always()
         uses: actions/upload-artifact@v2
         with:
           name: playwright-results-tongram
           path: ./Tongram/playwright-report/
 
-      # Step 8: Deploy to Production
+      # Deploy to Production
       - name: Deploy to Production for Tongram
-        if: success() # Only run if previous steps succeeded
+        if: success()
         shell: pwsh
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
@@ -208,5 +216,9 @@ jobs:
           $env:SSH_PRIVATE_KEY | Out-File -FilePath "$env:USERPROFILE/.ssh/id_rsa" -Encoding ascii
           icacls "$env:USERPROFILE/.ssh/id_rsa" /inheritance:r
           icacls "$env:USERPROFILE/.ssh/id_rsa" /grant:r "${env:USERNAME}:(R,W)"
+          # Add known hosts to avoid SSH prompt
           ssh-keyscan -H $env:DEPLOY_HOST | Out-File -FilePath "$env:USERPROFILE/.ssh/known_hosts" -Append
+          # Debugging connectivity
+          Test-NetConnection -ComputerName $env:DEPLOY_HOST -Port 22
+          # Execute deployment
           ssh -i "$env:USERPROFILE/.ssh/id_rsa" -o StrictHostKeyChecking=no $env:DEPLOY_USER@$env:DEPLOY_HOST "cd $env:GITHUB_WORKSPACE/Tongram && git pull origin master && npm install && npm run build"
