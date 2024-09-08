@@ -9,6 +9,9 @@ pipeline {
         JENKINS_USERNAME = 'khauntc'  
         JENKINS_ADDRESS = 'https://jenkins.playgroundvina.com/'  
         COMMANDS = './BS_Auto.bat'  
+        // Deployment environment
+        ENVIRONMENT = 'windows'  // 'windows', 'linux', or 'macos'
+        DEPLOY_ENV = 'Test' //'Local', 'Test', 'Staging', 'Dev', 'Pilot'
     }
     stages {
         stage('Checkout code') {
