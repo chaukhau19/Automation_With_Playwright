@@ -1,24 +1,54 @@
 pipeline {
     agent any
-    environment {
-        // Github
-        GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
-        REPO_NAME = 'Friendify'
-        COMMANDS = 'npx playwright test FD_Register.spec.js --headed --reporter=line --workers=1'  
-        SERVER_PATH = "Automation_With_Playwright/Friendify"   // Cập nhật đường dẫn
-        BRANCH_NAME = 'master'
-        JENKINS_USERNAME = 'khauntc'  
-        JENKINS_ADDRESS = 'https://jenkins.playgroundvina.com/'  
+    // environment {
+    //     // Github
+    //     GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
+    //     REPO_NAME = 'Friendify'
+    //     COMMANDS = 'npx playwright test FD_Register.spec.js --headed --reporter=line --workers=1'  
+    //     SERVER_PATH = "Automation_With_Playwright/Friendify"   // Cập nhật đường dẫn
+    //     BRANCH_NAME = 'master'
+    //     JENKINS_USERNAME = 'khauntc'  
+    //     JENKINS_ADDRESS = 'https://jenkins.playgroundvina.com/'  
         
         
 
-    }
+    // }
     stages {
-        stage('Checkout code') {
+        // stage('Checkout code') {
+        //     steps {
+        //         // Tải code từ nhánh 'master' của GitHub
+        //         git branch: "${BRANCH_NAME}", url: "${GITHUB_URL}"
+        //         echo "Code checked out from ${BRANCH_NAME}"
+        //     }
+        // }
+        stage('Checkout') {
             steps {
-                // Tải code từ nhánh 'master' của GitHub
-                git branch: "${BRANCH_NAME}", url: "${GITHUB_URL}"
-                echo "Code checked out from ${BRANCH_NAME}"
+                checkout scm
+            }
+        }
+        stage('Setup Node.js') {
+            steps {
+                script {
+                    def nodeVersion = '18'
+                    sh "nvm install ${nodeVersion}"
+                    sh "nvm use ${nodeVersion}"
+                }
+            }
+        }
+        stage('Install Dependencies') {
+            steps {
+                dir('Automation_With_Playwright/Friendify') {
+                    sh 'npm install'
+                    sh 'npx playwright install'
+                    sh 'npx playwright test FD_Actions.spec.js --headed --reporter=line --workers=1'
+                }
+            }
+        }
+        stage('Archive Test Results') {
+            steps {
+                dir('Automation_With_Playwright/Friendify') {
+                    archiveArtifacts artifacts: 'playwright-report/**', allowEmptyArchive: true
+                }
             }
         }
         stage('CI: Run Tests') {
