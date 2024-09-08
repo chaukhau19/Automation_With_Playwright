@@ -21,7 +21,7 @@ pipeline {
 
         // Deployment environment
         ENVIRONMENT = 'windows'  // 'windows', 'linux', or 'macos'
-        DEPLOY_ENV = 'Test' //'Local', 'Test', 'Staging', 'Dev'
+        DEPLOY_ENV = 'Test' //'Local', 'Test', 'Staging', 'Dev', 'Pilot'
 
         // Command to execute for different environments
         COMMANDS_WIN = './FD_Auto.bat'
