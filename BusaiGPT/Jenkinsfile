@@ -9,9 +9,7 @@ pipeline {
         JENKINS_USERNAME = 'khauntc'  
         JENKINS_ADDRESS = 'https://jenkins.playgroundvina.com/'  
         COMMANDS = './BS_Auto.bat'  
-        // Deployment environment
-        ENVIRONMENT = 'windows'  // 'windows', 'linux', or 'macos'
-        DEPLOY_ENV = 'Test' //'Local', 'Test', 'Staging', 'Dev', 'Pilot'
+
     }
     stages {
         stage('Checkout code') {
@@ -24,11 +22,7 @@ pipeline {
         stage('CI: Run Tests') {
             steps {
                 dir("${SERVER_PATH}") {
-                    if (ENVIRONMENT == 'windows') {
-                        bat "${COMMANDS_WIN}"
-                    } else {
-                        sh "${COMMANDS_UNIX}"
-                    }
+                    bat "${COMMANDS}"
                 }
                 echo "Tests executed"
             }
@@ -45,7 +39,7 @@ pipeline {
                     script {
                         echo "Deploying to '${BRANCH_NAME}'..."
                         sh 'git pull'
-                        sh "sudo make deploy repo_name=${REPO_NAME} branch_name=${BRANCH_NAME}"
+                        // sh "sudo make deploy repo_name=${REPO_NAME} branch_name=${BRANCH_NAME}"
                         sh "ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS}'"
                     }
                 }
