@@ -4,11 +4,13 @@ pipeline {
         // Github
         GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
         REPO_NAME = 'BusaiGPT'
-        SERVER_PATH = 'Automation_With_Playwright/BusaiGPT' // Cập nhật đường dẫn
+        COMMANDS = './BS_Auto.bat'  
+        SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"   // Cập nhật đường dẫn
         BRANCH_NAME = 'master'
         JENKINS_USERNAME = 'khauntc'  
         JENKINS_ADDRESS = 'https://jenkins.playgroundvina.com/'  
-        COMMANDS = './BS_Auto.bat'  
+        
+        
 
     }
     stages {

@@ -1,33 +1,18 @@
 pipeline {
     agent any
     environment {
-        // Github repository information
-        GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'  
-        REPO_NAME = 'Friendify'  
-        SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"  
-        BRANCH_NAME = 'master'  
-        
-        // Deployment Server Info Jenkins
-        JENKINS_ADDRESS = 'https://jenkins.playgroundvina.com/'
+        // Github
+        GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
+        REPO_NAME = 'Friendify'
+        COMMANDS = './FD_Auto.bat'  
+        SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"   // Cập nhật đường dẫn
+        BRANCH_NAME = 'master'
         JENKINS_USERNAME = 'khauntc'  
-        JENKINS_PASSWORD = 'KhauNTC123!@#' 
-        JENKINS_CREDENTIALS_ID = 'jenkins-ssh-credentials'  // ID của SSH credentials lưu trữ trong Jenkins
+        JENKINS_ADDRESS = 'https://jenkins.playgroundvina.com/'  
+        
+        
 
-        // Deployment Server Info My PC
-        LOCAL_DEPLOY_HOST = '192.168.1.232'  // Replace with server IP or hostname
-        LOCAL_DEPLOY_USER = 'laptop-khauem\khau'  // SSH username
-        LOCAL_DEPLOY_PASSWORD = '19681974'
-        LOCAL_SSH_PRIVATE_KEY = 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC6HN0eszMcqEHA41ivY9AJEzWeFPYd7zBYxy3xdo3TiC83HI3mOUiao+fTbWKSP3qnQagOY/0kCGIYSlAAPqsQp3h32QcO8CzF3FKLidtRdX6sZacVTLnZASDH0qczlCbmsIWy1dI9f+mfb0w7MyNHiUIS9U5DSLIT6xF74Pk1TkgX+7OHRUk0lA7U1ARPD3b8bax4QQ093iR7JUBQOg1JoiH9geyrhyux9Y+EjeGwt17rbRnrKCfIEqsMUn+4yT8fUqmTWK3cpJswCYq0Nb7kGjBDxaae2Tusj99yoV5XLSpo8bNaEpuMQTmtJxWsL5XusYY8/Oy2J8d4iESeX4xBAkPDBZktuuDIHWs4DHBzmyMcaRIxGxnhPBkQg3UNPiJVSOnk1qNEu3AABnOergTnvSmEQ6Wl8vuh9JQPm5mFThKGhapENsqOG+sCEjtyWihfxMH3aKz7b6c8GEtEPNTGZB2Uk3fcHxgLZxM75z5y6zNiu0V/QZLBZpnvytp19iWy0FJl+u6BEIEYG+Y8KnaqYWg2F15oH33IF0PlvJizPFZybp9pvX873GTiPz7A/tAWZRWYqe8fm7e8Ep56ChdrqBShhY7ORLXQFchJIUgNSYQGU5aG/RCRl4kGZYvzODohVs+MJKa4ccky+yv2EA8TIUJuaUTwF8LGArlnxde0zw== chaukhau2000@gmail.com'
-
-        // Deployment environment
-        ENVIRONMENT = 'windows'  // 'windows', 'linux', or 'macos'
-        DEPLOY_ENV = 'Test' //'Local', 'Test', 'Staging', 'Dev', 'Pilot'
-
-        // Command to execute for different environments
-        COMMANDS = './FD_Auto.bat'
-        COMMANDS_UNIX = './FD_Auto.sh'
-    }   
-    
+    }
     stages {
         stage('Checkout code') {
             steps {
@@ -39,7 +24,13 @@ pipeline {
         stage('CI: Run Tests') {
             steps {
                 dir("${SERVER_PATH}") {
-                    bat "${COMMANDS}"
+                    script {
+                        if (isUnix()) {
+                            sh "${COMMANDS}"  // For Unix-based systems
+                        } else {
+                            bat "${COMMANDS}"  // For Windows-based systems
+                        }
+                    }
                 }
                 echo "Tests executed"
             }
@@ -61,123 +52,14 @@ pipeline {
                     }
                 }
             }
-
-    // stages {
-    //     // Stage CI: Checkout code từ repository GitHub
-    //     stage('CI: Checkout code') {
-    //         steps {
-    //             // Tải code từ nhánh 'master' của GitHub
-    //             git branch: "${BRANCH_NAME}", url: "${GITHUB_URL}"
-    //             echo "Code checked out from ${BRANCH_NAME}"
-    //         }
-    //     }
-    //     stage('CI: Setup Node.js and Install Dependencies') {
-    //         steps {
-    //             dir("${SERVER_PATH}") {
-    //                 if (ENVIRONMENT == 'windows') {
-    //                     // Setup Node.js và cài đặt Playwright trên Windows
-    //                     bat 'npx install'
-    //                     bat 'npx playwright install'
-    //                     bat 'npx setup-node@v2 --node-version 18'
-    //                 } else {
-    //                     // Setup Node.js và cài đặt Playwright trên Unix
-    //                     sh 'npx install'
-    //                     sh 'npx playwright install'
-    //                     sh 'npx setup-node@v2 --node-version 18'
-    //                 }
-    //                 echo "Node.js setup and dependencies installed"
-    //             }
-    //         }
-    //     }
-    //     stage('CI: Run Tests') {
-    //         steps {
-    //             dir("${SERVER_PATH}") {
-    //                 if (ENVIRONMENT == 'windows') {
-    //                     bat "${COMMANDS_WIN}"
-    //                 } else {
-    //                     sh "${COMMANDS_UNIX}"
-    //                 }
-    //             }
-    //             echo "Tests executed"
-    //         }
-    //     }
-    //     // Stage CD: Deploy code lên server
-    //     stage('CD: Deploying...') {
-    //         when {
-    //             anyOf {
-    //                 branch 'master'  // Deploy if the branch is 'master'
-    //                 branch 'main'    // Or if it is 'main'
-    //             }
-    //             expression {
-    //                 // Chạy stage nếu DEPLOY_ENV có giá trị tương ứng
-    //                 return ['Local', 'Test', 'Staging', 'Dev'].contains(env.DEPLOY_ENV)
-    //             }
-    //         }
-    //         steps {
-    //             dir("${SERVER_PATH}") {
-    //                 script {
-    //                     echo "Deploying to '${BRANCH_NAME}' on environment '${ENVIRONMENT}' with deployment environment '${DEPLOY_ENV}'..."
-                        
-    //                     if (ENVIRONMENT == 'windows') {
-    //                         bat 'git pull --rebase'
-    //                         if (DEPLOY_ENV == 'Local') {
-    //                             bat "plink.exe -ssh -l ${LOCAL_DEPLOY_USER} -pw ${LOCAL_DEPLOY_PASSWORD} ${LOCAL_DEPLOY_HOST} '${COMMANDS_WIN}'"
-    //                         } else if (['Dev', 'Test', 'Staging'].contains(DEPLOY_ENV)) {
-    //                             bat "plink.exe -ssh -l ${JENKINS_USERNAME} -pw ${JENKINS_PASSWORD} ${JENKINS_ADDRESS} '${COMMANDS_WIN}'"
-    //                         }
-    //                     } else if (ENVIRONMENT == 'linux' || ENVIRONMENT == 'macos') {
-    //                         sh 'git pull --rebase'
-    //                         if (DEPLOY_ENV == 'Local') {
-    //                             sh "ssh -o StrictHostKeyChecking=no ${LOCAL_DEPLOY_USER}@${LOCAL_DEPLOY_HOST} '${COMMANDS_UNIX}'"
-    //                         } else if (['Dev', 'Test', 'Staging'].contains(DEPLOY_ENV)) {
-    //                             sshagent (credentials: [JENKINS_CREDENTIALS_ID]) {
-    //                                 sh "ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS_UNIX}'"
-    //                             }
-    //                         }
-    //                     } else {
-    //                         error "Unsupported ENVIRONMENT: ${ENVIRONMENT}. Supported values are 'windows', 'linux', 'macos'."
-    //                     }
-    //                     echo 'Deployment completed'
-    //                 }
-    //             }
-    //         }
-            // FOR JENKINS_CREDENTIALS_ID
-            // steps {
-            //     dir("${SERVER_PATH}") {
-            //         script {
-            //             echo "Deploying to '${BRANCH_NAME}'..."
-            //             if (ENVIRONMENT == 'windows') {
-            //                 bat 'git pull --rebase'  // Sử dụng bat thay vì sh cho Windows
-            //                 bat "plink.exe -pw ${JENKINS_PASSWORD} ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS_WIN}'"
-            //             } else {
-            //                 // Sử dụng ssh-agent với SSH key từ Jenkins Credentials
-            //                 sshagent (credentials: [JENKINS_CREDENTIALS_ID]) {
-            //                     sh 'git pull --rebase'  // Cập nhật code với git pull --rebase
-            //                     if (ENVIRONMENT == 'linux' || ENVIRONMENT == 'macos') {
-            //                         // Thực hiện deploy với lệnh make và các biến repo_name và branch_name
-            //                         sh "sudo make deploy repo_name=${REPO_NAME} branch_name=${BRANCH_NAME}"
-            //                         // Kết nối SSH và thực thi lệnh từ Jenkins
-            //                         sh "ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS_UNIX}'"
-            //                     }
-            //                 }
-            //             }
-            //         }
-            //     }
-            // }
         }
     }
-    
     post {
         always {
             script {
                 def status = currentBuild.result ?: 'SUCCESS'
                 echo "Build status: ${status}"
-                
-                if (ENVIRONMENT == 'windows') {
-                    bat "del /q .\\* .\\.??*"
-                } else {
-                    sh "rm -rf ./* ./.??*"
-                }
+                sh "rm -rf ./* ./.??*"
             }
         }
     }
