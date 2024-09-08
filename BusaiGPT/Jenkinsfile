@@ -1,18 +1,13 @@
 pipeline {
-<<<<<<< HEAD
     agent any
     environment {
         // Github
         GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
         REPO_NAME = 'BusaiGPT'
-        COMMANDS = 'npx playwright test BS_Actions.spec.js --headed --reporter=line --workers=1'  
-        SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"   // Cập nhật đường dẫn
+        FILE_SH = 'BS_Auto.sh'
+        FILE_BAT = 'BS_Auto.bat'
+        SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"  // Đường dẫn đến thư mục chứa test
         BRANCH_NAME = 'master'
-        JENKINS_USERNAME = 'khauntc'  
-        JENKINS_ADDRESS = 'https://jenkins.playgroundvina.com/'  
-        
-        
-
     }
     stages {
         stage('Checkout code') {
@@ -24,116 +19,28 @@ pipeline {
         }
         stage('CI: Run Tests') {
             steps {
+                echo 'Starting Tests'
                 dir("${SERVER_PATH}") {
                     script {
                         if (isUnix()) {
-                            sh "${COMMANDS}"  // For Unix-based systems
+                            sh "./${FILE_SH}"  // Chạy file .sh trên hệ điều hành Unix-based
                         } else {
-                            bat "${COMMANDS}"  // For Windows-based systems
+                            bat "${FILE_BAT}"  // Chạy file .bat trên hệ điều hành Windows
                         }
                     }
                 }
                 echo "Tests executed"
             }
         }
-        // stage('Deploying...') {
-        //     when {
-        //         anyOf {
-        //             branch 'master'
-        //             branch 'main'
-        //         }
-        //     }
-        //     steps {
-        //         dir("${SERVER_PATH}") {
-        //             script {
-        //                 echo "Deploying to '${BRANCH_NAME}'..."
-        //                 sh 'git pull'
-        //                 // sh "sudo make deploy repo_name=${REPO_NAME} branch_name=${BRANCH_NAME}"
-        //                 sh "ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS}'"
-        //             }
-        //         }
-        //     }
-        // }
     }
     post {
         always {
             script {
                 def status = currentBuild.result ?: 'SUCCESS'
                 echo "Build status: ${status}"
+                // Xóa các tệp không cần thiết sau khi build
                 sh "rm -rf ./* ./.??*"
             }
         }
     }
 }
-=======
-  agent any
-  stages {
-    stage('Checkout code') {
-      steps {
-        git(branch: "${BRANCH_NAME}", url: "${GITHUB_URL}")
-        echo "Code checked out from ${BRANCH_NAME}"
-      }
-    }
-
-    stage('CI: Run Tests') {
-      steps {
-        dir(path: "${SERVER_PATH}") {
-          script {
-            if (isUnix()) {
-              sh "${COMMANDS}"  // For Unix-based systems
-            } else {
-              bat "${COMMANDS}"  // For Windows-based systems
-            }
-          }
-
-        }
-
-        echo 'Tests executed'
-      }
-    }
-
-    stage('Deploying...') {
-      when {
-        anyOf {
-          branch 'master'
-          branch 'main'
-        }
-
-      }
-      steps {
-        dir(path: "${SERVER_PATH}") {
-          script {
-            echo "Deploying to '${BRANCH_NAME}'..."
-            sh 'git pull'
-            // sh "sudo make deploy repo_name=${REPO_NAME} branch_name=${BRANCH_NAME}"
-            sh "ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS}'"
-          }
-
-        }
-
-      }
-    }
-
-  }
-  environment {
-    GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
-    REPO_NAME = 'BusaiGPT'
-    COMMANDS = './BS_Auto.bat'
-    SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"   // Cập nhật đường dẫn
-    BRANCH_NAME = 'master'
-    JENKINS_USERNAME = 'khauntc'
-    JENKINS_ADDRESS = 'https://jenkins.playgroundvina.com/'
-  }
-  post {
-    always {
-      script {
-        def status = currentBuild.result ?: 'SUCCESS'
-        echo "Build status: ${status}"
-        sh "rm -rf ./* ./.??*"
-      }
-
-    }
-
-  }
-}
->>>>>>> 13e7e9c3cde1b5d61db07cfe4fa0c299cc2e7a2b
