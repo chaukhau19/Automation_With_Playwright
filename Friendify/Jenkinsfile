@@ -1,96 +1,59 @@
 pipeline {
-    agent any
-    // environment {
-    //     // Github
-    //     GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
-    //     REPO_NAME = 'Friendify'
-    //     COMMANDS = 'npx playwright test FD_Register.spec.js --headed --reporter=line --workers=1'  
-    //     SERVER_PATH = "Automation_With_Playwright/Friendify"   // Cập nhật đường dẫn
-    //     BRANCH_NAME = 'master'
-    //     JENKINS_USERNAME = 'khauntc'  
-    //     JENKINS_ADDRESS = 'https://jenkins.playgroundvina.com/'  
-        
-        
+  agent any
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
 
-    // }
-    stages {
-        // stage('Checkout code') {
-        //     steps {
-        //         // Tải code từ nhánh 'master' của GitHub
-        //         git branch: "${BRANCH_NAME}", url: "${GITHUB_URL}"
-        //         echo "Code checked out from ${BRANCH_NAME}"
-        //     }
-        // }
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
+    stage('Install Dependencies') {
+      steps {
+        dir(path: 'Automation_With_Playwright/Friendify') {
+          sh 'npm install'
+          sh 'npx playwright install'
+          sh 'npx playwright test FD_Actions.spec.js --headed --reporter=line --workers=1'
         }
-        stage('Setup Node.js') {
-            steps {
-                script {
-                    def nodeVersion = '18'
-                    sh "nvm install ${nodeVersion}"
-                    sh "nvm use ${nodeVersion}"
-                }
-            }
-        }
-        stage('Install Dependencies') {
-            steps {
-                dir('Automation_With_Playwright/Friendify') {
-                    sh 'npm install'
-                    sh 'npx playwright install'
-                    sh 'npx playwright test FD_Actions.spec.js --headed --reporter=line --workers=1'
-                }
-            }
-        }
-        stage('Archive Test Results') {
-            steps {
-                dir('Automation_With_Playwright/Friendify') {
-                    archiveArtifacts artifacts: 'playwright-report/**', allowEmptyArchive: true
-                }
-            }
-        }
-        stage('CI: Run Tests') {
-            steps {
-                dir("${SERVER_PATH}") {
-                    script {
-                        if (isUnix()) {
-                            sh "${COMMANDS}"  // For Unix-based systems
-                        } else {
-                            bat "${COMMANDS}"  // For Windows-based systems
-                        }
-                    }
-                }
-                echo "Tests executed"
-            }
-        }
-        // stage('Deploying...') {
-        //     when {
-        //         anyOf {
-        //             branch 'master'
-        //             branch 'main'
-        //         }
-        //     }
-        //     steps {
-        //         dir("${SERVER_PATH}") {
-        //             script {
-        //                 echo "Deploying to '${BRANCH_NAME}'..."
-        //                 sh 'git pull'
-        //                 // sh "sudo make deploy repo_name=${REPO_NAME} branch_name=${BRANCH_NAME}"
-        //                 sh "ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS}'"
-        //             }
-        //         }
-        //     }
-        // }
+
+      }
     }
-    post {
-        always {
-            script {
-                def status = currentBuild.result ?: 'SUCCESS'
-                echo "Build status: ${status}"
-                sh "rm -rf ./* ./.??*"
-            }
+
+    stage('Archive Test Results') {
+      steps {
+        dir(path: 'Automation_With_Playwright/Friendify') {
+          archiveArtifacts(artifacts: 'playwright-report/**', allowEmptyArchive: true)
         }
+
+      }
     }
+
+    stage('CI: Run Tests') {
+      steps {
+        dir(path: "${SERVER_PATH}") {
+          script {
+            if (isUnix()) {
+              sh "${COMMANDS}"  // For Unix-based systems
+            } else {
+              bat "${COMMANDS}"  // For Windows-based systems
+            }
+          }
+
+        }
+
+        echo 'Tests executed'
+      }
+    }
+
+  }
+  post {
+    always {
+      script {
+        def status = currentBuild.result ?: 'SUCCESS'
+        echo "Build status: ${status}"
+        sh "rm -rf ./* ./.??*"
+      }
+
+    }
+
+  }
 }
