@@ -20,9 +20,15 @@ pipeline {
                 echo 'Starting Tests'
                 script {
                     if (isUnix()) {
+                        // Liệt kê nội dung thư mục trước khi thực thi
+                        echo "Listing directory contents"
+                        sh "ls -la ${SERVER_PATH}"
+
                         // Cấp quyền thực thi trước khi chạy
                         sh "chmod +x ${FILE_SH}"
-                        sh "./${FILE_SH}"  // Chạy file .sh
+
+                        // Chạy file .sh
+                        sh "./${FILE_SH}"
                     } else {
                         bat "${FILE_BAT}"  // Chạy file .bat
                     }
