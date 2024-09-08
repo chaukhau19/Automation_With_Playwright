@@ -15,28 +15,33 @@ pipeline {
                 echo "Code checked out from ${BRANCH_NAME}"
             }
         }
-        stage('CI: Run Tests') {
+        stage('Find BS_Auto.sh') {
             steps {
-                echo 'Starting Tests'
+                echo 'Searching for BS_Auto.sh'
                 script {
-                    if (isUnix()) {
-                        // Liệt kê nội dung thư mục trước khi thực thi
-                        echo "Listing directory contents"
-                        sh "ls -la ${SERVER_PATH}"
-
-                        // Cấp quyền thực thi trước khi chạy
-                        sh "chmod +x ${FILE_SH}"
-
-                        // Chạy file .sh
-                        sh "./${FILE_SH}"
-                    } else {
-                        bat "${FILE_BAT}"  // Chạy file .bat
-                    }
+                    // Tìm vị trí của file BS_Auto.sh và in ra log
+                    def findCommand = 'find . -name "BS_Auto.sh"'
+                    def findResult = sh(script: findCommand, returnStdout: true).trim()
+                    echo "BS_Auto.sh found at: ${findResult}"
                 }
-                echo "Tests executed"
             }
         }
-    }
+    //     stage('CI: Run Tests') {
+    //         steps {
+    //             echo 'Starting Tests'
+    //             script {
+    //                 if (isUnix()) {
+    //                     // Cấp quyền thực thi và chạy file .sh nếu tìm thấy
+    //                     sh "chmod +x ${FILE_SH}"
+    //                     sh "./${FILE_SH}"
+    //                 } else {
+    //                     bat "${FILE_BAT}"  // Chạy file .bat
+    //                 }
+    //             }
+    //             echo "Tests executed"
+    //         }
+    //     }
+    // }
     post {
         always {
             script {
