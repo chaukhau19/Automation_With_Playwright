@@ -1,4 +1,5 @@
 pipeline {
+<<<<<<< HEAD
     agent any
     environment {
         // Github
@@ -64,3 +65,75 @@ pipeline {
         }
     }
 }
+=======
+  agent any
+  stages {
+    stage('Checkout code') {
+      steps {
+        git(branch: "${BRANCH_NAME}", url: "${GITHUB_URL}")
+        echo "Code checked out from ${BRANCH_NAME}"
+      }
+    }
+
+    stage('CI: Run Tests') {
+      steps {
+        dir(path: "${SERVER_PATH}") {
+          script {
+            if (isUnix()) {
+              sh "${COMMANDS}"  // For Unix-based systems
+            } else {
+              bat "${COMMANDS}"  // For Windows-based systems
+            }
+          }
+
+        }
+
+        echo 'Tests executed'
+      }
+    }
+
+    stage('Deploying...') {
+      when {
+        anyOf {
+          branch 'master'
+          branch 'main'
+        }
+
+      }
+      steps {
+        dir(path: "${SERVER_PATH}") {
+          script {
+            echo "Deploying to '${BRANCH_NAME}'..."
+            sh 'git pull'
+            // sh "sudo make deploy repo_name=${REPO_NAME} branch_name=${BRANCH_NAME}"
+            sh "ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS}'"
+          }
+
+        }
+
+      }
+    }
+
+  }
+  environment {
+    GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
+    REPO_NAME = 'BusaiGPT'
+    COMMANDS = './BS_Auto.bat'
+    SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"   // Cập nhật đường dẫn
+    BRANCH_NAME = 'master'
+    JENKINS_USERNAME = 'khauntc'
+    JENKINS_ADDRESS = 'https://jenkins.playgroundvina.com/'
+  }
+  post {
+    always {
+      script {
+        def status = currentBuild.result ?: 'SUCCESS'
+        echo "Build status: ${status}"
+        sh "rm -rf ./* ./.??*"
+      }
+
+    }
+
+  }
+}
+>>>>>>> 13e7e9c3cde1b5d61db07cfe4fa0c299cc2e7a2b
