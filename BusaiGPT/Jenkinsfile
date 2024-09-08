@@ -1,18 +1,16 @@
 pipeline {
     agent any
     environment {
-        // Github
         GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
         REPO_NAME = 'BusaiGPT'
-        FILE_SH = 'Automation_With_Playwright/BusaiGPT/BS_Auto.sh'  // Đường dẫn file .sh
-        FILE_BAT = 'Automation_With_Playwright/BusaiGPT/BS_Auto.bat'  // Đường dẫn file .bat
-        SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"  // Đường dẫn đến thư mục chứa test
+        FILE_SH = 'Automation_With_Playwright/BusaiGPT/BS_Auto.sh'
+        FILE_BAT = 'Automation_With_Playwright/BusaiGPT/BS_Auto.bat'
+        SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
     }
     stages {
         stage('Checkout code') {
             steps {
-                // Tải code từ nhánh 'master' của GitHub
                 git branch: "${BRANCH_NAME}", url: "${GITHUB_URL}"
                 echo "Code checked out from ${BRANCH_NAME}"
             }
@@ -22,9 +20,11 @@ pipeline {
                 echo 'Starting Tests'
                 script {
                     if (isUnix()) {
-                        sh "${FILE_SH}"  // Chạy file .sh trên hệ điều hành Unix-based
+                        // Cấp quyền thực thi trước khi chạy
+                        sh "chmod +x ${FILE_SH}"
+                        sh "./${FILE_SH}"  // Chạy file .sh
                     } else {
-                        bat "${FILE_BAT}"  // Chạy file .bat trên hệ điều hành Windows
+                        bat "${FILE_BAT}"  // Chạy file .bat
                     }
                 }
                 echo "Tests executed"
@@ -36,8 +36,6 @@ pipeline {
             script {
                 def status = currentBuild.result ?: 'SUCCESS'
                 echo "Build status: ${status}"
-                
-                // Xóa các tệp không cần thiết sau khi build (tuỳ chọn)
                 sh "rm -rf Automation_With_Playwright/${REPO_NAME}/temp/*"
             }
         }
