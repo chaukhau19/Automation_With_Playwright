@@ -4,8 +4,8 @@ pipeline {
         // Github
         GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
         REPO_NAME = 'Friendify'
-        COMMANDS = './FD_Auto.bat'  
-        SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"   // Cập nhật đường dẫn
+        COMMANDS = 'npx playwright test FD_Register.spec.js --headed --reporter=line --workers=1'  
+        SERVER_PATH = "Automation_With_Playwright/Friendify"   // Cập nhật đường dẫn
         BRANCH_NAME = 'master'
         JENKINS_USERNAME = 'khauntc'  
         JENKINS_ADDRESS = 'https://jenkins.playgroundvina.com/'  
@@ -35,24 +35,24 @@ pipeline {
                 echo "Tests executed"
             }
         }
-        stage('Deploying...') {
-            when {
-                anyOf {
-                    branch 'master'
-                    branch 'main'
-                }
-            }
-            steps {
-                dir("${SERVER_PATH}") {
-                    script {
-                        echo "Deploying to '${BRANCH_NAME}'..."
-                        sh 'git pull'
-                        // sh "sudo make deploy repo_name=${REPO_NAME} branch_name=${BRANCH_NAME}"
-                        sh "ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS}'"
-                    }
-                }
-            }
-        }
+        // stage('Deploying...') {
+        //     when {
+        //         anyOf {
+        //             branch 'master'
+        //             branch 'main'
+        //         }
+        //     }
+        //     steps {
+        //         dir("${SERVER_PATH}") {
+        //             script {
+        //                 echo "Deploying to '${BRANCH_NAME}'..."
+        //                 sh 'git pull'
+        //                 // sh "sudo make deploy repo_name=${REPO_NAME} branch_name=${BRANCH_NAME}"
+        //                 sh "ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS}'"
+        //             }
+        //         }
+        //     }
+        // }
     }
     post {
         always {
