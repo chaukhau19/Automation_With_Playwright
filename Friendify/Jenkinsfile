@@ -34,10 +34,27 @@ pipeline {
             steps {
                 // Tải code từ nhánh 'master' của GitHub
                 git branch: "${BRANCH_NAME}", url: "${GITHUB_URL}"
-                echo "Build completed"
+                echo "Code checked out from ${BRANCH_NAME}"
             }
         }
-        
+        stage('CI: Setup Node.js and Install Dependencies') {
+            steps {
+                dir("${SERVER_PATH}") {
+                    if (ENVIRONMENT == 'windows') {
+                        // Setup Node.js và cài đặt Playwright trên Windows
+                        bat 'npx install'
+                        bat 'npx playwright install'
+                        bat 'npx setup-node@v2 --node-version 18'
+                    } else {
+                        // Setup Node.js và cài đặt Playwright trên Unix
+                        sh 'npx install'
+                        sh 'npx playwright install'
+                        sh 'npx setup-node@v2 --node-version 18'
+                    }
+                    echo "Node.js setup and dependencies installed"
+                }
+            }
+        }
         stage('CI: Run Tests') {
             steps {
                 dir("${SERVER_PATH}") {
@@ -57,12 +74,11 @@ pipeline {
                     branch 'master'  // Deploy if the branch is 'master'
                     branch 'main'    // Or if it is 'main'
                 }
-            expression {
+                expression {
                     // Chạy stage nếu DEPLOY_ENV có giá trị tương ứng
                     return ['Local', 'Test', 'Staging', 'Dev'].contains(env.DEPLOY_ENV)
                 }
             }
-            // FOR USERNAME/PASSWORD
             steps {
                 dir("${SERVER_PATH}") {
                     script {
@@ -73,14 +89,16 @@ pipeline {
                             if (DEPLOY_ENV == 'Local') {
                                 bat "plink.exe -ssh -l ${LOCAL_DEPLOY_USER} -pw ${LOCAL_DEPLOY_PASSWORD} ${LOCAL_DEPLOY_HOST} '${COMMANDS_WIN}'"
                             } else if (['Dev', 'Test', 'Staging'].contains(DEPLOY_ENV)) {
-                                bat "plink.exe -ssh -l ${JENKINS_USERNAME} -pw ${JENKINS_PASSWORD} ${DEPLOY_HOST} '${COMMANDS_WIN}'"
+                                bat "plink.exe -ssh -l ${JENKINS_USERNAME} -pw ${JENKINS_PASSWORD} ${JENKINS_ADDRESS} '${COMMANDS_WIN}'"
                             }
                         } else if (ENVIRONMENT == 'linux' || ENVIRONMENT == 'macos') {
                             sh 'git pull --rebase'
                             if (DEPLOY_ENV == 'Local') {
                                 sh "ssh -o StrictHostKeyChecking=no ${LOCAL_DEPLOY_USER}@${LOCAL_DEPLOY_HOST} '${COMMANDS_UNIX}'"
                             } else if (['Dev', 'Test', 'Staging'].contains(DEPLOY_ENV)) {
-                                sh "ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${DEPLOY_HOST} '${COMMANDS_UNIX}'"
+                                sshagent (credentials: [JENKINS_CREDENTIALS_ID]) {
+                                    sh "ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS_UNIX}'"
+                                }
                             }
                         } else {
                             error "Unsupported ENVIRONMENT: ${ENVIRONMENT}. Supported values are 'windows', 'linux', 'macos'."
