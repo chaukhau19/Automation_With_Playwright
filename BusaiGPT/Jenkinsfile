@@ -22,7 +22,13 @@ pipeline {
         stage('CI: Run Tests') {
             steps {
                 dir("${SERVER_PATH}") {
-                    bat "${COMMANDS}"
+                    script {
+                        if (isUnix()) {
+                            sh "${COMMANDS}"  // For Unix-based systems
+                        } else {
+                            bat "${COMMANDS}"  // For Windows-based systems
+                        }
+                    }
                 }
                 echo "Tests executed"
             }
