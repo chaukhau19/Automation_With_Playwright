@@ -8,19 +8,25 @@ pipeline {
         BRANCH_NAME = 'master'  
         
         // Jenkins Credentials (sử dụng Jenkins Credentials Plugin với ID)
+        SSH_CREDENTIALS = credentials('jenkins-ssh-credentials') 
         JENKINS_CREDENTIALS_ID = 'jenkins-ssh-credentials'  // ID của SSH credentials lưu trữ trong Jenkins
+        JENKINS_ADDRESS = 'https://jenkins.playgroundvina.com/'
         JENKINS_USERNAME = 'khauntc'  
         JENKINS_PASSWORD = 'KhauNTC123!@#' 
-        JENKINS_ADDRESS = 'https://jenkins.playgroundvina.com/'
-        COMMANDS_WIN = './FD_Auto.bat'
-        COMMANDS_UNIX = './FD_Auto.sh'  
-        ENVIRONMENT = 'windows'  // Cập nhật giá trị này thành 'windows', 'linux' hoặc 'macos' tùy theo môi trường
-        DEPLOY_ENV = 'Local' 
 
         // Deployment Server Info My PC
         DEPLOY_HOST = '192.168.1.232'  // Replace with server IP or hostname
         DEPLOY_USER = 'laptop-khauem\khau'  // SSH username
+        DEPLOY_PASSWORD = '19681974'
         SSH_PRIVATE_KEY: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC6HN0eszMcqEHA41ivY9AJEzWeFPYd7zBYxy3xdo3TiC83HI3mOUiao+fTbWKSP3qnQagOY/0kCGIYSlAAPqsQp3h32QcO8CzF3FKLidtRdX6sZacVTLnZASDH0qczlCbmsIWy1dI9f+mfb0w7MyNHiUIS9U5DSLIT6xF74Pk1TkgX+7OHRUk0lA7U1ARPD3b8bax4QQ093iR7JUBQOg1JoiH9geyrhyux9Y+EjeGwt17rbRnrKCfIEqsMUn+4yT8fUqmTWK3cpJswCYq0Nb7kGjBDxaae2Tusj99yoV5XLSpo8bNaEpuMQTmtJxWsL5XusYY8/Oy2J8d4iESeX4xBAkPDBZktuuDIHWs4DHBzmyMcaRIxGxnhPBkQg3UNPiJVSOnk1qNEu3AABnOergTnvSmEQ6Wl8vuh9JQPm5mFThKGhapENsqOG+sCEjtyWihfxMH3aKz7b6c8GEtEPNTGZB2Uk3fcHxgLZxM75z5y6zNiu0V/QZLBZpnvytp19iWy0FJl+u6BEIEYG+Y8KnaqYWg2F15oH33IF0PlvJizPFZybp9pvX873GTiPz7A/tAWZRWYqe8fm7e8Ep56ChdrqBShhY7ORLXQFchJIUgNSYQGU5aG/RCRl4kGZYvzODohVs+MJKa4ccky+yv2EA8TIUJuaUTwF8LGArlnxde0zw== chaukhau2000@gmail.com'
+
+        // Deployment environment
+        ENVIRONMENT = 'windows'  // 'windows', 'linux', or 'macos'
+        DEPLOY_ENV = 'Test' //'Local', 'Test', 'Staging', 'Dev'
+
+        // Command to execute for different environments
+        COMMANDS_WIN = './FD_Auto.bat'
+        COMMANDS_UNIX = './FD_Auto.sh'
     }   
     
     stages {
@@ -49,43 +55,22 @@ pipeline {
                 dir("${SERVER_PATH}") {
                     script {
                         echo "Deploying to '${BRANCH_NAME}' on environment '${ENVIRONMENT}' with deployment environment '${DEPLOY_ENV}'..."
-
-                        // Pull latest code
+                        
                         if (ENVIRONMENT == 'windows') {
                             bat 'git pull --rebase'
-                            
+
                             if (DEPLOY_ENV == 'Local') {
-                                bat "plink.exe -ssh -l ${DEPLOY_USER} -pw ${JENKINS_PASSWORD} ${DEPLOY_HOST} '${COMMANDS_WIN}'"
-                            } else if (DEPLOY_ENV == 'Dev') {
-                                bat "plink.exe -ssh -l ${JENKINS_USERNAME} -pw ${JENKINS_PASSWORD} ${JENKINS_ADDRESS} '${COMMANDS_WIN}'"
-                            } else if (DEPLOY_ENV == 'Test') {
-                                bat "plink.exe -ssh -l ${JENKINS_USERNAME} -pw ${JENKINS_PASSWORD} ${JENKINS_ADDRESS} '${COMMANDS_WIN}'"
-                            } else if (DEPLOY_ENV == 'Staging') {
-                                bat "plink.exe -ssh -l ${JENKINS_USERNAME} -pw ${JENKINS_PASSWORD} ${JENKINS_ADDRESS} '${COMMANDS_WIN}'"
-                            } else {
-                                error "Unsupported DEPLOY_ENV: ${DEPLOY_ENV}. Supported values are 'Local', 'Dev', 'Test', 'Staging'."
+                                bat "plink.exe -ssh -l ${DEPLOY_USER} -pw ${DEPLOY_PASSWORD} ${DEPLOY_HOST} '${COMMANDS_WIN}'"
+                            } else if (DEPLOY_ENV == 'Dev' || DEPLOY_ENV == 'Test' || DEPLOY_ENV == 'Staging') {
+                                bat "plink.exe -ssh -l ${JENKINS_USERNAME} -pw ${JENKINS_PASSWORD} ${DEPLOY_HOST} '${COMMANDS_WIN}'"
                             }
                         } else if (ENVIRONMENT == 'linux' || ENVIRONMENT == 'macos') {
                             sh 'git pull --rebase'
 
                             if (DEPLOY_ENV == 'Local') {
-                                sshagent (credentials: [JENKINS_CREDENTIALS_ID]) {
-                                    sh "ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_HOST} '${COMMANDS_UNIX}'"
-                                }
-                            } else if (DEPLOY_ENV == 'Dev') {
-                                sshagent (credentials: [JENKINS_CREDENTIALS_ID]) {
-                                    sh "ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS_UNIX}'"
-                                }
-                            } else if (DEPLOY_ENV == 'Test') {
-                                sshagent (credentials: [JENKINS_CREDENTIALS_ID]) {
-                                    sh "ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS_UNIX}'"
-                                }
-                            } else if (DEPLOY_ENV == 'Staging') {
-                                sshagent (credentials: [JENKINS_CREDENTIALS_ID]) {
-                                    sh "ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS_UNIX}'"
-                                }
-                            } else {
-                                error "Unsupported DEPLOY_ENV: ${DEPLOY_ENV}. Supported values are 'Local', 'Dev', 'Test', 'Staging'."
+                                sh "ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_HOST} '${COMMANDS_UNIX}'"
+                            } else if (DEPLOY_ENV == 'Dev' || DEPLOY_ENV == 'Test' || DEPLOY_ENV == 'Staging') {
+                                sh "ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${DEPLOY_HOST} '${COMMANDS_UNIX}'"
                             }
                         } else {
                             error "Unsupported ENVIRONMENT: ${ENVIRONMENT}. Supported values are 'windows', 'linux', 'macos'."
@@ -124,6 +109,7 @@ pipeline {
             script {
                 def status = currentBuild.result ?: 'SUCCESS'
                 echo "Build status: ${status}"
+                
                 if (ENVIRONMENT == 'windows') {
                     bat "del /q .\\* .\\.??*"
                 } else {
