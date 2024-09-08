@@ -7,18 +7,17 @@ pipeline {
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"  
         BRANCH_NAME = 'master'  
         
-        // Jenkins Credentials (sử dụng Jenkins Credentials Plugin với ID)
-        SSH_CREDENTIALS = credentials('jenkins-ssh-credentials') 
-        JENKINS_CREDENTIALS_ID = 'jenkins-ssh-credentials'  // ID của SSH credentials lưu trữ trong Jenkins
+        // Deployment Server Info Jenkins
         JENKINS_ADDRESS = 'https://jenkins.playgroundvina.com/'
         JENKINS_USERNAME = 'khauntc'  
         JENKINS_PASSWORD = 'KhauNTC123!@#' 
+        JENKINS_CREDENTIALS_ID = 'jenkins-ssh-credentials'  // ID của SSH credentials lưu trữ trong Jenkins
 
         // Deployment Server Info My PC
-        DEPLOY_HOST = '192.168.1.232'  // Replace with server IP or hostname
-        DEPLOY_USER = 'laptop-khauem\khau'  // SSH username
-        DEPLOY_PASSWORD = '19681974'
-        SSH_PRIVATE_KEY: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC6HN0eszMcqEHA41ivY9AJEzWeFPYd7zBYxy3xdo3TiC83HI3mOUiao+fTbWKSP3qnQagOY/0kCGIYSlAAPqsQp3h32QcO8CzF3FKLidtRdX6sZacVTLnZASDH0qczlCbmsIWy1dI9f+mfb0w7MyNHiUIS9U5DSLIT6xF74Pk1TkgX+7OHRUk0lA7U1ARPD3b8bax4QQ093iR7JUBQOg1JoiH9geyrhyux9Y+EjeGwt17rbRnrKCfIEqsMUn+4yT8fUqmTWK3cpJswCYq0Nb7kGjBDxaae2Tusj99yoV5XLSpo8bNaEpuMQTmtJxWsL5XusYY8/Oy2J8d4iESeX4xBAkPDBZktuuDIHWs4DHBzmyMcaRIxGxnhPBkQg3UNPiJVSOnk1qNEu3AABnOergTnvSmEQ6Wl8vuh9JQPm5mFThKGhapENsqOG+sCEjtyWihfxMH3aKz7b6c8GEtEPNTGZB2Uk3fcHxgLZxM75z5y6zNiu0V/QZLBZpnvytp19iWy0FJl+u6BEIEYG+Y8KnaqYWg2F15oH33IF0PlvJizPFZybp9pvX873GTiPz7A/tAWZRWYqe8fm7e8Ep56ChdrqBShhY7ORLXQFchJIUgNSYQGU5aG/RCRl4kGZYvzODohVs+MJKa4ccky+yv2EA8TIUJuaUTwF8LGArlnxde0zw== chaukhau2000@gmail.com'
+        LOCAL_DEPLOY_HOST = '192.168.1.232'  // Replace with server IP or hostname
+        LOCAL_DEPLOY_USER = 'laptop-khauem\khau'  // SSH username
+        LOCAL_DEPLOY_PASSWORD = '19681974'
+        LOCAL_SSH_PRIVATE_KEY = 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC6HN0eszMcqEHA41ivY9AJEzWeFPYd7zBYxy3xdo3TiC83HI3mOUiao+fTbWKSP3qnQagOY/0kCGIYSlAAPqsQp3h32QcO8CzF3FKLidtRdX6sZacVTLnZASDH0qczlCbmsIWy1dI9f+mfb0w7MyNHiUIS9U5DSLIT6xF74Pk1TkgX+7OHRUk0lA7U1ARPD3b8bax4QQ093iR7JUBQOg1JoiH9geyrhyux9Y+EjeGwt17rbRnrKCfIEqsMUn+4yT8fUqmTWK3cpJswCYq0Nb7kGjBDxaae2Tusj99yoV5XLSpo8bNaEpuMQTmtJxWsL5XusYY8/Oy2J8d4iESeX4xBAkPDBZktuuDIHWs4DHBzmyMcaRIxGxnhPBkQg3UNPiJVSOnk1qNEu3AABnOergTnvSmEQ6Wl8vuh9JQPm5mFThKGhapENsqOG+sCEjtyWihfxMH3aKz7b6c8GEtEPNTGZB2Uk3fcHxgLZxM75z5y6zNiu0V/QZLBZpnvytp19iWy0FJl+u6BEIEYG+Y8KnaqYWg2F15oH33IF0PlvJizPFZybp9pvX873GTiPz7A/tAWZRWYqe8fm7e8Ep56ChdrqBShhY7ORLXQFchJIUgNSYQGU5aG/RCRl4kGZYvzODohVs+MJKa4ccky+yv2EA8TIUJuaUTwF8LGArlnxde0zw== chaukhau2000@gmail.com'
 
         // Deployment environment
         ENVIRONMENT = 'windows'  // 'windows', 'linux', or 'macos'
@@ -35,9 +34,22 @@ pipeline {
             steps {
                 // Tải code từ nhánh 'master' của GitHub
                 git branch: "${BRANCH_NAME}", url: "${GITHUB_URL}"
+                echo "Build completed"
             }
         }
         
+        stage('CI: Run Tests') {
+            steps {
+                dir("${SERVER_PATH}") {
+                    if (ENVIRONMENT == 'windows') {
+                        bat "${COMMANDS_WIN}"
+                    } else {
+                        sh "${COMMANDS_UNIX}"
+                    }
+                }
+                echo "Tests executed"
+            }
+        }
         // Stage CD: Deploy code lên server
         stage('CD: Deploying...') {
             when {
@@ -58,23 +70,22 @@ pipeline {
                         
                         if (ENVIRONMENT == 'windows') {
                             bat 'git pull --rebase'
-
                             if (DEPLOY_ENV == 'Local') {
-                                bat "plink.exe -ssh -l ${DEPLOY_USER} -pw ${DEPLOY_PASSWORD} ${DEPLOY_HOST} '${COMMANDS_WIN}'"
-                            } else if (DEPLOY_ENV == 'Dev' || DEPLOY_ENV == 'Test' || DEPLOY_ENV == 'Staging') {
+                                bat "plink.exe -ssh -l ${LOCAL_DEPLOY_USER} -pw ${LOCAL_DEPLOY_PASSWORD} ${LOCAL_DEPLOY_HOST} '${COMMANDS_WIN}'"
+                            } else if (['Dev', 'Test', 'Staging'].contains(DEPLOY_ENV)) {
                                 bat "plink.exe -ssh -l ${JENKINS_USERNAME} -pw ${JENKINS_PASSWORD} ${DEPLOY_HOST} '${COMMANDS_WIN}'"
                             }
                         } else if (ENVIRONMENT == 'linux' || ENVIRONMENT == 'macos') {
                             sh 'git pull --rebase'
-
                             if (DEPLOY_ENV == 'Local') {
-                                sh "ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_HOST} '${COMMANDS_UNIX}'"
-                            } else if (DEPLOY_ENV == 'Dev' || DEPLOY_ENV == 'Test' || DEPLOY_ENV == 'Staging') {
+                                sh "ssh -o StrictHostKeyChecking=no ${LOCAL_DEPLOY_USER}@${LOCAL_DEPLOY_HOST} '${COMMANDS_UNIX}'"
+                            } else if (['Dev', 'Test', 'Staging'].contains(DEPLOY_ENV)) {
                                 sh "ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${DEPLOY_HOST} '${COMMANDS_UNIX}'"
                             }
                         } else {
                             error "Unsupported ENVIRONMENT: ${ENVIRONMENT}. Supported values are 'windows', 'linux', 'macos'."
                         }
+                        echo 'Deployment completed'
                     }
                 }
             }
