@@ -22,14 +22,18 @@ pipeline {
                 echo 'Current working directory:'
                 sh 'pwd'
 
-                // Find the location of the Friendify directory and print it
+                // Find the location of the ${REPO_NAME} directory and print it
                 echo "Finding ${REPO_NAME} directory:"
-                sh "find . -type d -name '${REPO_NAME}'"
+                script {
+                    def repoPath = sh(script: "find . -type d -name '${REPO_NAME}'", returnStdout: true).trim()
+                    echo "Found ${REPO_NAME} at: ${repoPath}"
+                    env.REPO_PATH = repoPath
+                }
 
-                // Change directory to Friendify and list its contents
+                // Change directory to ${REPO_NAME} and list its contents
                 echo "Changing directory to ${REPO_NAME} and listing contents:"
                 sh """
-                    cd \$(find . -type d -name '${REPO_NAME}')
+                    cd ${env.REPO_PATH}
                     pwd
                     ls -la
                 """
@@ -41,15 +45,14 @@ pipeline {
                 echo 'Setting up dependencies'
                 script {
                     sh """
-                        cd \$(find . -type d -name 'Automation_With_Playwright')
+                        cd ${env.REPO_PATH}
                         rm -rf node_modules package-lock.json
-                        npm install  // Install dependencies
-                        npx playwright install  // Install Playwright browser binaries
+                        npm install 
+                        npx playwright install  
                     """
                 }
             }
         }
-
 
         stage('Verify Playwright Installation') {
             steps {
@@ -89,13 +92,13 @@ pipeline {
                     if (isUnix()) {
                         // Navigate to the ${REPO_NAME} directory before running the command
                         sh """
-                            cd \$(find . -type d -name '${REPO_NAME}')
+                            cd ${env.REPO_PATH}
                             ${COMMAND}
                         """
                     } else {
                         // Navigate to the ${REPO_NAME} directory on Windows before running the command
                         bat """
-                            cd ${REPO_NAME}
+                            cd ${env.REPO_PATH}
                             ${COMMAND}
                         """
                     }
@@ -103,7 +106,6 @@ pipeline {
                 echo "Tests executed"
             }
         }
-
 
         stage('Archive Test Results') {
             steps {
