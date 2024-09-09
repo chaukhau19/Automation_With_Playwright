@@ -21,14 +21,14 @@ pipeline {
                 echo "Code checked out from ${BRANCH_NAME}"
             }
         }
-    
+
         stage('Setup Dependencies') {
             steps {
                 echo 'Setting up dependencies'
                 script {
-                    sh 'npm install playwright@1.47.0'
                     sh 'rm -rf node_modules package-lock.json'
-                    sh 'npm install'
+                    sh 'npm install'  // Install dependencies
+                    sh 'npx playwright install'  // Install Playwright browser binaries
                 }
             }
         }
@@ -69,11 +69,13 @@ pipeline {
                 echo 'Starting Tests'
                 script {
                     if (isUnix()) {
-                      //  sh "${COMMAND_1}"
+                        // Uncomment if you need to run this command
+                        sh "${COMMAND_1}"
                         sh "${COMMAND_2}"
                         sh "${COMMAND_3}"
                     } else {
-                     //   bat "${COMMAND_1}"
+                        // Uncomment if you need to run this command
+                        bat "${COMMAND_1}"
                         bat "${COMMAND_2}"
                         bat "${COMMAND_3}"
                     }
@@ -89,7 +91,7 @@ pipeline {
             }
         }
     }
-    
+
     post {
         always {
             script {

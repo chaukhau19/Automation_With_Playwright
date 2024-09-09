@@ -19,13 +19,25 @@ pipeline {
                 echo "Code checked out from ${BRANCH_NAME}"
             }
         }
+        
+        stage('Setup Dependencies') {
+            steps {
+                echo 'Setting up dependencies'
+                script {
+                    sh 'rm -rf node_modules package-lock.json'
+                    sh 'npm install'  // Install dependencies
+                    sh 'npx playwright install'  // Install Playwright browser binaries
+                }
+            }
+        }
+
         stage('Verify Playwright Installation') {
             steps {
                 echo 'Verifying Playwright Installation'
                 script {
                     sh 'node -v'  // Check Node.js version
                     sh 'npm -v'   // Check npm version
-                    sh 'npx playwright --version'  // Check Playwright version
+                    sh 'npx playwright --version'  // Verify Playwright installation
                 }
             }
         }
