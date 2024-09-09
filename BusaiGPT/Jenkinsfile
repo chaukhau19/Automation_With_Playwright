@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+    agent {
+        docker { image 'node:18.20.4-alpine3.20' }
+    }
     environment {
         GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
         REPO_NAME = 'BusaiGPT'  
@@ -15,7 +17,7 @@ pipeline {
                 echo "Code checked out from ${BRANCH_NAME}"
             }
         }
-
+        
         stage('Search for BS_Auto.sh Script') {
             steps {
                 echo 'Searching for BS_Auto.sh'
