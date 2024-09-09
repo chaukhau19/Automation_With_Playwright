@@ -9,7 +9,6 @@ pipeline {
         FILE_BAT = 'BusaiGPT/BS_Auto.bat'
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
-        RUN_TESTS = false
         FOUND_SCRIPT_PATH = ''
     }
     stages {
@@ -32,26 +31,25 @@ pipeline {
                         echo "BS_Auto.sh found at: ${findResult}"
                         // Lưu đường dẫn của script vào biến môi trường
                         env.FOUND_SCRIPT_PATH = findResult
-                        env.RUN_TESTS = 'true'
                     } else {
                         echo "BS_Auto.sh not found, skipping tests."
-                        env.RUN_TESTS = 'false'
                     }
                 }
             }
         }
 
         stage('CI: Run Tests') {
-            when {
-                expression { return env.RUN_TESTS == 'true' }  // Run tests only if script was found
-            }
             steps {
                 echo 'Starting Tests'
                 script {
                     if (isUnix()) {
-                        echo "Running on Unix environment"
-                        sh "chmod +x ${env.FOUND_SCRIPT_PATH}"  // Thực hiện chmod cho script
-                        sh "${env.FOUND_SCRIPT_PATH}"          // Chạy script từ vị trí tìm được
+                        if (env.FOUND_SCRIPT_PATH) {
+                            echo "Running on Unix environment"
+                            sh "chmod +x ${env.FOUND_SCRIPT_PATH}"  // Thực hiện chmod cho script
+                            sh "${env.FOUND_SCRIPT_PATH}"          // Chạy script từ vị trí tìm được
+                        } else {
+                            echo "No BS_Auto.sh script found, skipping execution."
+                        }
                     } else {
                         echo "Running on Windows environment"
                         bat "${FILE_BAT}"
