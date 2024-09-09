@@ -9,39 +9,42 @@ pipeline {
         BRANCH_NAME = 'master'
     }
     stages {
-        stage('Checkout code') {
+        stage('Checkout Code') {
             steps {
                 git branch: "${BRANCH_NAME}", url: "${GITHUB_URL}"
                 echo "Code checked out from ${BRANCH_NAME}"
             }
         }
-        stage('Find BS_Auto.sh') {
+        stage('Search for BS_Auto.sh Script') {
             steps {
                 echo 'Searching for BS_Auto.sh'
                 script {
-                    // Tìm vị trí của file BS_Auto.sh và in ra log
                     def findCommand = 'find . -name "BS_Auto.sh"'
                     def findResult = sh(script: findCommand, returnStdout: true).trim()
-                    echo "BS_Auto.sh found at: ${findResult}"
+                    if (findResult) {
+                        echo "BS_Auto.sh found at: ${findResult}"
+                    } else {
+                        error "BS_Auto.sh not found!"
+                    }
                 }
             }
         }
-    //     stage('CI: Run Tests') {
-    //         steps {
-    //             echo 'Starting Tests'
-    //             script {
-    //                 if (isUnix()) {
-    //                     // Cấp quyền thực thi và chạy file .sh nếu tìm thấy
-    //                     sh "chmod +x ${FILE_SH}"
-    //                     sh "./${FILE_SH}"
-    //                 } else {
-    //                     bat "${FILE_BAT}"  // Chạy file .bat
-    //                 }
-    //             }
-    //             echo "Tests executed"
-    //         }
-    //     }
-    // }
+        // stage('CI: Run Tests') {
+        //     steps {
+        //         echo 'Starting Tests'
+        //         script {
+        //             if (isUnix()) {
+        //                 // Grant execute permissions and run .sh script
+        //                 sh "chmod +x ${FILE_SH}"
+        //                 sh "./${FILE_SH}"
+        //             } else {
+        //                 bat "${FILE_BAT}"  // Run .bat file on Windows
+        //             }
+        //         }
+        //         echo "Tests executed"
+        //     }
+        // }
+    }
     post {
         always {
             script {
