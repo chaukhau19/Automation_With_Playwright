@@ -7,13 +7,53 @@ pipeline {
         FILE_BAT = 'BusaiGPT/BS_Auto.bat'
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
-        RUN_TESTS = false
     }
     stages {
         stage('Checkout Code') {
             steps {
                 git branch: "${BRANCH_NAME}", url: "${GITHUB_URL}"
                 echo "Code checked out from ${BRANCH_NAME}"
+            }
+        }
+        stage('Setup Node.js') {
+            steps {
+                script {
+                    // Install Node.js on Linux or Windows based on the agent's OS
+                    if (isUnix()) {
+                        sh 'curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -'
+                        sh 'sudo apt-get install -y nodejs'
+                    } else {
+                        bat 'choco install nodejs-lts'
+                    }
+                }
+            }
+        }
+        stage('Install Dependencies') {
+            steps {
+                script {
+                    def workingDir = './BusaiGPT'
+                    if (isUnix()) {
+                        // Install npm packages
+                        sh "cd ${workingDir} && npm install"
+                    } else {
+                        // Windows equivalent
+                        bat "cd ${workingDir} && npm install"
+                    }
+                }
+            }
+        }
+        stage('Install Playwright Browsers') {
+            steps {
+                script {
+                    def workingDir = './BusaiGPT'
+                    if (isUnix()) {
+                        // Install Playwright browsers
+                        sh "cd ${workingDir} && npx playwright install"
+                    } else {
+                        // Windows equivalent
+                        bat "cd ${workingDir} && npx playwright install"
+                    }
+                }
             }
         }
         stage('Search for BS_Auto.sh Script') {
@@ -27,6 +67,7 @@ pipeline {
                         RUN_TESTS = true
                     } else {
                         echo "BS_Auto.sh not found, skipping tests."
+                        RUN_TESTS = false
                     }
                 }
             }
@@ -46,6 +87,12 @@ pipeline {
                     }
                 }
                 echo "Tests executed"
+            }
+        }
+        stage('Archive Test Results') {
+            steps {
+                archiveArtifacts artifacts: './BusaiGPT/playwright-report/**/*', allowEmptyArchive: true
+                echo 'Test results archived.'
             }
         }
     }
