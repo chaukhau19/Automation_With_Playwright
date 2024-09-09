@@ -1,135 +1,154 @@
 pipeline {
-    agent any
-    environment {
-        GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
-        REPO_NAME = 'BusaiGPT'
-        FILE_SH = 'BusaiGPT/BS_Auto.sh'
-        FILE_BAT = 'BusaiGPT/BS_Auto.bat'
-        SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
-        BRANCH_NAME = 'master'
-        RUN_TESTS = false
+  agent any
+  stages {
+    stage('Checkout Code') {
+      steps {
+        git(branch: "${BRANCH_NAME}", url: "${GITHUB_URL}")
+        echo "Code checked out from ${BRANCH_NAME}"
+      }
     }
-    stages {
-        stage('Checkout Code') {
-            steps {
-                git branch: "${BRANCH_NAME}", url: "${GITHUB_URL}"
-                echo "Code checked out from ${BRANCH_NAME}"
+
+    stage('Setup Node.js') {
+      steps {
+        script {
+          if (isUnix()) {
+            // Check if Node.js is already installed
+            def nodeVersionCheck = sh(script: 'node -v', returnStatus: true)
+            if (nodeVersionCheck != 0) {
+              echo 'Node.js not found, installing Node.js'
+              sh 'curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -'
+              sh 'sudo apt-get install -y nodejs'
+            } else {
+              echo 'Node.js is already installed'
             }
+          } else {
+            // For Windows, use Chocolatey to install Node.js
+            bat '''
+if not exist "%ProgramFiles%\\nodejs" (
+choco install nodejs-lts -y
+) else (
+echo Node.js is already installed
+)
+'''
+          }
         }
-        stage('Setup Node.js') {
-            steps {
-                script {
-                    if (isUnix()) {
-                        // Check if Node.js is already installed
-                        def nodeVersionCheck = sh(script: 'node -v', returnStatus: true)
-                        if (nodeVersionCheck != 0) {
-                            echo 'Node.js not found, installing Node.js'
-                            sh 'curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -'
-                            sh 'sudo apt-get install -y nodejs'
-                        } else {
-                            echo 'Node.js is already installed'
-                        }
-                    } else {
-                        // For Windows, use Chocolatey to install Node.js
-                        bat '''
-                            if not exist "%ProgramFiles%\\nodejs" (
-                                choco install nodejs-lts -y
-                            ) else (
-                                echo Node.js is already installed
-                            )
-                        '''
-                    }
-                }
-            }
-        }
-        stage('Install Dependencies') {
-            steps {
-                script {
-                    def workingDir = './BusaiGPT'
-                    if (isUnix()) {
-                        sh "cd ${workingDir} && npm install"
-                    } else {
-                        bat "cd ${workingDir} && npm install"
-                    }
-                }
-            }
-        }
-        stage('Install Playwright Browsers') {
-            steps {
-                script {
-                    def workingDir = './BusaiGPT'
-                    if (isUnix()) {
-                        sh "cd ${workingDir} && npx playwright install"
-                    } else {
-                        bat "cd ${workingDir} && npx playwright install"
-                    }
-                }
-            }
-        }
-        stage('List Directory Contents') {
-            steps {
-                script {
-                    def workingDir = './BusaiGPT'
-                    if (isUnix()) {
-                        sh "cd ${workingDir} && ls -al"
-                    } else {
-                        bat "cd ${workingDir} && dir"
-                    }
-                }
-            }
-        }
-        stage('Search for BS_Auto.sh Script') {
-            steps {
-                echo 'Searching for BS_Auto.sh'
-                script {
-                    def findCommand = 'find . -name "BS_Auto.sh"'
-                    def findResult = sh(script: findCommand, returnStdout: true).trim()
-                    if (findResult) {
-                        echo "BS_Auto.sh found at: ${findResult}"
-                        env.RUN_TESTS = 'true'
-                    } else {
-                        echo "BS_Auto.sh not found, skipping tests."
-                        env.RUN_TESTS = 'false'
-                    }
-                }
-            }
-        }
-        stage('CI: Run Tests') {
-            when {
-                expression { return env.RUN_TESTS == 'true' }  // Run tests only if script was found
-            }
-            steps {
-                echo 'Starting Tests'
-                script {
-                    def workingDir = './BusaiGPT'
-                    if (isUnix()) {
-                        sh "chmod +x ${workingDir}/${FILE_SH}"
-                        sh "./${workingDir}/${FILE_SH}"
-                    } else {
-                        bat "${workingDir}\\${FILE_BAT}"
-                    }
-                }
-                echo "Tests executed"
-            }
-        }
-        stage('Archive Test Results') {
-            steps {
-                archiveArtifacts artifacts: './BusaiGPT/playwright-report/**/*', allowEmptyArchive: true
-                echo 'Test results archived.'
-            }
-        }
+
+      }
     }
-    post {
-        always {
-            script {
-                def status = currentBuild.result ?: 'SUCCESS'
-                echo "Build status: ${status}"
-                if (isUnix()) {
-                    sh "rm -rf ${SERVER_PATH}/temp/*"
-                } else {
-                    bat "del /Q ${SERVER_PATH}\\temp\\*"
-                }
-            }
+
+    stage('Install Dependencies') {
+      steps {
+        script {
+          def workingDir = './BusaiGPT'
+          if (isUnix()) {
+            sh "cd ${workingDir} && npm install"
+          } else {
+            bat "cd ${workingDir} && npm install"
+          }
         }
+
+      }
     }
+
+    stage('Install Playwright Browsers') {
+      steps {
+        script {
+          def workingDir = './BusaiGPT'
+          if (isUnix()) {
+            sh "cd ${workingDir} && npx playwright install"
+          } else {
+            bat "cd ${workingDir} && npx playwright install"
+          }
+        }
+
+      }
+    }
+
+    stage('List Directory Contents') {
+      steps {
+        script {
+          def workingDir = './BusaiGPT'
+          if (isUnix()) {
+            sh "cd ${workingDir} && ls -al"
+          } else {
+            bat "cd ${workingDir} && dir"
+          }
+        }
+
+      }
+    }
+
+    stage('Search for BS_Auto.sh Script') {
+      steps {
+        echo 'Searching for BS_Auto.sh'
+        script {
+          def findCommand = 'find . -name "BS_Auto.sh"'
+          def findResult = sh(script: findCommand, returnStdout: true).trim()
+          if (findResult) {
+            echo "BS_Auto.sh found at: ${findResult}"
+            env.RUN_TESTS = 'true'
+          } else {
+            echo "BS_Auto.sh not found, skipping tests."
+            env.RUN_TESTS = 'false'
+          }
+        }
+
+      }
+    }
+
+    stage('CI: Run Tests') {
+      when {
+        expression {
+          return env.RUN_TESTS == 'true'
+        }
+
+      }
+      steps {
+        echo 'Starting Tests'
+        script {
+          def workingDir = './BusaiGPT'
+          if (isUnix()) {
+            sh "chmod +x ${workingDir}/${FILE_SH}"
+            sh "./${workingDir}/${FILE_SH}"
+          } else {
+            bat "${workingDir}\\${FILE_BAT}"
+          }
+        }
+
+        echo 'Tests executed'
+      }
+    }
+
+    stage('Archive Test Results') {
+      steps {
+        archiveArtifacts(artifacts: './BusaiGPT/playwright-report/**/*', allowEmptyArchive: true)
+        echo 'Test results archived.'
+      }
+    }
+
+  }
+  environment {
+    GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
+    REPO_NAME = 'BusaiGPT'
+    FILE_SH = 'BusaiGPT/BS_Auto.sh'
+    FILE_BAT = 'BusaiGPT/BS_Auto.bat'
+    SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
+    BRANCH_NAME = 'master'
+    RUN_TESTS = false
+  }
+  post {
+    always {
+      script {
+        def status = currentBuild.result ?: 'SUCCESS'
+        echo "Build status: ${status}"
+        if (isUnix()) {
+          sh "rm -rf ${SERVER_PATH}/temp/*"
+        } else {
+          bat "del /Q ${SERVER_PATH}\\temp\\*"
+        }
+      }
+
+    }
+
+  }
 }
