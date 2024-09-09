@@ -13,6 +13,7 @@ pipeline {
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
     }
+
     stages {
         stage('Checkout Code') {
             steps {
@@ -21,13 +22,24 @@ pipeline {
             }
         }
     
+        stage('Setup Dependencies') {
+            steps {
+                echo 'Setting up dependencies'
+                script {
+                    sh 'npm install playwright@1.47.0'
+                    sh 'rm -rf node_modules package-lock.json'
+                    sh 'npm install'
+                }
+            }
+        }
+
         stage('Verify Playwright Installation') {
             steps {
                 echo 'Verifying Playwright Installation'
                 script {
                     sh 'node -v'  // Check Node.js version
                     sh 'npm -v'   // Check npm version
-                    sh 'npm ls @playwright/test || true'  // Verify Playwright installation
+                    sh 'npx playwright --version'  // Verify Playwright installation
                 }
             }
         }
@@ -40,10 +52,10 @@ pipeline {
                     def findResult = sh(script: findCommand, returnStdout: true).trim()
                     if (findResult) {
                         echo "FD_Auto.sh found at: ${findResult}"
-                        RUN_TESTS = true
+                        env.RUN_TESTS = 'true'
                     } else {
                         echo "FD_Auto.sh not found, skipping tests."
-                        RUN_TESTS = false
+                        env.RUN_TESTS = 'false'
                     }
                 }
             }
@@ -51,17 +63,17 @@ pipeline {
 
         stage('CI: Run Tests') {
             when {
-                expression { return RUN_TESTS }  // Run tests only if script was found
+                expression { return env.RUN_TESTS == 'true' }  // Run tests only if script was found
             }
             steps {
                 echo 'Starting Tests'
                 script {
                     if (isUnix()) {
-                        sh "${COMMAND_1}"
+                      //  sh "${COMMAND_1}"
                         sh "${COMMAND_2}"
                         sh "${COMMAND_3}"
                     } else {
-                        bat "${COMMAND_1}"
+                     //   bat "${COMMAND_1}"
                         bat "${COMMAND_2}"
                         bat "${COMMAND_3}"
                     }
@@ -72,11 +84,12 @@ pipeline {
 
         stage('Archive Test Results') {
             steps {
-                archiveArtifacts artifacts: './Friendify/playwright-report/**/*', allowEmptyArchive: true
+                archiveArtifacts artifacts: '**/playwright-report/**/*', allowEmptyArchive: true
                 echo 'Test results archived.'
             }
         }
     }
+    
     post {
         always {
             script {

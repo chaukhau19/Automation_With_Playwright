@@ -7,7 +7,7 @@ pipeline {
         REPO_NAME = 'BusaiGPT'
         FILE_SH = 'BS_Auto.sh'
         FILE_BAT = 'BS_Auto.bat'
-        COMMAND_1 = 'npx playwright test BS_Actions.spec.js --headed --reporter=line --workers=1'
+        COMMAND = 'npx playwright test BS_Actions.spec.js --headed --reporter=line --workers=1'
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
     }
@@ -55,9 +55,9 @@ pipeline {
                 echo 'Starting Tests'
                 script {
                     if (isUnix()) {
-                        sh "${COMMAND_1}"
+                        sh "${COMMAND}"
                     } else {
-                        bat "${COMMAND_1}"
+                        bat "${COMMAND}"
                     }
                 }
                 echo "Tests executed"
