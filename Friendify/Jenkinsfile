@@ -1,59 +1,94 @@
 pipeline {
-  agent any
-  stages {
-    stage('Checkout') {
-      steps {
-        checkout scm
-      }
+    agent any
+    environment {
+        GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
+        REPO_NAME = 'Friendify'
+        FILE_SH = 'Friendify/FD_Auto.sh'
+        FILE_BAT = 'Friendify/FD_Auto.bat'
+        SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
+        BRANCH_NAME = 'master'
     }
-
-    stage('Install Dependencies') {
-      steps {
-        dir(path: 'Automation_With_Playwright/Friendify') {
-          sh 'npm install'
-          sh 'npx playwright install'
-          sh 'npx playwright test FD_Actions.spec.js --headed --reporter=line --workers=1'
-        }
-
-      }
-    }
-
-    stage('Archive Test Results') {
-      steps {
-        dir(path: 'Automation_With_Playwright/Friendify') {
-          archiveArtifacts(artifacts: 'playwright-report/**', allowEmptyArchive: true)
-        }
-
-      }
-    }
-
-    stage('CI: Run Tests') {
-      steps {
-        dir(path: "${SERVER_PATH}") {
-          script {
-            if (isUnix()) {
-              sh "${COMMANDS}"  // For Unix-based systems
-            } else {
-              bat "${COMMANDS}"  // For Windows-based systems
+    // tools {
+    //     nodejs 'NodeJS_18'  // Use the name of the Node.js installation you configured
+    // }
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: "${BRANCH_NAME}", url: "${GITHUB_URL}"
+                echo "Code checked out from ${BRANCH_NAME}"
             }
-          }
-
         }
-
-        echo 'Tests executed'
-      }
+        // stage('Install Dependencies') {
+        //     steps {
+        //         script {
+        //             def workingDir = './BusaiGPT'
+        //             if (isUnix()) {
+        //                 sh "cd ${workingDir} && npm install"
+        //             } else {
+        //                 bat "cd ${workingDir} && npm install"
+        //             }
+        //         }
+        //     }
+        // }
+        // stage('Install Playwright Browsers') {
+        //     steps {
+        //         script {
+        //             def workingDir = './BusaiGPT'
+        //             if (isUnix()) {
+        //                 sh "cd ${workingDir} && npx playwright install"
+        //             } else {
+        //                 bat "cd ${workingDir} && npx playwright install"
+        //             }
+        //         }
+        //     }
+        // }
+        stage('Search for FD_Auto.sh Script') {
+            steps {
+                echo 'Searching for FD_Auto.sh'
+                script {
+                    def findCommand = 'find . -name "FD_Auto.sh"'
+                    def findResult = sh(script: findCommand, returnStdout: true).trim()
+                    if (findResult) {
+                        echo "FD_Auto.sh found at: ${findResult}"
+                        RUN_TESTS = true
+                    } else {
+                        echo "FD_Auto.sh not found, skipping tests."
+                        RUN_TESTS = false
+                    }
+                }
+            }
+        }
+        stage('CI: Run Tests') {
+            when {
+                expression { return RUN_TESTS }  // Run tests only if script was found
+            }
+            steps {
+                echo 'Starting Tests'
+                script {
+                    if (isUnix()) {
+                        sh "chmod +x ${FILE_SH}"
+                        sh "./${FILE_SH}"
+                    } else {
+                        bat "${FILE_BAT}"
+                    }
+                }
+                echo "Tests executed"
+            }
+        }
+        stage('Archive Test Results') {
+            steps {
+                archiveArtifacts artifacts: './BusaiGPT/playwright-report/**/*', allowEmptyArchive: true
+                echo 'Test results archived.'
+            }
+        }
     }
-
-  }
-  post {
-    always {
-      script {
-        def status = currentBuild.result ?: 'SUCCESS'
-        echo "Build status: ${status}"
-        sh "rm -rf ./* ./.??*"
-      }
-
+    post {
+        always {
+            script {
+                def status = currentBuild.result ?: 'SUCCESS'
+                echo "Build status: ${status}"
+                sh "rm -rf Automation_With_Playwright/${REPO_NAME}/temp/*"
+            }
+        }
     }
-
-  }
 }

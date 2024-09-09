@@ -18,30 +18,30 @@ pipeline {
                 echo "Code checked out from ${BRANCH_NAME}"
             }
         }
-        stage('Install Dependencies') {
-            steps {
-                script {
-                    def workingDir = './BusaiGPT'
-                    if (isUnix()) {
-                        sh "cd ${workingDir} && npm install"
-                    } else {
-                        bat "cd ${workingDir} && npm install"
-                    }
-                }
-            }
-        }
-        stage('Install Playwright Browsers') {
-            steps {
-                script {
-                    def workingDir = './BusaiGPT'
-                    if (isUnix()) {
-                        sh "cd ${workingDir} && npx playwright install"
-                    } else {
-                        bat "cd ${workingDir} && npx playwright install"
-                    }
-                }
-            }
-        }
+        // stage('Install Dependencies') {
+        //     steps {
+        //         script {
+        //             def workingDir = './BusaiGPT'
+        //             if (isUnix()) {
+        //                 sh "cd ${workingDir} && npm install"
+        //             } else {
+        //                 bat "cd ${workingDir} && npm install"
+        //             }
+        //         }
+        //     }
+        // }
+        // stage('Install Playwright Browsers') {
+        //     steps {
+        //         script {
+        //             def workingDir = './BusaiGPT'
+        //             if (isUnix()) {
+        //                 sh "cd ${workingDir} && npx playwright install"
+        //             } else {
+        //                 bat "cd ${workingDir} && npx playwright install"
+        //             }
+        //         }
+        //     }
+        // }
         stage('Search for BS_Auto.sh Script') {
             steps {
                 echo 'Searching for BS_Auto.sh'
