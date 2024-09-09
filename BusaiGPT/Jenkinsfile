@@ -4,9 +4,9 @@ pipeline {
     }
     environment {
         GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
-        REPO_NAME = 'BusaiGPT'  
-        FILE_SH = 'BusaiGPT/BS_Auto.sh'
-        FILE_BAT = 'BusaiGPT/BS_Auto.bat'
+        REPO_NAME = 'Friendify'
+        FILE_SH = 'Friendify/FD_Auto.sh'
+        FILE_BAT = 'Friendify/FD_Auto.bat'
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
         FOUND_SCRIPT_PATH = ''
@@ -14,44 +14,45 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git(branch: "${BRANCH_NAME}", url: "${GITHUB_URL}")
+                git branch: "${BRANCH_NAME}", url: "${GITHUB_URL}"
                 echo "Code checked out from ${BRANCH_NAME}"
             }
         }
-        
-        stage('Search for BS_Auto.sh Script') {
+
+        stage('Search for FD_Auto.sh Script') {
             steps {
-                echo 'Searching for BS_Auto.sh'
+                echo 'Searching for FD_Auto.sh'
                 script {
-                    // Sử dụng find để tìm đường dẫn đầy đủ của file
-                    def findCommand = 'find . -name "BS_Auto.sh"'
+                    def findCommand = 'find . -name "FD_Auto.sh"'
                     def findResult = sh(script: findCommand, returnStdout: true).trim()
-                    
                     if (findResult) {
-                        echo "BS_Auto.sh found at: ${findResult}"
-                        // Lưu đường dẫn của script vào biến môi trường
+                        echo "FD_Auto.sh found at: ${findResult}"
                         env.FOUND_SCRIPT_PATH = findResult
+                        RUN_TESTS = true
                     } else {
-                        echo "BS_Auto.sh not found, skipping tests."
+                        echo "FD_Auto.sh not found, skipping tests."
+                        RUN_TESTS = false
                     }
                 }
             }
         }
 
         stage('CI: Run Tests') {
+            when {
+                expression { return RUN_TESTS }  // Run tests only if script was found
+            }
             steps {
                 echo 'Starting Tests'
                 script {
                     if (isUnix()) {
+                        // Sử dụng đường dẫn đầy đủ được tìm từ giai đoạn trước
                         if (env.FOUND_SCRIPT_PATH) {
-                            echo "Running on Unix environment"
-                            sh "chmod +x ${env.FOUND_SCRIPT_PATH}"  // Thực hiện chmod cho script
-                            sh "${env.FOUND_SCRIPT_PATH}"          // Chạy script từ vị trí tìm được
+                            sh "chmod +x ${env.FOUND_SCRIPT_PATH}"
+                            sh "${env.FOUND_SCRIPT_PATH}"
                         } else {
-                            echo "No BS_Auto.sh script found, skipping execution."
+                            echo "Script path not found."
                         }
                     } else {
-                        echo "Running on Windows environment"
                         bat "${FILE_BAT}"
                     }
                 }
@@ -61,7 +62,7 @@ pipeline {
 
         stage('Archive Test Results') {
             steps {
-                archiveArtifacts(artifacts: './BusaiGPT/playwright-report/**/*', allowEmptyArchive: true)
+                archiveArtifacts artifacts: './Friendify/playwright-report/**/*', allowEmptyArchive: true
                 echo 'Test results archived.'
             }
         }
@@ -73,9 +74,14 @@ pipeline {
                 def status = currentBuild.result ?: 'SUCCESS'
                 echo "Build status: ${status}"
                 if (isUnix()) {
-                    sh "rm -rf ${SERVER_PATH}/temp/*"
+                    // Kiểm tra xem thư mục tạm có tồn tại trước khi xóa
+                    if (fileExists("${SERVER_PATH}/temp")) {
+                        sh "rm -rf ${SERVER_PATH}/temp/*"
+                    } else {
+                        echo "Temporary folder does not exist."
+                    }
                 } else {
-                    bat "del /Q ${SERVER_PATH}\\temp\\*"
+                    bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
                 }
             }
         }

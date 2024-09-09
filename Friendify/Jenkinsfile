@@ -41,6 +41,10 @@ pipeline {
             steps {
                 echo 'Starting Tests'
                 script {
+                    sh 'node -v'  // Kiểm tra phiên bản Node.js
+                    sh 'npm -v'   // Kiểm tra phiên bản npm
+                    sh 'npm ls @playwright/test'  // Kiểm tra phiên bản Playwright
+
                     if (isUnix()) {
                         sh "${COMMAND_1}"
                         sh "${COMMAND_2}"
@@ -54,7 +58,6 @@ pipeline {
                 echo "Tests executed"
             }
         }
-
         // stage('CI: Run Tests') {
         //     when {
         //         expression { return RUN_TESTS }  // Run tests only if script was found
