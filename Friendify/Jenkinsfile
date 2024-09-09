@@ -20,7 +20,25 @@ pipeline {
                 echo "Code checked out from ${BRANCH_NAME}"
             }
         }
+
+        stage('Install Dependencies') {
+            steps {
+                echo 'Installing Dependencies'
+                sh 'npm install'  // Install project dependencies
+            }
+        }
     
+        stage('Verify Playwright Installation') {
+            steps {
+                echo 'Verifying Playwright Installation'
+                script {
+                    sh 'node -v'  // Check Node.js version
+                    sh 'npm -v'   // Check npm version
+                    sh 'npm ls @playwright/test'  // Verify Playwright installation
+                }
+            }
+        }
+
         stage('Search for FD_Auto.sh Script') {
             steps {
                 echo 'Searching for FD_Auto.sh'
@@ -37,14 +55,14 @@ pipeline {
                 }
             }
         }
+
         stage('CI: Run Tests') {
+            when {
+                expression { return RUN_TESTS }  // Run tests only if script was found
+            }
             steps {
                 echo 'Starting Tests'
                 script {
-                    sh 'node -v'  // Kiểm tra phiên bản Node.js
-                    sh 'npm -v'   // Kiểm tra phiên bản npm
-                    sh 'npm ls @playwright/test'  // Kiểm tra phiên bản Playwright
-
                     if (isUnix()) {
                         sh "${COMMAND_1}"
                         sh "${COMMAND_2}"
@@ -58,23 +76,7 @@ pipeline {
                 echo "Tests executed"
             }
         }
-        // stage('CI: Run Tests') {
-        //     when {
-        //         expression { return RUN_TESTS }  // Run tests only if script was found
-        //     }
-        //     steps {
-        //         echo 'Starting Tests'
-        //         script {
-        //             if (isUnix()) {
-        //                 sh "chmod +x ${FILE_SH}"
-        //                 sh "./${FILE_SH}"
-        //             } else {
-        //                 bat "${FILE_BAT}"
-        //             }
-        //         }
-        //         echo "Tests executed"
-        //     }
-        // }
+
         stage('Archive Test Results') {
             steps {
                 archiveArtifacts artifacts: './Friendify/playwright-report/**/*', allowEmptyArchive: true

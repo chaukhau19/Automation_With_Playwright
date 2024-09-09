@@ -5,12 +5,15 @@ pipeline {
     environment {
         GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
         REPO_NAME = 'Friendify'
-        FILE_SH = 'Friendify/FD_Auto.sh'
-        FILE_BAT = 'Friendify/FD_Auto.bat'
+        FILE_SH = 'FD_Auto.sh'
+        FILE_BAT = 'FD_Auto.bat'
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
-        FOUND_SCRIPT_PATH = ''
     }
+
+    // Khai báo biến RUN_TESTS toàn cục
+    def RUN_TESTS = false
+
     stages {
         stage('Checkout Code') {
             steps {
@@ -27,8 +30,10 @@ pipeline {
                     def findResult = sh(script: findCommand, returnStdout: true).trim()
                     if (findResult) {
                         echo "FD_Auto.sh found at: ${findResult}"
-                        env.FOUND_SCRIPT_PATH = findResult
+                        // Gán biến RUN_TESTS dựa vào kết quả tìm kiếm
                         RUN_TESTS = true
+                        // Lưu đường dẫn chính xác của file để dùng trong bước tiếp theo
+                        env.FULL_SH_PATH = findResult
                     } else {
                         echo "FD_Auto.sh not found, skipping tests."
                         RUN_TESTS = false
@@ -45,13 +50,8 @@ pipeline {
                 echo 'Starting Tests'
                 script {
                     if (isUnix()) {
-                        // Sử dụng đường dẫn đầy đủ được tìm từ giai đoạn trước
-                        if (env.FOUND_SCRIPT_PATH) {
-                            sh "chmod +x ${env.FOUND_SCRIPT_PATH}"
-                            sh "${env.FOUND_SCRIPT_PATH}"
-                        } else {
-                            echo "Script path not found."
-                        }
+                        sh "chmod +x ${FILE_SH}"
+                        sh "./${FILE_SH}"
                     } else {
                         bat "${FILE_BAT}"
                     }
