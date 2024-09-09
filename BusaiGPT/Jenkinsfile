@@ -22,17 +22,14 @@ pipeline {
             steps {
                 echo 'Searching for BS_Auto.sh'
                 script {
-                    // Tìm kiếm file BS_Auto.sh
                     def findCommand = 'find . -name "BS_Auto.sh"'
                     def findResult = sh(script: findCommand, returnStdout: true).trim()
-
                     if (findResult) {
                         echo "BS_Auto.sh found at: ${findResult}"
-                        env.RUN_TESTS = 'true'
-                        env.FILE_SH = findResult // Gán đường dẫn đầy đủ để chạy script
+                        RUN_TESTS = true
                     } else {
                         echo "BS_Auto.sh not found, skipping tests."
-                        env.RUN_TESTS = 'false'
+                        RUN_TESTS = false
                     }
                 }
             }
@@ -40,22 +37,19 @@ pipeline {
 
         stage('CI: Run Tests') {
             when {
-                expression {
-                    return env.RUN_TESTS == 'true'
-                }
+                expression { return RUN_TESTS }  // Run tests only if script was found
             }
             steps {
+                echo 'Starting Tests'
                 script {
                     if (isUnix()) {
-                        echo "Running on Unix-based environment (Linux/Mac)"
                         sh "chmod +x ${FILE_SH}"
-                        sh "${FILE_SH}"
+                        sh "./${FILE_SH}"
                     } else {
-                        echo "Running on Windows environment"
                         bat "${FILE_BAT}"
                     }
                 }
-                echo 'Tests executed'
+                echo "Tests executed"
             }
         }
 

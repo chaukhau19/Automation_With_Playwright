@@ -1,10 +1,12 @@
 pipeline {
-    agent any
+    agent {
+        docker { image 'node:18.20.4-alpine3.20' }
+    }
     environment {
         GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
         REPO_NAME = 'Friendify'
-        FILE_SH = 'FD_Auto.sh'
-        FILE_BAT = 'FD_Auto.bat'
+        FILE_SH = 'Friendify/FD_Auto.sh'
+        FILE_BAT = 'Friendify/FD_Auto.bat'
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
         RUN_TESTS = false
@@ -25,27 +27,27 @@ pipeline {
                     def findResult = sh(script: findCommand, returnStdout: true).trim()
                     if (findResult) {
                         echo "FD_Auto.sh found at: ${findResult}"
-                        env.RUN_TESTS = 'true'
+                        RUN_TESTS = true
                     } else {
                         echo "FD_Auto.sh not found, skipping tests."
-                        env.RUN_TESTS = 'false'
+                        RUN_TESTS = false
                     }
                 }
             }
         }
+
         stage('CI: Run Tests') {
             when {
-                expression { return env.RUN_TESTS == 'true' }  // Run tests only if script was found
+                expression { return RUN_TESTS }  // Run tests only if script was found
             }
             steps {
                 echo 'Starting Tests'
                 script {
-                    def workingDir = './Friendify'
                     if (isUnix()) {
-                        sh "chmod +x ${workingDir}/${FILE_SH}"
-                        sh "${workingDir}/${FILE_SH}"
+                        sh "chmod +x ${FILE_SH}"
+                        sh "./${FILE_SH}"
                     } else {
-                        bat "${workingDir}\\${FILE_BAT}"
+                        bat "${FILE_BAT}"
                     }
                 }
                 echo "Tests executed"
