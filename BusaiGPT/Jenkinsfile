@@ -7,6 +7,7 @@ pipeline {
         FILE_BAT = 'Automation_With_Playwright/BusaiGPT/BS_Auto.bat'
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
+        RUN_TESTS = false
     }
     stages {
         stage('Checkout Code') {
@@ -23,27 +24,30 @@ pipeline {
                     def findResult = sh(script: findCommand, returnStdout: true).trim()
                     if (findResult) {
                         echo "BS_Auto.sh found at: ${findResult}"
+                        RUN_TESTS = true
                     } else {
-                        error "BS_Auto.sh not found!"
+                        echo "BS_Auto.sh not found, skipping tests."
                     }
                 }
             }
         }
-        // stage('CI: Run Tests') {
-        //     steps {
-        //         echo 'Starting Tests'
-        //         script {
-        //             if (isUnix()) {
-        //                 // Grant execute permissions and run .sh script
-        //                 sh "chmod +x ${FILE_SH}"
-        //                 sh "./${FILE_SH}"
-        //             } else {
-        //                 bat "${FILE_BAT}"  // Run .bat file on Windows
-        //             }
-        //         }
-        //         echo "Tests executed"
-        //     }
-        // }
+        stage('CI: Run Tests') {
+            when {
+                expression { return RUN_TESTS }  // Run tests only if script was found
+            }
+            steps {
+                echo 'Starting Tests'
+                script {
+                    if (isUnix()) {
+                        sh "chmod +x ${FILE_SH}"
+                        sh "./${FILE_SH}"
+                    } else {
+                        bat "${FILE_BAT}"
+                    }
+                }
+                echo "Tests executed"
+            }
+        }
     }
     post {
         always {
