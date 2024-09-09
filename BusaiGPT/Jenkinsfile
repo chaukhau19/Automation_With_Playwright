@@ -17,9 +17,11 @@ pipeline {
             steps {
                 git branch: "${BRANCH_NAME}", url: "${GITHUB_URL}"
                 echo "Code checked out from ${BRANCH_NAME}"
+                // Verify that package.json exists
+                sh 'ls -la'
             }
         }
-        
+
         stage('Setup Dependencies') {
             steps {
                 echo 'Setting up dependencies'
