@@ -25,6 +25,7 @@ pipeline {
                 script {
                     sh 'node -v'  // Check Node.js version
                     sh 'npm -v'   // Check npm version
+                    sh 'npx playwright --version'  // Check Playwright version
                 }
             }
         }
