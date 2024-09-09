@@ -7,9 +7,11 @@ pipeline {
         REPO_NAME = 'Friendify'
         FILE_SH = 'Friendify/FD_Auto.sh'
         FILE_BAT = 'Friendify/FD_Auto.bat'
+        COMMAND_1 = 'npx playwright test FD_Register.spec.js --headed --reporter=line --workers=1'
+        COMMAND_2 = 'npx playwright test FD_Login.spec.js --headed --reporter=line --workers=1'
+        COMMAND_3 = 'npx playwright test FD_Actions.spec.js --headed --reporter=line --workers=1'
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
-        RUN_TESTS = false
     }
     stages {
         stage('Checkout Code') {
@@ -35,24 +37,41 @@ pipeline {
                 }
             }
         }
-
         stage('CI: Run Tests') {
-            when {
-                expression { return RUN_TESTS }  // Run tests only if script was found
-            }
             steps {
                 echo 'Starting Tests'
                 script {
                     if (isUnix()) {
-                        sh "chmod +x ${FILE_SH}"
-                        sh "./${FILE_SH}"
+                        sh "${COMMAND_1}"
+                        sh "${COMMAND_2}"
+                        sh "${COMMAND_3}"
                     } else {
-                        bat "${FILE_BAT}"
+                        bat "${COMMAND_1}"
+                        bat "${COMMAND_2}"
+                        bat "${COMMAND_3}"
                     }
                 }
                 echo "Tests executed"
             }
         }
+
+        // stage('CI: Run Tests') {
+        //     when {
+        //         expression { return RUN_TESTS }  // Run tests only if script was found
+        //     }
+        //     steps {
+        //         echo 'Starting Tests'
+        //         script {
+        //             if (isUnix()) {
+        //                 sh "chmod +x ${FILE_SH}"
+        //                 sh "./${FILE_SH}"
+        //             } else {
+        //                 bat "${FILE_BAT}"
+        //             }
+        //         }
+        //         echo "Tests executed"
+        //     }
+        // }
         stage('Archive Test Results') {
             steps {
                 archiveArtifacts artifacts: './Friendify/playwright-report/**/*', allowEmptyArchive: true
