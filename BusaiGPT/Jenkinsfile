@@ -8,6 +8,9 @@ pipeline {
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
     }
+    // tools {
+    //     nodejs 'NodeJS_18'  // Use the name of the Node.js installation you configured
+    // }
     stages {
         stage('Checkout Code') {
             steps {
@@ -15,28 +18,13 @@ pipeline {
                 echo "Code checked out from ${BRANCH_NAME}"
             }
         }
-        stage('Setup Node.js') {
-            steps {
-                script {
-                    // Install Node.js on Linux or Windows based on the agent's OS
-                    if (isUnix()) {
-                        sh 'curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -'
-                        sh 'sudo apt-get install -y nodejs'
-                    } else {
-                        bat 'choco install nodejs-lts'
-                    }
-                }
-            }
-        }
         stage('Install Dependencies') {
             steps {
                 script {
                     def workingDir = './BusaiGPT'
                     if (isUnix()) {
-                        // Install npm packages
                         sh "cd ${workingDir} && npm install"
                     } else {
-                        // Windows equivalent
                         bat "cd ${workingDir} && npm install"
                     }
                 }
@@ -47,10 +35,8 @@ pipeline {
                 script {
                     def workingDir = './BusaiGPT'
                     if (isUnix()) {
-                        // Install Playwright browsers
                         sh "cd ${workingDir} && npx playwright install"
                     } else {
-                        // Windows equivalent
                         bat "cd ${workingDir} && npx playwright install"
                     }
                 }
