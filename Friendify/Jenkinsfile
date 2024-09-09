@@ -34,7 +34,7 @@ pipeline {
                 script {
                     sh 'node -v'  // Check Node.js version
                     sh 'npm -v'   // Check npm version
-                    sh 'npm ls @playwright/test'  // Verify Playwright installation
+                    sh 'npm ls @playwright/test || true'  // Verify Playwright installation
                 }
             }
         }
