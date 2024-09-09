@@ -4,15 +4,13 @@ pipeline {
     }
     environment {
         GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
-        REPO_NAME = 'Friendify'
-        FILE_SH = 'FD_Auto.sh'
-        FILE_BAT = 'FD_Auto.bat'
+        REPO_NAME = 'BusaiGPT'
+        FILE_SH = 'BS_Auto.sh'
+        FILE_BAT = 'BS_Auto.bat'
+        COMMAND_1 = 'npx playwright test BS_Actions.spec.js --headed --reporter=line --workers=1'
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
     }
-
-    // Khai báo biến RUN_TESTS toàn cục
-    def RUN_TESTS = false
 
     stages {
         stage('Checkout Code') {
@@ -21,22 +19,28 @@ pipeline {
                 echo "Code checked out from ${BRANCH_NAME}"
             }
         }
-
-        stage('Search for FD_Auto.sh Script') {
+        stage('Verify Playwright Installation') {
             steps {
-                echo 'Searching for FD_Auto.sh'
+                echo 'Verifying Playwright Installation'
                 script {
-                    def findCommand = 'find . -name "FD_Auto.sh"'
+                    sh 'node -v'  // Check Node.js version
+                    sh 'npm -v'   // Check npm version
+                }
+            }
+        }
+
+        stage('Search for BS_Auto.sh Script') {
+            steps {
+                echo 'Searching for BS_Auto.sh'
+                script {
+                    def findCommand = "find . -name '${FILE_SH}'"
                     def findResult = sh(script: findCommand, returnStdout: true).trim()
                     if (findResult) {
-                        echo "FD_Auto.sh found at: ${findResult}"
-                        // Gán biến RUN_TESTS dựa vào kết quả tìm kiếm
-                        RUN_TESTS = true
-                        // Lưu đường dẫn chính xác của file để dùng trong bước tiếp theo
-                        env.FULL_SH_PATH = findResult
+                        echo "${FILE_SH} found at: ${findResult}"
+                        env.RUN_TESTS = 'true'
                     } else {
-                        echo "FD_Auto.sh not found, skipping tests."
-                        RUN_TESTS = false
+                        echo "${FILE_SH} not found, skipping tests."
+                        env.RUN_TESTS = 'false'
                     }
                 }
             }
@@ -44,16 +48,15 @@ pipeline {
 
         stage('CI: Run Tests') {
             when {
-                expression { return RUN_TESTS }  // Run tests only if script was found
+                expression { return env.RUN_TESTS == 'true' } // Condition to run tests
             }
             steps {
                 echo 'Starting Tests'
                 script {
                     if (isUnix()) {
-                        sh "chmod +x ${FILE_SH}"
-                        sh "./${FILE_SH}"
+                        sh "${COMMAND_1}"
                     } else {
-                        bat "${FILE_BAT}"
+                        bat "${COMMAND_1}"
                     }
                 }
                 echo "Tests executed"
@@ -62,7 +65,7 @@ pipeline {
 
         stage('Archive Test Results') {
             steps {
-                archiveArtifacts artifacts: './Friendify/playwright-report/**/*', allowEmptyArchive: true
+                archiveArtifacts artifacts: '**/playwright-report/**/*', allowEmptyArchive: true
                 echo 'Test results archived.'
             }
         }
@@ -74,7 +77,7 @@ pipeline {
                 def status = currentBuild.result ?: 'SUCCESS'
                 echo "Build status: ${status}"
                 if (isUnix()) {
-                    // Kiểm tra xem thư mục tạm có tồn tại trước khi xóa
+                    // Check if temporary folder exists before deleting
                     if (fileExists("${SERVER_PATH}/temp")) {
                         sh "rm -rf ${SERVER_PATH}/temp/*"
                     } else {
