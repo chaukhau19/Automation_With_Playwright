@@ -16,68 +16,7 @@ pipeline {
                 echo "Code checked out from ${BRANCH_NAME}"
             }
         }
-        // stage('Setup Node.js') {
-        //     steps {
-        //         script {
-        //             if (isUnix()) {
-        //                 // Check if Node.js is already installed
-        //                 def nodeVersionCheck = sh(script: 'node -v', returnStatus: true)
-        //                 if (nodeVersionCheck != 0) {
-        //                     echo 'Node.js not found, installing Node.js'
-        //                     sh 'curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -'
-        //                     sh 'sudo apt-get install -y nodejs'
-        //                 } else {
-        //                     echo 'Node.js is already installed'
-        //                 }
-        //             } else {
-        //                 // For Windows, use Chocolatey to install Node.js
-        //                 bat '''
-        //                     if not exist "%ProgramFiles%\\nodejs" (
-        //                         choco install nodejs-lts -y
-        //                     ) else (
-        //                         echo Node.js is already installed
-        //                     )
-        //                 '''
-        //             }
-        //         }
-        //     }
-        // }
-        // stage('Install Dependencies') {
-        //     steps {
-        //         script {
-        //             def workingDir = './Friendify'
-        //             if (isUnix()) {
-        //                 sh "cd ${workingDir} && npm install"
-        //             } else {
-        //                 bat "cd ${workingDir} && npm install"
-        //             }
-        //         }
-        //     }
-        // }
-        // stage('Install Playwright Browsers') {
-        //     steps {
-        //         script {
-        //             def workingDir = './Friendify'
-        //             if (isUnix()) {
-        //                 sh "cd ${workingDir} && npx playwright install"
-        //             } else {
-        //                 bat "cd ${workingDir} && npx playwright install"
-        //             }
-        //         }
-        //     }
-        // }
-        // stage('List Directory Contents') {
-        //     steps {
-        //         script {
-        //             def workingDir = './Friendify'
-        //             if (isUnix()) {
-        //                 sh "cd ${workingDir} && ls -al"
-        //             } else {
-        //                 bat "cd ${workingDir} && dir"
-        //             }
-        //         }
-        //     }
-        // }
+    
         stage('Search for FD_Auto.sh Script') {
             steps {
                 echo 'Searching for FD_Auto.sh'
