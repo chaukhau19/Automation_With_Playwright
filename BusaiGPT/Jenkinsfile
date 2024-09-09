@@ -9,6 +9,8 @@ pipeline {
         FILE_BAT = 'BusaiGPT/BS_Auto.bat'
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
+        RUN_TESTS = false
+        FOUND_SCRIPT_PATH = ''
     }
     stages {
         stage('Checkout Code') {
@@ -22,14 +24,18 @@ pipeline {
             steps {
                 echo 'Searching for BS_Auto.sh'
                 script {
+                    // Sử dụng find để tìm đường dẫn đầy đủ của file
                     def findCommand = 'find . -name "BS_Auto.sh"'
                     def findResult = sh(script: findCommand, returnStdout: true).trim()
+                    
                     if (findResult) {
                         echo "BS_Auto.sh found at: ${findResult}"
-                        RUN_TESTS = true
+                        // Lưu đường dẫn của script vào biến môi trường
+                        env.FOUND_SCRIPT_PATH = findResult
+                        env.RUN_TESTS = 'true'
                     } else {
                         echo "BS_Auto.sh not found, skipping tests."
-                        RUN_TESTS = false
+                        env.RUN_TESTS = 'false'
                     }
                 }
             }
@@ -37,15 +43,17 @@ pipeline {
 
         stage('CI: Run Tests') {
             when {
-                expression { return RUN_TESTS }  // Run tests only if script was found
+                expression { return env.RUN_TESTS == 'true' }  // Run tests only if script was found
             }
             steps {
                 echo 'Starting Tests'
                 script {
                     if (isUnix()) {
-                        sh "chmod +x ${FILE_SH}"
-                        sh "./${FILE_SH}"
+                        echo "Running on Unix environment"
+                        sh "chmod +x ${env.FOUND_SCRIPT_PATH}"  // Thực hiện chmod cho script
+                        sh "${env.FOUND_SCRIPT_PATH}"          // Chạy script từ vị trí tìm được
                     } else {
+                        echo "Running on Windows environment"
                         bat "${FILE_BAT}"
                     }
                 }
