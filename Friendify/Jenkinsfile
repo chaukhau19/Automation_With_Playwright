@@ -85,18 +85,26 @@ pipeline {
                 echo 'Starting Tests'
                 script {
                     if (isUnix()) {
-                        sh "${COMMAND_1}"
-                        sh "${COMMAND_2}"
-                        sh "${COMMAND_3}"
+                        // Navigate to the ${REPO_NAME} directory before running tests
+                        sh """
+                            cd \$(find . -type d -name '${REPO_NAME}')
+                            ${COMMAND_1}
+                            ${COMMAND_2}
+                            ${COMMAND_3}
+                        """
                     } else {
-                        bat "${COMMAND_1}"
-                        bat "${COMMAND_2}"
-                        bat "${COMMAND_3}"
+                        bat """
+                            cd ${REPO_NAME}
+                            ${COMMAND_1}
+                            ${COMMAND_2}
+                            ${COMMAND_3}
+                        """
                     }
                 }
                 echo "Tests executed"
             }
         }
+
 
         stage('Archive Test Results') {
             steps {

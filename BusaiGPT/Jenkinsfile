@@ -77,20 +77,29 @@ pipeline {
 
         stage('CI: Run Tests') {
             when {
-                expression { return env.RUN_TESTS == 'true' } // Condition to run tests
+                expression { return env.RUN_TESTS == 'true' }  // Run tests only if script was found
             }
             steps {
                 echo 'Starting Tests'
                 script {
                     if (isUnix()) {
-                        sh "${COMMAND}"
+                        // Navigate to the ${REPO_NAME} directory before running the command
+                        sh """
+                            cd \$(find . -type d -name '${REPO_NAME}')
+                            ${COMMAND}
+                        """
                     } else {
-                        bat "${COMMAND}"
+                        // Navigate to the ${REPO_NAME} directory on Windows before running the command
+                        bat """
+                            cd ${REPO_NAME}
+                            ${COMMAND}
+                        """
                     }
                 }
                 echo "Tests executed"
             }
         }
+
 
         stage('Archive Test Results') {
             steps {
