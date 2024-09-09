@@ -42,12 +42,16 @@ pipeline {
             steps {
                 echo 'Setting up dependencies'
                 script {
-                    sh 'rm -rf node_modules package-lock.json'
-                    sh 'npm install'  // Install dependencies
-                    sh 'npx playwright install'  // Install Playwright browser binaries
+                    sh """
+                        cd \$(find . -type d -name 'Automation_With_Playwright')
+                        rm -rf node_modules package-lock.json
+                        npm install  // Install dependencies
+                        npx playwright install  // Install Playwright browser binaries
+                    """
                 }
             }
         }
+
 
         stage('Verify Playwright Installation') {
             steps {
