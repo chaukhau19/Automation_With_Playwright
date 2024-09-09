@@ -3,10 +3,11 @@ pipeline {
     environment {
         GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
         REPO_NAME = 'Friendify'
-        FILE_SH = 'Friendify/FD_Auto.sh'
-        FILE_BAT = 'Friendify/FD_Auto.bat'
+        FILE_SH = 'FD_Auto.sh'
+        FILE_BAT = 'FD_Auto.bat'
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
+        RUN_TESTS = false
     }
     stages {
         stage('Checkout Code') {
@@ -15,7 +16,7 @@ pipeline {
                 echo "Code checked out from ${BRANCH_NAME}"
             }
         }
-                stage('Setup Node.js') {
+        stage('Setup Node.js') {
             steps {
                 script {
                     if (isUnix()) {
@@ -30,13 +31,13 @@ pipeline {
                         }
                     } else {
                         // For Windows, use Chocolatey to install Node.js
-                        bat(script: '''
+                        bat '''
                             if not exist "%ProgramFiles%\\nodejs" (
                                 choco install nodejs-lts -y
                             ) else (
                                 echo Node.js is already installed
                             )
-                        ''')
+                        '''
                     }
                 }
             }
@@ -85,26 +86,27 @@ pipeline {
                     def findResult = sh(script: findCommand, returnStdout: true).trim()
                     if (findResult) {
                         echo "FD_Auto.sh found at: ${findResult}"
-                        RUN_TESTS = true
+                        env.RUN_TESTS = 'true'
                     } else {
                         echo "FD_Auto.sh not found, skipping tests."
-                        RUN_TESTS = false
+                        env.RUN_TESTS = 'false'
                     }
                 }
             }
         }
         stage('CI: Run Tests') {
             when {
-                expression { return RUN_TESTS }  // Run tests only if script was found
+                expression { return env.RUN_TESTS == 'true' }  // Run tests only if script was found
             }
             steps {
                 echo 'Starting Tests'
                 script {
+                    def workingDir = './Friendify'
                     if (isUnix()) {
-                        sh "chmod +x ${FILE_SH}"
-                        sh "./${FILE_SH}"
+                        sh "chmod +x ${workingDir}/${FILE_SH}"
+                        sh "${workingDir}/${FILE_SH}"
                     } else {
-                        bat "${FILE_BAT}"
+                        bat "${workingDir}\\${FILE_BAT}"
                     }
                 }
                 echo "Tests executed"
@@ -112,7 +114,7 @@ pipeline {
         }
         stage('Archive Test Results') {
             steps {
-                archiveArtifacts artifacts: './BusaiGPT/playwright-report/**/*', allowEmptyArchive: true
+                archiveArtifacts artifacts: './Friendify/playwright-report/**/*', allowEmptyArchive: true
                 echo 'Test results archived.'
             }
         }
@@ -122,7 +124,11 @@ pipeline {
             script {
                 def status = currentBuild.result ?: 'SUCCESS'
                 echo "Build status: ${status}"
-                sh "rm -rf Automation_With_Playwright/${REPO_NAME}/temp/*"
+                if (isUnix()) {
+                    sh "rm -rf ${SERVER_PATH}/temp/*"
+                } else {
+                    bat "del /Q ${SERVER_PATH}\\temp\\*"
+                }
             }
         }
     }
