@@ -3,8 +3,8 @@ pipeline {
     environment {
         GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
         REPO_NAME = 'BusaiGPT'
-        FILE_SH = 'Automation_With_Playwright/BusaiGPT/BS_Auto.sh'
-        FILE_BAT = 'Automation_With_Playwright/BusaiGPT/BS_Auto.bat'
+        FILE_SH = 'BusaiGPT/BS_Auto.sh'
+        FILE_BAT = 'BusaiGPT/BS_Auto.bat'
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
         RUN_TESTS = false
