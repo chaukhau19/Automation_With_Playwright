@@ -1,87 +1,112 @@
-// Global Environment
-switch(env.BRANCH_NAME) {
-    case 'master':
-        // Secret
-        env.SECRET_FILE_ID = '302178be-2be7-40c6-b72c-852097494209'
-        // Server
-        env.SERVER_CREDENTIALS = '5e7982bd-6f22-4cb5-961d-3c18032ed467'
-        env.SERVER_USERNAME = 'ubuntu'
-        withCredentials([string(credentialsId: '69c75e93-12b2-49ef-b8e0-0f0e51754976', variable: 'ADDRESS')]) {
-            env.SERVER_ADDRESS = "${ADDRESS}"
-        }
-        env.SERVER_PATH = '/home/ubuntu/Automation_With_Playwright'
-        break
-    default:
-        break
-}
-
 pipeline {
-    agent any
+    agent {
+        docker { image 'mcr.microsoft.com/playwright:v1.46.0-jammy' }
+    }
     environment {
         GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
         REPO_NAME = 'Friendify'
-        BRANCH = 'master'
         FILE_SH = 'FD_Auto.sh'
+        FILE_BAT = 'FD_Auto.bat'
+        SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
+        BRANCH_NAME = 'master'
     }
+
     stages {
-        stage('Checkout code') {
+        stage('CI: Checkout Code') {
             steps {
-                git branch: "${BRANCH}", url: "${GITHUB_URL}"
+                git branch: "${BRANCH_NAME}", url: "${GITHUB_URL}"
+                echo "Code checked out from ${BRANCH_NAME}"
+                echo 'Current working directory:'
+                sh 'pwd'
+
+                echo "Finding ${REPO_NAME} directory:"
+                script {
+                    def repoPath = sh(script: "find . -type d -name '${REPO_NAME}'", returnStdout: true).trim()
+                    echo "Found ${REPO_NAME} at: ${repoPath}"
+                    if (repoPath) {
+                        env.REPO_PATH = repoPath
+                    } else {
+                        error "Repository directory ${REPO_NAME} not found."
+                    }
+                }
+
+                echo "Changing directory to ${REPO_NAME} and listing contents:"
+                sh """
+                    cd ${env.REPO_PATH}
+                    pwd
+                    ls -la
+                """
             }
         }
-        stage('Deploying...') {
-            when {
-                branch 'master'
-            }
+
+        stage('Setup Dependencies') {
             steps {
+                echo 'Setting up dependencies'
                 script {
-                    echo "Deploying to '${env.BRANCH_NAME}'..."
-                    withCredentials([file(credentialsId: env.SECRET_FILE_ID, variable: 'SECRET_FILE')]) {
-                        sshagent([env.SERVER_CREDENTIALS]) {
-                            sh """
-                            set -e
-                            cd ${env.SERVER_PATH}/${REPO_NAME} || exit
-                            git pull || exit
-                            npm install @playwright/test@latest || exit
-                            npx playwright install || exit
-                            chmod +x ${FILE_SH}
-                            ./${FILE_SH} || exit
-                            """
-                        }
-                    }
+                    sh """
+                        cd ${env.REPO_PATH}
+                        rm -rf node_modules package-lock.json
+                        npm install
+                        npx playwright install
+                        npm install @playwright/test@latest
+                    """
                 }
             }
         }
-        stage('Cleanup') {
-            when {
-                branch 'master'
-            }
+
+        stage('Verify Playwright Installation') {
             steps {
+                echo 'Verifying Playwright Installation'
                 script {
-                    withCredentials([file(credentialsId: env.SECRET_FILE_ID, variable: 'SECRET_FILE')]) {
-                        sshagent([env.SERVER_CREDENTIALS]) {
-                            sh """
-                            set -e
-                            ssh ${env.SERVER_USERNAME}@${env.SERVER_ADDRESS} << EOF
-                            cd ${env.SERVER_PATH} || exit
-                            git remote -v || exit
-                            git remote remove origin || exit
-                            cd || exit
-                            rm -rf ${SERVER_PATH} || exit
-                            EOF
-                            """
-                        }
+                    sh 'node -v'
+                    sh 'npm -v'
+                    sh 'npx playwright --version'
+                }
+            }
+        }
+
+        stage('CD: Run Tests') {
+            steps {
+                echo 'Starting Tests'
+                script {
+                    if (isUnix()) {
+                        sh """
+                            cd ${env.REPO_PATH}
+                            ./${FILE_SH}
+                        """
+                    } else {
+                        bat """
+                            cd ${env.REPO_PATH}
+                            ${FILE_BAT}
+                        """
                     }
                 }
+                echo "Tests executed"
+            }
+        }
+
+        stage('Archive Test Results') {
+            steps {
+                archiveArtifacts artifacts: '**/playwright-report/**/*', allowEmptyArchive: true
+                echo 'Test results archived.'
             }
         }
     }
+
     post {
         always {
             script {
                 def status = currentBuild.result ?: 'SUCCESS'
                 echo "Build status: ${status}"
-                sh "rm -rf ./* ./.??*"
+                if (isUnix()) {
+                    if (fileExists("${SERVER_PATH}/temp")) {
+                        sh "rm -rf ${SERVER_PATH}/temp/*"
+                    } else {
+                        echo "Temporary folder does not exist."
+                    }
+                } else {
+                    bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
+                }
             }
         }
     }
