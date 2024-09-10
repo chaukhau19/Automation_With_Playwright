@@ -20,11 +20,9 @@ pipeline {
                 git branch: "${BRANCH_NAME}", url: "${GITHUB_URL}"
                 echo "Code checked out from ${BRANCH_NAME}"
 
-                // Print the current working directory
                 echo 'Current working directory:'
                 sh 'pwd'
 
-                // Find the location of the ${REPO_NAME} directory and print it
                 echo "Finding ${REPO_NAME} directory:"
                 script {
                     def repoPath = sh(script: "find . -type d -name '${REPO_NAME}'", returnStdout: true).trim()
@@ -32,7 +30,6 @@ pipeline {
                     env.REPO_PATH = repoPath
                 }
 
-                // Change directory to ${REPO_NAME} and list its contents
                 echo "Changing directory to ${REPO_NAME} and listing contents:"
                 sh """
                     cd ${env.REPO_PATH}
@@ -42,27 +39,27 @@ pipeline {
             }
         }
 
-        // stage('Setup Dependencies') {
-        //     steps {
-        //         echo 'Setting up dependencies'
-        //         script {
-        //             sh """
-        //                 cd ${env.REPO_PATH}
-        //                 rm -rf node_modules package-lock.json
-        //                 npm install
-        //                 npx playwright install
-        //             """
-        //         }
-        //     }
-        // }
+        stage('Setup Dependencies') {
+            steps {
+                echo 'Setting up dependencies'
+                script {
+                    sh """
+                        cd ${env.REPO_PATH}
+                        rm -rf node_modules package-lock.json
+                        npm install
+                        npx playwright install
+                    """
+                }
+            }
+        }
 
         stage('Verify Playwright Installation') {
             steps {
                 echo 'Verifying Playwright Installation'
                 script {
-                    sh 'node -v'  // Check Node.js version
-                    sh 'npm -v'   // Check npm version
-                    sh 'npx playwright --version'  // Verify Playwright installation
+                    sh 'node -v' 
+                    sh 'npm -v'   
+                    sh 'npx playwright --version'  
                 }
             }
         }
@@ -86,13 +83,12 @@ pipeline {
 
         stage('CI: Run Tests') {
             when {
-                expression { return env.RUN_TESTS == 'true' }  // Run tests only if script was found
+                expression { return env.RUN_TESTS == 'true' } 
             }
             steps {
                 echo 'Starting Tests'
                 script {
                     if (isUnix()) {
-                        // Navigate to the ${REPO_NAME} directory before running the commands
                         sh """
                             cd ${env.REPO_PATH}
                             ${COMMAND_1}
@@ -100,7 +96,6 @@ pipeline {
                             ${COMMAND_3}
                         """
                     } else {
-                        // Navigate to the ${REPO_NAME} directory on Windows before running the commands
                         bat """
                             cd ${env.REPO_PATH}
                             ${COMMAND_1}
@@ -127,7 +122,6 @@ pipeline {
                 def status = currentBuild.result ?: 'SUCCESS'
                 echo "Build status: ${status}"
                 if (isUnix()) {
-                    // Check if temporary folder exists before deleting
                     if (fileExists("${SERVER_PATH}/temp")) {
                         sh "rm -rf ${SERVER_PATH}/temp/*"
                     } else {
