@@ -13,7 +13,7 @@ pipeline {
     }
 
     stages {
-        stage('Checkout Code') {
+        stage('CI: Checkout Code') {
             steps {
                 git branch: "${BRANCH_NAME}", url: "${GITHUB_URL}"
                 echo "Code checked out from ${BRANCH_NAME}"
@@ -43,8 +43,9 @@ pipeline {
                     sh """
                         cd ${env.REPO_PATH}
                         rm -rf node_modules package-lock.json
-                        npm install 
-                        npx playwright install 
+                        npm install
+                        npx playwright install
+                        npm install @playwright/test@latest
                     """
                 }
             }
@@ -61,7 +62,7 @@ pipeline {
             }
         }
 
-        stage('CI: Run Tests') {
+        stage('CD: Run Tests') {
             steps {
                 echo 'Starting Tests'
                 script {
