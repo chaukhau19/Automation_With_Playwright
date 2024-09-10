@@ -1,6 +1,6 @@
 // /tests/Friendify/FD_Actions.spec.js
 import { test } from '@playwright/test';
-import { ActionsPage } from '../../Pages/FD_Actions';
+import { ActionsPage } from '../Pages/FD_Actions';
 import { LoginPage } from '../Pages/FD_Login';
 
 test.describe('Friendify Actions', () => {

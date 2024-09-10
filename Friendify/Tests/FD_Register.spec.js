@@ -1,6 +1,6 @@
 // /tests/Friendify/FD_Register.spec.js
 import { test } from '@playwright/test';
-import { RegisterPage } from '../../Pages/FD_Register';
+import { RegisterPage } from '../Pages/FD_Register';
 
 test('Register Account', async ({ page }) => {
   const registerPage = new RegisterPage(page);
