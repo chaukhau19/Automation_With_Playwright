@@ -16,7 +16,6 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 git branch: "${BRANCH_NAME}", url: "${GITHUB_URL}"
-                git branch: "master", url: "https://github.com/chaukhau19/Automation_With_Playwright.git"
                 echo "Code checked out from ${BRANCH_NAME}"
                 echo 'Current working directory:'
                 sh 'pwd'
