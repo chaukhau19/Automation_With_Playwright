@@ -69,14 +69,13 @@ pipeline {
                 script {
                     if (isUnix()) {
                         sh """
-                            cd ${env.REPO_PATH}
-                            chmod +x ${FILE_SH}  // Ensure the shell script is executable
-                            ./${FILE_SH}         // Execute the shell script
+                            cd ${env.REPO_PATH} 
+                            ./${FILE_SH}     
                         """
                     } else {
                         bat """
                             cd ${env.REPO_PATH}
-                            ${FILE_BAT}          // Execute the batch script for Windows
+                            ${FILE_BAT}          
                         """
                     }
                 }
