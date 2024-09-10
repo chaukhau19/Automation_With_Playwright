@@ -1,5 +1,5 @@
 import { test } from '@playwright/test';
-import { LoginPage } from '../../Pages/Friendify/FD_Login';
+import { LoginPage } from '../../Pages/FD_Login';
 
 // Test case 1: Login with Account
 test('Login with Account', async ({ page }) => {

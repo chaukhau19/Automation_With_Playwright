@@ -36,6 +36,8 @@ pipeline {
                     cd ${env.REPO_PATH}
                     pwd
                     ls -la
+                    ls -la /home/node/.cache/ms-playwright/
+                    ls -la /home/node/.cache/ms-playwright/chromium-1134/chrome-linux/
                 """
             }
         }
@@ -48,7 +50,7 @@ pipeline {
                         cd ${env.REPO_PATH}
                         rm -rf node_modules package-lock.json
                         npm install 
-                        npx playwright install  
+                        npx playwright install --with-deps
                     """
                 }
             }

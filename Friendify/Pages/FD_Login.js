@@ -1,5 +1,5 @@
 // /Pages/Friendify/FD_Login.js
-import { config } from '../../Utils/FD_config';
+import { config } from '../Utils/FD_config';
 import fs from 'fs';
 import path from 'path';
 import { expect } from '@playwright/test';
