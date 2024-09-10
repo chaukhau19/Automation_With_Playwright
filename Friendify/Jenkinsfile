@@ -12,7 +12,6 @@ pipeline {
         COMMAND_3 = 'npx playwright test FD_Actions.spec.js --headed --reporter=line --workers=1'
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
-        JENKINS_HOME = "/var/jenkins_home/workspace/AUTOMATION_FRIENDIFY_master/${REPO_NAME}"
     }
 
     stages {
@@ -26,9 +25,8 @@ pipeline {
 
                 echo "Finding ${REPO_NAME} directory:"
                 script {
-                    def repoPath = sh(script: "find . -type d -name '${REPO_NAME}'", returnStdout: true).trim()
-                    echo "Found ${REPO_NAME} at: ${repoPath}"
-                    env.REPO_PATH = repoPath
+                    env.REPO_PATH = sh(script: "find . -type d -name '${REPO_NAME}'", returnStdout: true).trim()
+                    echo "Found ${REPO_NAME} at: ${env.REPO_PATH}"
                 }
 
                 echo "Changing directory to ${REPO_NAME} and listing contents:"
@@ -48,7 +46,25 @@ pipeline {
                         cd ${env.REPO_PATH}
                         rm -rf node_modules package-lock.json
                         npm install
-                        npx playwright install 
+                        npx playwright install
+
+                        # Install additional libraries for Playwright on Linux
+                        apk add --no-cache \
+                            libnss3 \
+                            libatk-bridge2.0-0 \
+                            libxkbcommon-x11-0 \
+                            libxcomposite1 \
+                            libxdamage1 \
+                            libxi6 \
+                            libxtst6 \
+                            libappindicator3-1 \
+                            libasound2 \
+                            libnspr4 \
+                            libxrandr2 \
+                            libxss1 \
+                            libgbm1 \
+                            libpango-1.0-0 \
+                            libgtk-3-0
                     """
                 }
             }
@@ -58,9 +74,10 @@ pipeline {
             steps {
                 echo 'Verifying Playwright Installation'
                 script {
-                    sh 'node -v' 
-                    sh 'npm -v'   
-                    sh 'npx playwright --version'  
+                    sh 'node -v'
+                    sh 'npm -v'
+                    sh 'npx playwright --version'
+                    sh 'ip a | grep ens19 || true'
                 }
             }
         }
@@ -69,10 +86,10 @@ pipeline {
             steps {
                 echo 'Searching for FD_Auto.sh'
                 script {
-                    def findCommand = "find . -name '${FILE_SH}'"
-                    def findResult = sh(script: findCommand, returnStdout: true).trim()
+                    def findResult = sh(script: "find ${env.REPO_PATH} -type f -name '${FILE_SH}'", returnStdout: true).trim()
+                    echo "Found ${FILE_SH} at: ${findResult}"
 
-                    if (!findResult.isEmpty()) {  
+                    if (!findResult.isEmpty()) {
                         echo "${FILE_SH} found at: ${findResult}"
                         env.RUN_TESTS = 'true'
                     } else {
@@ -82,7 +99,6 @@ pipeline {
                 }
             }
         }
-
 
         stage('CI: Run Tests') {
             steps {
