@@ -48,7 +48,7 @@ pipeline {
                         cd ${env.REPO_PATH}
                         rm -rf node_modules package-lock.json
                         npm install
-                        npx playwright install --with-deps
+                        npx playwright install 
                     """
                 }
             }
