@@ -73,7 +73,8 @@ pipeline {
                 script {
                     def findCommand = "find . -name '${FILE_SH}'"
                     def findResult = sh(script: findCommand, returnStdout: true).trim()
-                    if (findResult) {
+
+                    if (!findResult.isEmpty()) {  
                         echo "${FILE_SH} found at: ${findResult}"
                         env.RUN_TESTS = 'true'
                     } else {
@@ -83,6 +84,7 @@ pipeline {
                 }
             }
         }
+
 
         stage('CI: Run Tests') {
             steps {
