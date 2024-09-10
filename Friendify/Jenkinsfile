@@ -36,8 +36,6 @@ pipeline {
                     cd ${env.REPO_PATH}
                     pwd
                     ls -la
-                    ls -la /home/node/.cache/ms-playwright/
-                    ls -la /home/node/.cache/ms-playwright/chromium-1134/chrome-linux/
                 """
             }
         }
