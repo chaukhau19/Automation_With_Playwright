@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        docker { image 'node:18.20.4-alpine3.20' }
+        docker { image 'mcr.microsoft.com/playwright:v1.46.0-jammy' }
     }
     environment {
         GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
