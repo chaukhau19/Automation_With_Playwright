@@ -61,24 +61,6 @@ pipeline {
             }
         }
 
-        stage('Search for BS_Auto.sh Script') {
-            steps {
-                echo 'Searching for BS_Auto.sh'
-                script {
-                    def repoPath = sh(script: "find . -type d -name '${FILE_SH}'", returnStdout: true).trim()
-                    echo "Found ${FILE_SH} at: ${repoPath}"
-
-                    if (!findResult.isEmpty()) {  
-                        echo "${FILE_SH} found at: ${findResult}"
-                        env.RUN_TESTS = 'true'
-                    } else {
-                        echo "${FILE_SH} not found, skipping tests."
-                        env.RUN_TESTS = 'false'
-                    }
-                }
-            }
-        }
-
         stage('CI: Run Tests') {
             steps {
                 echo 'Starting Tests'

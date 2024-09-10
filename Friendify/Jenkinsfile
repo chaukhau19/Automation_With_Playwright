@@ -7,9 +7,9 @@ pipeline {
         REPO_NAME = 'Friendify'
         FILE_SH = 'FD_Auto.sh'
         FILE_BAT = 'FD_Auto.bat'
-        // COMMAND_1 = 'npx playwright test FD_Register.spec.js --reporter=line --workers=1'
-        // COMMAND_2 = 'npx playwright test FD_Login.spec.js --reporter=line --workers=1'
-        // COMMAND_3 = 'npx playwright test FD_Actions.spec.js --reporter=line --workers=1'
+        COMMAND_1 = 'npx playwright test FD_Register.spec.js --reporter=line --workers=1'
+        COMMAND_2 = 'npx playwright test FD_Login.spec.js --reporter=line --workers=1'
+        COMMAND_3 = 'npx playwright test FD_Actions.spec.js --reporter=line --workers=1'
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
     }
@@ -70,13 +70,13 @@ pipeline {
                     if (isUnix()) {
                         sh """
                             cd ${env.REPO_PATH}
-                            chmod +x ${FILE_AUTO}
-                            ${FILE_AUTO}
+                            chmod +x ${FILE_SH}  // Ensure the shell script is executable
+                            ./${FILE_SH}         // Execute the shell script
                         """
                     } else {
                         bat """
                             cd ${env.REPO_PATH}
-                            ${FILE_BAT}
+                            ${FILE_BAT}          // Execute the batch script for Windows
                         """
                     }
                 }
