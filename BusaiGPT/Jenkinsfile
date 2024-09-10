@@ -81,9 +81,6 @@ pipeline {
         }
 
         stage('CI: Run Tests') {
-            when {
-                expression { return env.RUN_TESTS == 'true' } 
-            }
             steps {
                 echo 'Starting Tests'
                 script {

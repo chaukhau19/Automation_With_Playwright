@@ -12,6 +12,7 @@ pipeline {
         COMMAND_3 = 'npx playwright test FD_Actions.spec.js --headed --reporter=line --workers=1'
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
+        JENKINS_HOME = "/var/jenkins_home/workspace/AUTOMATION_FRIENDIFY_master/${REPO_NAME}"
     }
 
     stages {
@@ -35,6 +36,8 @@ pipeline {
                     cd ${env.REPO_PATH}
                     pwd
                     ls -la
+                    ls -la /home/node/.cache/ms-playwright/
+                    ls -la /home/node/.cache/ms-playwright/chromium-1134/chrome-linux/
                 """
             }
         }
@@ -47,7 +50,7 @@ pipeline {
                         cd ${env.REPO_PATH}
                         rm -rf node_modules package-lock.json
                         npm install
-                        npx playwright install
+                        npx playwright install --with-deps
                     """
                 }
             }
@@ -82,9 +85,6 @@ pipeline {
         }
 
         stage('CI: Run Tests') {
-            when {
-                expression { return env.RUN_TESTS == 'true' } 
-            }
             steps {
                 echo 'Starting Tests'
                 script {
