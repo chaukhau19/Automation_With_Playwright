@@ -5,11 +5,11 @@ pipeline {
     environment {
         GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
         REPO_NAME = 'Friendify'
-        FILE_SH = 'Friendify/FD_Auto.sh'
-        FILE_BAT = 'Friendify/FD_Auto.bat'
-        COMMAND_1 = 'npx playwright test FD_Register.spec.js --headed --reporter=line --workers=1'
-        COMMAND_2 = 'npx playwright test FD_Login.spec.js --headed --reporter=line --workers=1'
-        COMMAND_3 = 'npx playwright test FD_Actions.spec.js --headed --reporter=line --workers=1'
+        FILE_SH = 'FD_Auto.sh'
+        FILE_BAT = 'FD_Auto.bat'
+        // COMMAND_1 = 'npx playwright test FD_Register.spec.js --reporter=line --workers=1'
+        // COMMAND_2 = 'npx playwright test FD_Login.spec.js --reporter=line --workers=1'
+        // COMMAND_3 = 'npx playwright test FD_Actions.spec.js --reporter=line --workers=1'
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
     }
@@ -38,37 +38,19 @@ pipeline {
             }
         }
 
-        // stage('Setup Dependencies') {
-        //     steps {
-        //         echo 'Setting up dependencies'
-        //         script {
-        //             sh """
-        //                 cd ${env.REPO_PATH}
-        //                 rm -rf node_modules package-lock.json
-        //                 npm install
-        //                 npx playwright install
-
-        //                 # Install additional libraries for Playwright on Linux
-        //                 apk add --no-cache \
-        //                     libnss3 \
-        //                     libatk-bridge2.0-0 \
-        //                     libxkbcommon-x11-0 \
-        //                     libxcomposite1 \
-        //                     libxdamage1 \
-        //                     libxi6 \
-        //                     libxtst6 \
-        //                     libappindicator3-1 \
-        //                     libasound2 \
-        //                     libnspr4 \
-        //                     libxrandr2 \
-        //                     libxss1 \
-        //                     libgbm1 \
-        //                     libpango-1.0-0 \
-        //                     libgtk-3-0
-        //             """
-        //         }
-        //     }
-        // }
+        stage('Setup Dependencies') {
+            steps {
+                echo 'Setting up dependencies'
+                script {
+                    sh """
+                        cd ${env.REPO_PATH}
+                        rm -rf node_modules package-lock.json
+                        npm install
+                        npx playwright install
+                    """
+                }
+            }
+        }
 
         stage('Verify Playwright Installation') {
             steps {
@@ -77,76 +59,54 @@ pipeline {
                     sh 'node -v'
                     sh 'npm -v'
                     sh 'npx playwright --version'
-                    sh 'ip a | grep ens19 || true'
                 }
             }
         }
 
-    //     stage('Search for FD_Auto.sh Script') {
-    //         steps {
-    //             echo 'Searching for FD_Auto.sh'
-    //             script {
-    //                 def findResult = sh(script: "find ${env.REPO_PATH} -type f -name '${FILE_SH}'", returnStdout: true).trim()
-    //                 echo "Found ${FILE_SH} at: ${findResult}"
+        stage('CI: Run Tests') {
+            steps {
+                echo 'Starting Tests'
+                script {
+                    if (isUnix()) {
+                        sh """
+                            cd ${env.REPO_PATH}
+                            chmod +x ${FILE_AUTO}
+                            ${FILE_AUTO}
+                        """
+                    } else {
+                        bat """
+                            cd ${env.REPO_PATH}
+                            ${FILE_BAT}
+                        """
+                    }
+                }
+                echo "Tests executed"
+            }
+        }
 
-    //                 if (!findResult.isEmpty()) {
-    //                     echo "${FILE_SH} found at: ${findResult}"
-    //                     env.RUN_TESTS = 'true'
-    //                 } else {
-    //                     echo "${FILE_SH} not found, skipping tests."
-    //                     env.RUN_TESTS = 'false'
-    //                 }
-    //             }
-    //         }
-    //     }
+        stage('Archive Test Results') {
+            steps {
+                archiveArtifacts artifacts: "${env.REPO_PATH}/playwright-report/**/*", allowEmptyArchive: true
+                echo 'Test results archived.'
+            }
+        }
+    }
 
-    //     stage('CI: Run Tests') {
-    //         steps {
-    //             echo 'Starting Tests'
-    //             script {
-    //                 if (isUnix()) {
-    //                     sh """
-    //                         cd ${env.REPO_PATH}
-    //                         ${COMMAND_1}
-    //                         ${COMMAND_2}
-    //                         ${COMMAND_3}
-    //                     """
-    //                 } else {
-    //                     bat """
-    //                         cd ${env.REPO_PATH}
-    //                         ${COMMAND_1}
-    //                         ${COMMAND_2}
-    //                         ${COMMAND_3}
-    //                     """
-    //                 }
-    //             }
-    //             echo "Tests executed"
-    //         }
-    //     }
-
-    //     stage('Archive Test Results') {
-    //         steps {
-    //             archiveArtifacts artifacts: '**/playwright-report/**/*', allowEmptyArchive: true
-    //             echo 'Test results archived.'
-    //         }
-    //     }
-    // }
-
-    // post {
-    //     always {
-    //         script {
-    //             def status = currentBuild.result ?: 'SUCCESS'
-    //             echo "Build status: ${status}"
-    //             if (isUnix()) {
-    //                 if (fileExists("${SERVER_PATH}/temp")) {
-    //                     sh "rm -rf ${SERVER_PATH}/temp/*"
-    //                 } else {
-    //                     echo "Temporary folder does not exist."
-    //                 }
-    //             } else {
-    //                 bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
-    //             }
-    //         }
-    //     }
-    // }
+    post {
+        always {
+            script {
+                def status = currentBuild.result ?: 'SUCCESS'
+                echo "Build status: ${status}"
+                if (isUnix()) {
+                    if (fileExists("${SERVER_PATH}/temp")) {
+                        sh "rm -rf ${SERVER_PATH}/temp/*"
+                    } else {
+                        echo "Temporary folder does not exist."
+                    }
+                } else {
+                    bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
+                }
+            }
+        }
+    }
 }
