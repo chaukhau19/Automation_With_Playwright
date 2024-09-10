@@ -42,19 +42,19 @@ pipeline {
             }
         }
 
-        stage('Setup Dependencies') {
-            steps {
-                echo 'Setting up dependencies'
-                script {
-                    sh """
-                        cd ${env.REPO_PATH}
-                        rm -rf node_modules package-lock.json
-                        npm install
-                        npx playwright install
-                    """
-                }
-            }
-        }
+        // stage('Setup Dependencies') {
+        //     steps {
+        //         echo 'Setting up dependencies'
+        //         script {
+        //             sh """
+        //                 cd ${env.REPO_PATH}
+        //                 rm -rf node_modules package-lock.json
+        //                 npm install
+        //                 npx playwright install
+        //             """
+        //         }
+        //     }
+        // }
 
         stage('Verify Playwright Installation') {
             steps {
