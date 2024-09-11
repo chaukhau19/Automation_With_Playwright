@@ -36,9 +36,9 @@ pipeline {
                     cd ${env.REPO_PATH}
                     pwd
                     ls -la
-                    cd ${env.REPO_PATH}/Data
-                    ls -la
                 """
+                echo "Checking if Data directory exists in ${REPO_PATH}:"
+                sh "ls -la ${env.REPO_PATH}/Data"
             }
         }
 
