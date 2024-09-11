@@ -9,6 +9,7 @@ pipeline {
         FILE_BAT = 'FD_Auto.bat'
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
+        GITHUB_TOKEN = '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'
     }
     triggers {
         cron('0 0 * * *') 
@@ -17,7 +18,13 @@ pipeline {
     stages {
         stage('CI: Checkout Code') {
             steps {
-                git branch: "${BRANCH_NAME}", url: "${GITHUB_URL}"
+                script {
+                    withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
+                        git branch: "${BRANCH_NAME}", 
+                            credentialsId: 'GITHUB_TOKEN', 
+                            url: "https://${GITHUB_TOKEN}@github.com/chaukhau19/Automation_With_Playwright.git"
+                    }
+                }
                 echo "Code checked out from ${BRANCH_NAME}"
                 echo 'Current working directory:'
                 sh 'pwd'
