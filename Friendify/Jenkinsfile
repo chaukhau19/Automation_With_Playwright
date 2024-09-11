@@ -3,7 +3,7 @@ pipeline {
         docker { image 'mcr.microsoft.com/playwright:v1.46.0-jammy' }
     }
     environment {
-        GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
+        //GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
         REPO_NAME = 'Friendify'
         FILE_SH = 'FD_Auto.sh'
         FILE_BAT = 'FD_Auto.bat'
