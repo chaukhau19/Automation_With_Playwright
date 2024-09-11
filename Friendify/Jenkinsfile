@@ -9,20 +9,24 @@ pipeline {
         FILE_BAT = 'FD_Auto.bat'
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
-        GITHUB_TOKEN = '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'
+        JENKINS_CREDENTIALS_ID = '6f5eb65d-9009-4049-8b13-1becf88d77cb'
+        //No need, because already setup Jenkins Credentials (usernamePassword credential)
+        // GITHUB_USER = 'chaukhau2000@gmail.com'
+        // GITHUB_TOKEN = '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'
     }
     triggers {
         cron('0 0 * * *') 
     }
 
-    stages {
+     stages {
         stage('CI: Checkout Code') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
+                    // Sử dụng credentialsId đúng cách
+                    withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
                         git branch: "${BRANCH_NAME}", 
-                            credentialsId: 'GITHUB_TOKEN', 
-                            url: "https://${GITHUB_TOKEN}@github.com/chaukhau19/Automation_With_Playwright.git"
+                            credentialsId: "${JENKINS_CREDENTIALS_ID}", 
+                            url: "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/chaukhau19/Automation_With_Playwright.git"
                     }
                 }
                 echo "Code checked out from ${BRANCH_NAME}"
