@@ -10,6 +10,9 @@ pipeline {
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
     }
+    triggers {
+        cron('0 0 * * *')  // Runs every day at midnight (00:00)
+    }
 
     stages {
         stage('CI: Checkout Code') {
@@ -72,7 +75,7 @@ pipeline {
                     if (isUnix()) {
                         sh """
                             cd ${env.REPO_PATH}
-                            chmod +x ${FILE_SH}  
+                            chmod +x ${FILE_SH}  // Ensure the script has execute permissions
                             ./${FILE_SH}
                         """
                     } else {
@@ -85,6 +88,7 @@ pipeline {
                 echo "Tests executed"
             }
         }
+
         stage('Archive Test Results') {
             steps {
                 archiveArtifacts artifacts: '**/playwright-report/**/*', allowEmptyArchive: true
