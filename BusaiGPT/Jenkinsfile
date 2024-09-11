@@ -36,6 +36,8 @@ pipeline {
                     cd ${env.REPO_PATH}
                     pwd
                     ls -la
+                    cd ${env.REPO_PATH}/Data
+                    ls -la
                 """
             }
         }

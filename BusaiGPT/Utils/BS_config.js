@@ -33,10 +33,10 @@ export const config = {
 
   //Path on PC
   path_generateDocs: './Data/PDF_1MB.pdf',
-  path_generateAudio: './Data/file_example_MP3_700KB.MP3',
-  path_generateImage_Summary: './Data/Image_4KB.PNG',
-  path_generateImage_RemoveObject: './Data/Image_4KB.PNG',
-  path_generateImage_RemoveText: './Data/Image_2KB.JPG',
+  path_generateAudio: './Data/file_example_MP3_700KB.mp3',
+  path_generateImage_Summary: './Data/Image_4KB.png',
+  path_generateImage_RemoveObject: './Data/Image_4KB.png',
+  path_generateImage_RemoveText: './Data/Image_2KB.jpg',
   
 
   //N/A
