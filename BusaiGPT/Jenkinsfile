@@ -3,13 +3,12 @@ pipeline {
         docker { image 'mcr.microsoft.com/playwright:v1.46.0-jammy' }
     }
     environment {
-        GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
         REPO_NAME = 'BusaiGPT'
         FILE_SH = 'BS_Auto.sh'
         FILE_BAT = 'BS_Auto.bat'
-        COMMAND = 'npx playwright test BS_Actions.spec.js --reporter=line --workers=1'
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
+        JENKINS_CREDENTIALS_ID = '6f5eb65d-9009-4049-8b13-1becf88d77cb'
     }
 
     triggers {
@@ -19,7 +18,13 @@ pipeline {
     stages {
         stage('CI: Checkout Code') {
             steps {
-                git branch: "${BRANCH_NAME}", url: "${GITHUB_URL}"
+                script {
+                    withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
+                        git branch: "${BRANCH_NAME}", 
+                            credentialsId: "${JENKINS_CREDENTIALS_ID}", 
+                            url: "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/chaukhau19/Automation_With_Playwright.git"
+                    }
+                }
                 echo "Code checked out from ${BRANCH_NAME}"
                 echo 'Current working directory:'
                 sh 'pwd'
@@ -28,7 +33,11 @@ pipeline {
                 script {
                     def repoPath = sh(script: "find . -type d -name '${REPO_NAME}'", returnStdout: true).trim()
                     echo "Found ${REPO_NAME} at: ${repoPath}"
-                    env.REPO_PATH = repoPath
+                    if (repoPath) {
+                        env.REPO_PATH = repoPath
+                    } else {
+                        error "Repository directory ${REPO_NAME} not found."
+                    }
                 }
 
                 echo "Changing directory to ${REPO_NAME} and listing contents:"
@@ -38,7 +47,7 @@ pipeline {
                     ls -la
                 """
                 echo "Checking if Data directory exists in ${REPO_PATH}:"
-                sh "ls -la ${env.REPO_PATH}/Data"
+                sh "ls -la ${env.REPO_PATH}/Data || echo 'Data directory does not exist.'"
             }
         }
 
@@ -75,12 +84,21 @@ pipeline {
                     if (isUnix()) {
                         sh """
                             cd ${env.REPO_PATH}
-                            ${COMMAND}
+                            if [ -f ${FILE_SH} ]; then
+                                chmod +x ${FILE_SH}
+                                ./${FILE_SH}
+                            else
+                                echo "${FILE_SH} not found."
+                            fi
                         """
                     } else {
                         bat """
                             cd ${env.REPO_PATH}
-                            ${COMMAND}
+                            if exist ${FILE_BAT} (
+                                ${FILE_BAT}
+                            ) else (
+                                echo ${FILE_BAT} not found.
+                            )
                         """
                     }
                 }
