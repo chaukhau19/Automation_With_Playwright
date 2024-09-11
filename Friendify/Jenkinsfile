@@ -11,7 +11,7 @@ pipeline {
         BRANCH_NAME = 'master'
     }
     triggers {
-        cron('0 0 * * *')  // Runs every day at midnight (00:00)
+        cron('0 0 * * *') 
     }
 
     stages {
@@ -75,7 +75,7 @@ pipeline {
                     if (isUnix()) {
                         sh """
                             cd ${env.REPO_PATH}
-                            chmod +x ${FILE_SH}  // Ensure the script has execute permissions
+                            chmod +x ${FILE_SH} 
                             ./${FILE_SH}
                         """
                     } else {
