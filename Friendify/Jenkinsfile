@@ -72,6 +72,7 @@ pipeline {
                     if (isUnix()) {
                         sh """
                             cd ${env.REPO_PATH}
+                            chmod +x ${FILE_SH}  
                             ./${FILE_SH}
                         """
                     } else {
@@ -84,7 +85,6 @@ pipeline {
                 echo "Tests executed"
             }
         }
-
         stage('Archive Test Results') {
             steps {
                 archiveArtifacts artifacts: '**/playwright-report/**/*', allowEmptyArchive: true
@@ -94,10 +94,27 @@ pipeline {
     }
 
     post {
-        always {
+        success {
             script {
                 def status = currentBuild.result ?: 'SUCCESS'
-                echo "Build status: ${status}"
+                echo "All test cases passed. Build status: ${status}"
+
+                if (isUnix()) {
+                    if (fileExists("${SERVER_PATH}/temp")) {
+                        sh "rm -rf ${SERVER_PATH}/temp/*"
+                    } else {
+                        echo "Temporary folder does not exist."
+                    }
+                } else {
+                    bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
+                }
+            }
+        }
+        failure {
+            script {
+                def status = currentBuild.result ?: 'FAILURE'
+                echo "Some test cases failed. Build status: ${status}"
+
                 if (isUnix()) {
                     if (fileExists("${SERVER_PATH}/temp")) {
                         sh "rm -rf ${SERVER_PATH}/temp/*"
