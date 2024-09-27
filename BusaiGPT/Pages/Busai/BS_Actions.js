@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { expect } from '@playwright/test'; 
 import { config } from '../../Utils/BS_config'; 
+const { chromium } = require('playwright');
 
 export class ActionsPage {
   constructor(browser) {
@@ -177,8 +178,11 @@ export class ActionsPage {
       await uploadLocator.waitFor({ state: 'visible', timeout: 10000 });
       await uploadLocator.click();
 
+      // const browser = await chromium.launch();
+      // const page = await browser.newPage();
       const filePath = config.path_generateDocs;
       await this.page.setInputFiles('input[type="file"]', filePath);
+      // await browser.close();
       console.log('File uploaded');
 
       await this.page.getByRole('button', { name: 'Start Summary' }).click();
