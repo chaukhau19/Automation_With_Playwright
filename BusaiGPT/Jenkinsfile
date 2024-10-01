@@ -72,6 +72,7 @@ pipeline {
                 script {
                     sh 'node -v'  
                     sh 'npm -v' 
+                    sh "ls -la ${env.REPO_PATH}/node_modules/playwright"
                 }
             }
         }
