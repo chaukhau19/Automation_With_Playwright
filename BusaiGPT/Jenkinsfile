@@ -61,6 +61,8 @@ pipeline {
                         npm install
                         npx playwright install
                         npm install @playwright/test@latest
+
+                        chmod +x node_modules/.bin/playwright
                     """
                 }
             }
