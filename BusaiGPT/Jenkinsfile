@@ -70,11 +70,8 @@ pipeline {
             steps {
                 echo 'Verifying Playwright Installation'
                 script {
-                    sh """
-                        sh 'node -v'  
-                        sh 'npm -v' 
-
-                    """ 
+                    sh 'node -v'  
+                    sh 'npm -v' 
                 }
             }
         }
