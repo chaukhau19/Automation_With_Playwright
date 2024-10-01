@@ -57,7 +57,6 @@ pipeline {
                 script {
                     sh """
                         cd ${env.REPO_PATH}
-                        cd ..
                         rm -rf node_modules package-lock.json
                         npm install
                         npx playwright install
@@ -72,11 +71,8 @@ pipeline {
                 echo 'Verifying Playwright Installation'
                 script {
                     sh """
-                        cd ${env.REPO_PATH}
-                        cd ..
                         sh 'node -v'  
                         sh 'npm -v' 
-                        sh 'npx playwright --version || echo "Playwright command failed."' 
 
                     """ 
                 }
