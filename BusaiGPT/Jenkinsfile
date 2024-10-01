@@ -70,6 +70,7 @@ pipeline {
             steps {
                 echo 'Verifying Playwright Installation'
                 script {
+                    cd ${env.REPO_PATH}
                     sh 'node -v'  
                     sh 'npm -v' 
                     sh 'npx playwright --version || echo "Playwright command failed."'   
