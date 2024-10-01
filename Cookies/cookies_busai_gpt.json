@@ -1,0 +1,82 @@
+[
+  {
+    "name": "stel_ssid",
+    "value": "5f8404377e52b838bb_16841874106224646689",
+    "domain": "oauth.telegram.org",
+    "path": "/",
+    "expires": 1759182022.193662,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "stel_token",
+    "value": "4e52fe7ebdfe260a28a994d35518075d4e52fe694e53f5817c311695281b7b42aad4a",
+    "domain": "oauth.telegram.org",
+    "path": "/",
+    "expires": 1758619661.539499,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "info",
+    "value": "{\"_id\":\"66ca1d74c1406f2906df9549\",\"telegram_id\":6262959786,\"first_name\":\"Bé\",\"email\":\"\",\"phone_number\":\"\",\"photo_url\":\"https://t.me/i/userpic/320/CIiNDL14SsNxkFRvVs-7otWP4cZ74KrlDUzM4HCiJZEbLhqtesB4_KGfD2dZz3Qq.jpg\",\"createdAt\":\"2024-08-05T10:17:52.664Z\",\"updatedAt\":\"2024-08-05T10:17:52.664Z\",\"__v\":0}",
+    "domain": ".busai.me",
+    "path": "/",
+    "expires": 1759288878,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "token",
+    "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2Y2ExZDc0YzE0MDZmMjkwNmRmOTU0OSIsImlhdCI6MTcyNzc1Mjg3NywiZXhwIjoxNzI3OTI1Njc3fQ.ybu4b7FAQvHCxbPIeCl3oeKJEQ8mtEpNm-GsD_HRjUQ",
+    "domain": ".busai.me",
+    "path": "/",
+    "expires": 1759288878,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "IDE",
+    "value": "AHWqTUmSGwe194a--X4caZ5e2oEx-rlHcqttfLGO2jSbQ6hM-R6HRkjreKwl3lfnhBw",
+    "domain": ".doubleclick.net",
+    "path": "/",
+    "expires": 1762312880.298921,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "_ga",
+    "value": "GA1.2.1826405047.1727752881",
+    "domain": ".busai.me",
+    "path": "/",
+    "expires": 1762312881.266517,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "_gid",
+    "value": "GA1.2.167242935.1727752881",
+    "domain": ".busai.me",
+    "path": "/",
+    "expires": 1727839281,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "_gat",
+    "value": "1",
+    "domain": ".busai.me",
+    "path": "/",
+    "expires": 1727752941,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  }
+]
