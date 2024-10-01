@@ -70,7 +70,6 @@ pipeline {
             steps {
                 echo 'Verifying Playwright Installation'
                 script {
-                    sh 'chmod +x $(which npx)'  
                     sh 'node -v'  
                     sh 'npm -v' 
                     sh 'npx playwright --version || echo "Playwright command failed."'   
