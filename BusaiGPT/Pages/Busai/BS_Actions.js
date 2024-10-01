@@ -1,7 +1,8 @@
 import fs from 'fs';
 import { expect } from '@playwright/test'; 
 import { config } from '../../Utils/BS_config'; 
-const { chromium } = require('playwright');
+// const { chromium } = require('playwright');
+import { chromium } from 'playwright'; // Sử dụng import ES6 thay vì require
 
 export class ActionsPage {
   constructor(browser) {
