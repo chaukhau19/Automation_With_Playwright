@@ -61,9 +61,6 @@ pipeline {
                         npm install
                         npx playwright install
                         npm install @playwright/test@latest
-
-                        sudo chmod +x node_modules/.bin/playwright
-                        chmod -R 755 node_modules/
                     """
                 }
             }
@@ -73,10 +70,10 @@ pipeline {
             steps {
                 echo 'Verifying Playwright Installation'
                 script {
+                    sh 'chmod +x $(which npx)'  
                     sh 'node -v'  
                     sh 'npm -v' 
-                    sh 'npx playwright --version'  
-                    sh './node_modules/.bin/playwright --version'  
+                    sh 'npx playwright --version'   
                 }
             }
         }
