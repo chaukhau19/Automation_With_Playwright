@@ -3,26 +3,22 @@ pipeline {
         docker { image 'mcr.microsoft.com/playwright:v1.46.0-jammy' }
     }
     environment {
-        //GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
         REPO_NAME = 'Tongram'
         FILE_SH = 'TG_Auto.sh'
         FILE_BAT = 'TG_Auto.bat'
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
         JENKINS_CREDENTIALS_ID = '6f5eb65d-9009-4049-8b13-1becf88d77cb'
-        //No need, because already setup Jenkins Credentials (usernamePassword credential)
-        // GITHUB_USER = 'chaukhau2000@gmail.com'
-        // GITHUB_TOKEN = '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'
     }
     triggers {
         cron('0 0 * * *') 
     }
 
-     stages {
+    stages {
         stage('CI: Checkout Code') {
             steps {
                 script {
-                    // Sử dụng credentialsId đúng cách
+                    // Using credentials to fetch the repository
                     withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
                         git branch: "${BRANCH_NAME}", 
                             credentialsId: "${JENKINS_CREDENTIALS_ID}", 
@@ -102,7 +98,7 @@ pipeline {
 
         stage('Archive Test Results') {
             steps {
-                archiveArtifacts artifacts: '**/playwright-report/**/*', allowEmptyArchive: true
+                archiveArtifacts artifacts: '**/Results/**/*', allowEmptyArchive: true
                 echo 'Test results archived.'
             }
         }
@@ -113,15 +109,24 @@ pipeline {
             script {
                 def status = currentBuild.result ?: 'SUCCESS'
                 echo "All test cases passed. Build status: ${status}"
-
-                if (isUnix()) {
+                publishHTML(target: [
+                    allowMissing: false,
+                    keepAll: true,
+                    reportDir: 'Results',
+                    reportFiles: 'index.html',
+                    reportName: 'Playwright Test Report'
+                ])
+                
+                script {
                     if (fileExists("${SERVER_PATH}/temp")) {
-                        sh "rm -rf ${SERVER_PATH}/temp/*"
+                        if (isUnix()) {
+                            sh "rm -rf ${SERVER_PATH}/temp/*"
+                        } else {
+                            bat "del /Q ${SERVER_PATH}\\temp\\*"
+                        }
                     } else {
                         echo "Temporary folder does not exist."
                     }
-                } else {
-                    bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
                 }
             }
         }
@@ -129,15 +134,17 @@ pipeline {
             script {
                 def status = currentBuild.result ?: 'FAILURE'
                 echo "Some test cases failed. Build status: ${status}"
-
-                if (isUnix()) {
+                
+                script {
                     if (fileExists("${SERVER_PATH}/temp")) {
-                        sh "rm -rf ${SERVER_PATH}/temp/*"
+                        if (isUnix()) {
+                            sh "rm -rf ${SERVER_PATH}/temp/*"
+                        } else {
+                            bat "del /Q ${SERVER_PATH}\\temp\\*"
+                        }
                     } else {
                         echo "Temporary folder does not exist."
                     }
-                } else {
-                    bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
                 }
             }
         }
