@@ -102,7 +102,7 @@ pipeline {
 
         stage('Archive Test Results') {
             steps {
-                archiveArtifacts artifacts: '**/Results/**/*', allowEmptyArchive: true
+                archiveArtifacts artifacts: '**/playwright-report/**/*', allowEmptyArchive: true
                 echo 'Test results archived.'
             }
         }
@@ -113,7 +113,7 @@ pipeline {
             script {
                 def status = currentBuild.result ?: 'SUCCESS'
                 echo "All test cases passed. Build status: ${status}"
-                
+
                 if (isUnix()) {
                     if (fileExists("${SERVER_PATH}/temp")) {
                         sh "rm -rf ${SERVER_PATH}/temp/*"
