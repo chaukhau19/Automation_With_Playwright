@@ -1,4 +1,3 @@
-import { expect } from "@playwright/test";
 
 // /Utils/FD_config.js
 export const config = {

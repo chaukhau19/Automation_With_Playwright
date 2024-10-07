@@ -1,46 +1,144 @@
 pipeline {
-    agent any
-    environment {
-        // Github
-        GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
-        REPO_NAME = 'Tongram'
-        SERVER_PATH = 'Automation_With_Playwright/Tongram' // Cập nhật đường dẫn
-        BRANCH_NAME = 'master'
-        JENKINS_USERNAME = 'khauntc'  
-        JENKINS_ADDRESS = 'https://jenkins.playgroundvina.com/'  
-        COMMANDS = './BS_Auto.bat'  
+    agent {
+        docker { image 'mcr.microsoft.com/playwright:v1.46.0-jammy' }
     }
-    stages {
-        stage('Checkout code') {
+    environment {
+        //GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
+        REPO_NAME = 'Tongram'
+        FILE_SH = 'TG_Auto.sh'
+        FILE_BAT = 'TG_Auto.bat'
+        SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
+        BRANCH_NAME = 'master'
+        JENKINS_CREDENTIALS_ID = '6f5eb65d-9009-4049-8b13-1becf88d77cb'
+        //No need, because already setup Jenkins Credentials (usernamePassword credential)
+        // GITHUB_USER = 'chaukhau2000@gmail.com'
+        // GITHUB_TOKEN = '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'
+    }
+    triggers {
+        cron('0 0 * * *') 
+    }
+
+     stages {
+        stage('CI: Checkout Code') {
             steps {
-                git branch: "${BRANCH_NAME}", url: "${GITHUB_URL}"
-            }
-        }
-        stage('Deploying...') {
-            when {
-                anyOf {
-                    branch 'master'
-                    branch 'main'
-                }
-            }
-            steps {
-                dir("${SERVER_PATH}") {
-                    script {
-                        echo "Deploying to '${BRANCH_NAME}'..."
-                        sh 'git pull'
-                        sh "sudo make deploy repo_name=${REPO_NAME} branch_name=${BRANCH_NAME}"
-                        sh "ssh -o StrictHostKeyChecking=no ${JENKINS_USERNAME}@${JENKINS_ADDRESS} '${COMMANDS}'"
+                script {
+                    // Sử dụng credentialsId đúng cách
+                    withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
+                        git branch: "${BRANCH_NAME}", 
+                            credentialsId: "${JENKINS_CREDENTIALS_ID}", 
+                            url: "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/chaukhau19/Automation_With_Playwright.git"
                     }
                 }
+                echo "Code checked out from ${BRANCH_NAME}"
+                echo 'Current working directory:'
+                sh 'pwd'
+
+                echo "Finding ${REPO_NAME} directory:"
+                script {
+                    def repoPath = sh(script: "find . -type d -name '${REPO_NAME}'", returnStdout: true).trim()
+                    echo "Found ${REPO_NAME} at: ${repoPath}"
+                    if (repoPath) {
+                        env.REPO_PATH = repoPath
+                    } else {
+                        error "Repository directory ${REPO_NAME} not found."
+                    }
+                }
+
+                echo "Changing directory to ${REPO_NAME} and listing contents:"
+                sh """
+                    cd ${env.REPO_PATH}
+                    pwd
+                    ls -la
+                """
+            }
+        }
+
+        stage('Setup Dependencies') {
+            steps {
+                echo 'Setting up dependencies'
+                script {
+                    sh """
+                        cd ${env.REPO_PATH}
+                        rm -rf node_modules package-lock.json
+                        npm install
+                        npx playwright install
+                        npm install @playwright/test@latest
+                    """
+                }
+            }
+        }
+
+        stage('Verify Playwright Installation') {
+            steps {
+                echo 'Verifying Playwright Installation'
+                script {
+                    sh 'node -v'
+                    sh 'npm -v'
+                    sh 'npx playwright --version'
+                }
+            }
+        }
+
+        stage('CD: Run Tests') {
+            steps {
+                echo 'Starting Tests'
+                script {
+                    if (isUnix()) {
+                        sh """
+                            cd ${env.REPO_PATH}
+                            chmod +x ${FILE_SH} 
+                            ./${FILE_SH}
+                        """
+                    } else {
+                        bat """
+                            cd ${env.REPO_PATH}
+                            ${FILE_BAT}
+                        """
+                    }
+                }
+                echo "Tests executed"
+            }
+        }
+
+        stage('Archive Test Results') {
+            steps {
+                archiveArtifacts artifacts: '**/playwright-report/**/*', allowEmptyArchive: true
+                echo 'Test results archived.'
             }
         }
     }
+
     post {
-        always {
+        success {
             script {
                 def status = currentBuild.result ?: 'SUCCESS'
-                echo "Build status: ${status}"
-                sh "rm -rf ./* ./.??*"
+                echo "All test cases passed. Build status: ${status}"
+
+                if (isUnix()) {
+                    if (fileExists("${SERVER_PATH}/temp")) {
+                        sh "rm -rf ${SERVER_PATH}/temp/*"
+                    } else {
+                        echo "Temporary folder does not exist."
+                    }
+                } else {
+                    bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
+                }
+            }
+        }
+        failure {
+            script {
+                def status = currentBuild.result ?: 'FAILURE'
+                echo "Some test cases failed. Build status: ${status}"
+
+                if (isUnix()) {
+                    if (fileExists("${SERVER_PATH}/temp")) {
+                        sh "rm -rf ${SERVER_PATH}/temp/*"
+                    } else {
+                        echo "Temporary folder does not exist."
+                    }
+                } else {
+                    bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
+                }
             }
         }
     }

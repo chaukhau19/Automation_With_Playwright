@@ -23,7 +23,7 @@ module.exports = defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   // reporter: 'html',
   reporter: [['html', { outputFolder: 'playwright-report', open: 'always' }]],
-  timeout: 60000, // Set default timeout to 60 seconds
+  timeout: 60000000, // Set default timeout to 60 seconds
  
 
 

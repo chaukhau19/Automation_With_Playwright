@@ -1,6 +1,6 @@
-import { config } from '../../Utils/BS_config';
 import fs from 'fs';
 import path from 'path';
+import { config } from '../../Utils/BS_config';
 
 export class BusaiPage {
   constructor(page) {
@@ -37,3 +37,27 @@ export class BusaiPage {
     fs.writeFileSync(filePath, JSON.stringify(cookies, null, 2));
   }
 }
+
+// async saveCookies() {
+//   const dir = config.cookiesDir;
+//   if (!fs.existsSync(dir)) {
+//     fs.mkdirSync(dir, { recursive: true });
+//   }
+
+//   // Lấy tất cả các cookie hiện tại
+//   const cookies = await this.page.context().cookies();
+
+//   // Tính thời gian hết hạn là 365 ngày (365 ngày = 365 * 24 * 60 * 60 giây)
+//   const expires = Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60;
+
+//   // Cập nhật thời gian hết hạn của mỗi cookie
+//   const updatedCookies = cookies.map(cookie => ({
+//     ...cookie,
+//     expires, // Gia hạn 365 ngày
+//   }));
+
+//   // Lưu cookie với thời gian hết hạn mới
+//   const filePath = path.join(dir, config.cookiesFile);
+//   fs.writeFileSync(filePath, JSON.stringify(updatedCookies, null, 2));
+//  }
+// }

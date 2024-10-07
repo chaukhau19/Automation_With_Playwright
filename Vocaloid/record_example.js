@@ -1,0 +1,94 @@
+const { chromium } = require('playwright');
+
+(async () => {
+  const browser = await chromium.launch({
+    headless: false
+  });
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  await page.goto('https://ai-cover-v2.playgroundx.site/dashboard/');
+  await page.getByRole('checkbox').check();
+  await page.locator('.close-button').first().click();
+  await page.getByRole('button', { name: 'Sign In' }).click();
+  await page.getByText('Sign Up').click();
+  await page.getByPlaceholder('Enter your name').click();
+  await page.getByPlaceholder('Enter your name').press('CapsLock');
+  await page.getByPlaceholder('Enter your email').click();
+  await page.locator('#basic_password').click();
+  await page.locator('#basic_password').click();
+  await page.locator('#basic_re_password').click();
+  await page.getByPlaceholder('Enter your name').click();
+  await page.getByPlaceholder('Enter your name').fill('TesterFriendify');
+  await page.getByPlaceholder('Enter your email').click({
+    modifiers: ['ControlOrMeta']
+  });
+  await page.getByPlaceholder('Enter your email').fill('TesterFriendify13@gmail.com');
+  await page.locator('#basic_password').click();
+  await page.locator('#basic_password').fill('Tester25082024@');
+  await page.locator('div').filter({ hasText: /^Re-enter Password \(\*\)Cannot be empty$/ }).locator('span').first().click();
+  await page.locator('#basic_re_password').fill('Tester25082024@');
+  await page.getByRole('button', { name: 'Create Account' }).click();
+  await page.locator('div').filter({ hasText: 'Sign up success' }).nth(1).click();
+  await page.getByText('Sign up success').click();
+  await page.locator('div:nth-child(3)').click();
+  await page.goto('https://ai-cover-v2.playgroundx.site/sign-up');
+  await page.goto('https://ai-cover-v2.playgroundx.site/sign-in');
+  await page.goto('https://ai-cover-v2.playgroundx.site/dashboard/');
+  await page.getByRole('button', { name: 'Sign In' }).click();
+  await page.getByPlaceholder('Enter your email').click();
+  await page.getByPlaceholder('Enter your password').click();
+  await page.getByPlaceholder('Enter your email').click();
+  await page.getByPlaceholder('Enter your email').fill('chaukhau2000@gmail.com');
+  await page.getByPlaceholder('Enter your password').click();
+  await page.getByPlaceholder('Enter your password').fill('wgh1p58o');
+  await page.getByRole('button', { name: 'Sign In' }).click();
+  await page.getByText('Login success').click();
+  await page.locator('.sc-hYqwXO > svg').click();
+  await page.locator('#wrapper').getByText('Logout').click();
+  await page.getByText('Logout success').click();
+  await page.getByRole('link', { name: 'Convert Voice' }).click();
+  await page.getByRole('button', { name: 'More voices' }).click();
+  await page.locator('div:nth-child(13) > .sc-fpOQxu').click();
+  await page.getByPlaceholder('Paste a Youtube link...').click();
+  await page.getByText('https://youtu.be/q2YUtZum9wc?').click();
+  await page.getByText('URL ADDEDhttps://youtu.be/').click();
+  await page.locator('div').filter({ hasText: /^https:\/\/youtu\.be\/q2YUtZum9wc\?si=mFe9GGfunznZaimb$/ }).click();
+  await page.getByRole('link', { name: 'Convert Voice' }).click();
+  await page.getByRole('link', { name: 'Convert Voice' }).click();
+  await page.getByRole('link', { name: 'Convert Voice' }).dblclick();
+  await page.getByRole('link', { name: 'Text to Melody' }).click();
+  await page.getByRole('link', { name: 'Convert Voice' }).click();
+  await page.locator('section').filter({ hasText: 'Step 1:Select a voiceMore voicesStep 2:Provide input for generating' }).getByRole('button').nth(2).click();
+  await page.getByPlaceholder('Paste a Youtube link...').click();
+  await page.getByText('Valid YouTube link!').click();
+  await page.getByText('Music CreatorConvert').click();
+  await page.getByRole('link', { name: 'Create Music' }).click();
+  await page.getByRole('link', { name: 'Convert Voice' }).click();
+  await page.locator('section').filter({ hasText: 'Step 1:Select a voiceMore voicesStep 2:Provide input for generating' }).getByRole('button').nth(2).click();
+  await page.getByPlaceholder('Paste a Youtube link...').click();
+  await page.getByRole('button', { name: 'Generate' }).click();
+  await page.getByRole('cell', { name: 'Recently Generated' }).click();
+  await page.getByRole('row').getByText('-10-24 10:04').click();
+  await page.getByRole('row').getByText('%').click();
+  await page.getByRole('row').getByText('Pending').click();
+  await page.getByRole('row').getByText('%').click();
+  await page.getByRole('row').getByText('Success').click();
+  await page.getByRole('button', { name: 'Generate' }).click();
+  await page.locator('.sc-eywOmQ > svg').click();
+  await page.getByPlaceholder('Paste a Youtube link...').click();
+  await page.getByRole('button', { name: 'Generate' }).click();
+  await page.getByRole('main').getByRole('button').nth(1).click();
+  await page.getByRole('button', { name: 'Generate' }).click();
+  await page.getByText('Queued').click();
+  await page.getByRole('cell', { name: 'Recently Generated' }).click();
+  await page.locator('.sc-eywOmQ > svg').click();
+  await page.locator('.sc-eywOmQ > svg').click();
+  await page.locator('.sc-eywOmQ > svg').click();
+  await page.getByRole('heading', { name: 'Gernerating 3 items' }).click();
+  await page.locator('.sc-eywOmQ > svg').click();
+  await page.close();
+
+  // ---------------------
+  await context.close();
+  await browser.close();
+})();

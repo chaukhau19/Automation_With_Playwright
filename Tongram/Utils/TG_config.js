@@ -1,18 +1,53 @@
 // /Utils/TG_config.js
 export const config = {
   tongramUrl: 'https://tongram.app/en',
+  // tongramUrl: 'https://staging.tongram.app/',
   telegramAuthUrl: 'https://oauth.telegram.org/auth?bot_id=7241997507&origin=https%3A%2F%2Ftongram.app&request_access=true&return_to=https%3A%2F%2Ftongram.app%2Fen',
   phoneNumber: '339824931',
   cookiesDir: './Cookies',
-  cookiesFile: './Cookies/cookies_tongram.json',
+  cookiesFile: 'cookies_tongram.json',
+  point_Home: 'span.font-semibold.whitespace-nowrap',
   chatPointSelector: 'span.font-bold.leading-none.text-black',
-  Search_Query: 'PISTON',
-  Search_Query_Data: 'PISTON Hub PISTON Hub PISTON',
-  Verify_Search_Query: 'PISTON Hub',
-  Click_Game_Query: 'PISTON Farm PISTON Farm Tap',
-  Click_Open_Game: 'PISTON FarmGrow your super',
-  Click_Share_Game: 'PISTON Farm PISTON Farm Tap',
-  Comment_Game: 'PISTON Farm PISTON Farm Tap',
+
+  //CSS HTML Current
+  Point_1: "(//span[@class='whitespace-nowrap font-semibold'])[1]",
+  Point_2: "(//p[@class='text-[28px] font-bold text-[#111111] md:text-3xl'])",
+  Point_3: "//span[contains(text(), 'TOTAL EARNED')]",
+  Earn_DailyLogin: "//div[contains(@class, 'flex flex-row items-center justify-between rounded-[20px]')]",
+
+  Stars_5: 'body > main > section.mt-8.flex.flex-col.gap-y-6.pt-6 > div.flex.flex-col.gap-y-4 > div:nth-child(1) > div > div > div > svg:nth-child(5)',
+
+  Claim_Xpath: 'button:has-text("Claim")',
+  Complete_Xpath: 'img[alt="Complete"]',
+
+  //Data Input
+  Search_Query_1: 'PISTON',
+  Search_Query_Data_1: 'PISTON Hub PISTON Hub PISTON',
+  Verify_Search_Query_1: 'PISTON Hub',
+
+  Search_Query_2: 'Hamster',
+  Search_Query_Data_2: 'Hamster Hamster Hello!',
+  Verify_Search_Query_2: 'PISTON Hub',
+
+  Search_Query_3: 'TONsale',
+  Search_Query_Data_3: 'TONsale TONsale Premier',
+  Verify_Search_Query_3: 'TONsale',
+
+  Search_Query_4: 'Watchlist Topup',
+  Search_Query_Data_4: 'Watchlist Topup Watchlist',
+  Verify_Search_Query_4: 'Watchlist Topup',
+
+  Search_Query_5: 'TapTap',
+  Search_Query_Data_5: 'TapTap TapTap Backed by iMe,',
+  Verify_Search_Query_5: 'TapTap',
+  
+  Search_Query_6: 'Farm',
+  Search_Query_Data_6: 'PISTON Farm PISTON Farm Tap',
+  Verify_Search_Query_6: 'PISTON Farm',
+  Click_Open_Game_6: 'PISTON FarmGrow your super',
+  Click_Share_Game_6: 'PISTON Farm PISTON Farm Tap',
+  Comment_Game_6: 'PISTON Farm PISTON Farm Tap',
+
   Content_Comment_Game: 'Good Game',
   // Add other configuration variables here as needed
 };
