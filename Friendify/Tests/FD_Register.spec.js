@@ -1,9 +1,20 @@
-import { test } from '@playwright/test';
+import { chromium, test } from '@playwright/test';
 import { RegisterPage } from '../Pages/FD_Register';
 
-test.describe('Register Account', () => {
-  test('should register and login', async ({ page }) => {
-    const registerPage = new RegisterPage(page);
-    await registerPage.registerAndLogin();
-  });
+let registerPage;
+
+test.beforeAll(async () => {
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+  registerPage = new RegisterPage(page);
+});
+
+test.afterAll(async () => {
+  await registerPage.page.close();
+  const browser = registerPage.page.context().browser();
+  await browser.close();
+});
+
+test('Register and Login', async () => {
+  await registerPage.registerAndLogin();
 });

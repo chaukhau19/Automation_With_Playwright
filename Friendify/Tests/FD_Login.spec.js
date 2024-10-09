@@ -1,15 +1,24 @@
-import { test } from '@playwright/test';
+import { chromium, test } from '@playwright/test';
 import { LoginPage } from '../Pages/FD_Login';
 
-// Test case 1: Login with Account
-test('Login with Account', async ({ page }) => {
-  const login = new LoginPage(page);
-  await login.loginWithAccount();
+let login;
+
+test.beforeAll(async () => {
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+  login = new LoginPage(page);
 });
 
-// Test case 2: Login with Google 
-test('Login with Google', async ({ page }) => {
-  const login = new LoginPage(page);
-  await login.loginWithGoogle(true);  // Skip Referral Code
+test.afterAll(async () => {
+  await login.page.close();
+  const browser = login.page.context().browser();
+  await browser.close();
 });
 
+test('Login with Account', async () => {
+  await login.loginWithAccount(); 
+});
+
+test('Login with Google', async () => {
+  await login.loginWithGoogle(true); 
+});

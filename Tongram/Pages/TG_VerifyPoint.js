@@ -60,12 +60,12 @@ async verifyPoint() {
       console.log(`Point page (3): ${pointElement3}`);
 
       if (pointElement1 === pointElement2 && pointElement2 === pointElement3) {
-          console.log("Tất cả các điểm đều khớp!");
+          console.log("All the dots match!");
       } else {
-          console.log("Điểm không khớp!");
+          console.log("Points do not match!");
       }
   } catch (error) {
-      console.error('Lỗi trong quá trình kiểm tra điểm:', error);
+      console.error('Error during point check:', error);
   }
 }
 

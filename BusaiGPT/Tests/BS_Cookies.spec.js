@@ -1,6 +1,5 @@
 import { test } from '@playwright/test';
-import { BusaiPage } from '../../Pages/Busai/BS_Cookies';
-import { config } from '../../Utils/BS_config';
+import { BusaiPage } from '../Pages/BS_Cookies';
 
 test('Cookie Busai', async ({ page }) => {
   const busaiPage = new BusaiPage(page);

@@ -1,6 +1,6 @@
 import { test } from '@playwright/test';
-import { ActionsPage } from '../../Pages/Busai/BS_Actions'; // Đảm bảo đường dẫn chính xác
-import { config } from '../../Utils/BS_config'; // Đảm bảo đường dẫn chính xác
+import { ActionsPage } from '../Pages/BS_Actions'; // Đảm bảo đường dẫn chính xác
+import { config } from '../Utils/BS_config'; // Đảm bảo đường dẫn chính xác
 
 test.describe('Busai Actions', () => {
   test('Group Busai', async ({ browser }) => {

@@ -1,55 +1,54 @@
-import { test } from '@playwright/test';
+import { chromium, test } from '@playwright/test';
 import TGHomePage from '../Pages/TG_Actions.js';
 
-test.describe('Tongram Interact', () => {
-  test('Login with Telegram and Interact Actions', async ({ browser }) => {
-    const page = await browser.newPage();
-    const tgHomePage = new TGHomePage(page);
+let tgHomePage;
 
-    await test.step('Login with Telegram', async () => {
-      await tgHomePage.Login();
-    });
+test.beforeAll(async () => {
+  const browser = await chromium.launch(); // Launch the browser
+  const page = await browser.newPage(); // Create a new page
+  tgHomePage = new TGHomePage(page); // Initialize the page class
+});
 
-    await test.step('Interact with Categories', async () => {
-      await tgHomePage.Categories();
-    });
+test.afterAll(async () => {
+  await tgHomePage.page.close(); // Close the page
+  const browser = tgHomePage.page.context().browser(); // Get the browser instance
+  await browser.close(); // Close the browser
+});
 
-    await test.step('Interact with  DEX', async () => {
-      await tgHomePage.changeDEX();
+test('Login with Telegram', async () => {
+  await tgHomePage.Login(); // Perform the login
+});
 
-    });
+test('Interact with Categories', async () => {
+  await tgHomePage.Login(); 
+  await tgHomePage.Categories(); 
+});
 
+test('Interact with DEX', async () => {
+  await tgHomePage.Login(); 
+  await tgHomePage.changeDEX();
+});
+
+test('Open Game', async () => {
+});
     
-    // Earn Point khi Open
-    // Earn Point khi Share
-    // Earn Point khi Comment
-    // Thông báo khi Earn Point
-    // Verify DEX
+test('Review Game', async () => {
+});
 
+test('Share Game', async () => {
+});
 
-    // // OLD CODE
-    // await test.step('Calculate Points', async () => {
-    //   await tgHomePage.CalculatePoints();
-    // });
+test('Join telegram', async () => {
+});
 
-      // // OK
-    // await test.step('Search Game', async () => {
-    //   await tgHomePage.searchGame();
-    // });
+test('News page', async () => {
+});
 
-    // // OK-Cần bổ sung thêm check point
-    // await test.step('Share Game', async () => {
-    //   await tgHomePage.shareGame();
-    // });
+test('Submit App', async () => {
+});
 
-    // Cần check lại
-    // await test.step('Comment Game', async () => {
-      // await tgHomePage.commentGame();
-    // });
+test('Contact US', async () => {
+});
 
-    // Cần check lại
-    // await test.step('Open Game', async () => {
-    //   await tgHomePage.openGame();
-    // });
-  });
+test('Logout', async () => {
 });

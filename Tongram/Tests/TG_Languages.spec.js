@@ -1,30 +1,36 @@
-import { test } from '@playwright/test'; // Ensure expect is imported
-import TGLanguagePage from '../Pages/TG_Languages.js'; // Adjust the path if necessary
+import { chromium, test } from '@playwright/test';
+import TGLanguagePage from '../Pages/TG_Languages.js';
 
+let tgLanguagePage;
 
-test.describe('Tongram Languages', () => {
-  test('Login with Telegram and Tongram Languages', async ({ browser }) => {
-    const page = await browser.newPage();
-    const tgLanguagePage = new TGLanguagePage(page);
+test.beforeAll(async () => {
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+  tgLanguagePage = new TGLanguagePage(page);
+});
 
-    await test.step('Login with Telegram', async () => {
-          await tgLanguagePage.Login();
-        });
+test.afterAll(async () => {
+  await tgLanguagePage.page.context().browser().close();
+});
 
-    await test.step('Change Language English', async () => {
-      console.log("Changing language to English...");
-      await tgLanguagePage.changeLanguageEN(); 
-    });
+test('Login with Telegram', async () => {
+  await tgLanguagePage.Login();
+});
 
-    await test.step('Change Language Vietnamese', async () => {
-      console.log("Changing language to Vietnamese...");
-      await tgLanguagePage.changeLanguageVI();  
-    });
+test('Change Language to English', async () => {
+  await tgLanguagePage.Login(); 
+  console.log("Changing language to English...");
+  await tgLanguagePage.changeLanguageEN();
+});
 
-    await test.step('Change Language Korean', async () => {
-      console.log("Changing language to Korean...");
-      await tgLanguagePage.changeLanguageKR(); 
-    });
+test('Change Language to Vietnamese', async () => {
+  await tgLanguagePage.Login(); 
+  console.log("Changing language to Vietnamese...");
+  await tgLanguagePage.changeLanguageVI();
+});
 
-  });
+test('Change Language to Korean', async () => {
+  await tgLanguagePage.Login(); 
+  console.log("Changing language to Korean...");
+  await tgLanguagePage.changeLanguageKR();
 });

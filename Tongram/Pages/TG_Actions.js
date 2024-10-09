@@ -70,20 +70,14 @@ async Categories() {
     
     console.log('Clicking on Latest button...');
     await this.page.getByRole('button', { name: 'Latest' }).click();
-    
-    console.log('Verifying Home link is visible...');
     await expect(this.page.getByRole('link', { name: 'Home' })).toBeVisible();
     
     console.log('Clicking on Home link...');
     await this.page.getByRole('link', { name: 'Home' }).click();
-    
-    console.log('Verifying Categories button is visible...');
     await expect(this.page.getByRole('button', { name: 'Categories' })).toBeVisible();
     
     console.log('Clicking on Categories button...');
     await this.page.getByRole('button', { name: 'Categories' }).click();
-    
-    console.log('Navigating to Management category...');
     await this.page.getByRole('banner').getByRole('link', { name: 'Management Management' }).click();
     
     console.log('Waiting for Management section to be visible...');
@@ -98,264 +92,34 @@ async Categories() {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-async verifyPoint() {
-  try {
-      const pointText1 = await this.page.locator("(//span[@class='whitespace-nowrap font-semibold'])[1]").innerText();
-      const pointElement1 = this.convertToPoints(pointText1);
-      console.log(`Điểm hiện tại (1): ${pointElement1}`);
-
-      await this.page.locator("(//span[@class='whitespace-nowrap font-semibold'])[1]").click(); 
-      await this.page.getByRole('button', { name: 'Earn More' }).click();
-
-      const pointText2 = await this.page.locator("(//p[@class='text-[28px] font-bold text-[#111111] md:text-3xl'])").innerText();
-      const pointElement2 = this.convertToPoints(pointText2);
-      console.log(`Điểm hiện tại (2): ${pointElement2}`);
-
-      const pointText3 = await this.page.locator("//span[contains(text(), 'TOTAL EARNED')]").innerText();
-      const earnedPoints = pointText3.split(': ')[1];
-      const pointElement3 = this.convertToPoints(earnedPoints);
-      console.log(`Tổng điểm: ${pointElement3}`);
-
-      if (pointElement1 === pointElement2 && pointElement2 === pointElement3) {
-          console.log("Tất cả các điểm đều khớp!");
-      } else {
-          console.log("Điểm không khớp!");
-      }
-  } catch (error) {
-      console.error('Lỗi trong quá trình kiểm tra điểm:', error);
-  }
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-async DailyLogin() { 
-  try {
-    await this.page.locator("(//span[@class='whitespace-nowrap font-semibold'])[1]").click(); 
-    await this.page.getByRole('button', { name: 'Earn More' }).click();
-
-    const taskContainer = this.page.locator("//div[contains(@class, 'flex flex-row items-center justify-between rounded-[20px]')]");
-    
-    const claimButton = taskContainer.locator(".bg-claim-button:has-text('Claim')");
-    const completeIcon = taskContainer.locator("img[alt='Complete']");
-
-    const pointTextBeforeClaim = await this.page.locator("(//p[@class='text-[28px] font-bold text-[#111111] md:text-3xl'])").innerText();
-    const pointsBeforeClaim = this.convertToPoints(pointTextBeforeClaim);
-    console.log(`Current Points before claim: ${pointsBeforeClaim}`); 
-
-    if (await claimButton.count() > 0) {
-      console.log("Claim button found, clicking...");
-      await claimButton.click();
-
-      const pointTextAfterClaim = await this.page.locator("(//p[@class='text-[28px] font-bold text-[#111111] md:text-3xl'])").innerText();
-      const pointsAfterClaim = this.convertToPoints(pointTextAfterClaim);
-      console.log(`Current Points after claim: ${pointsAfterClaim}`); 
-
-      if (pointsAfterClaim === pointsBeforeClaim + 10) {
-        console.log("Points increased by 10 after claiming!");
-      } else {
-        console.log("Points did not increase by 10 as expected.");
-      }
-    } else if (await completeIcon.count() > 0) {
-      console.log("Claim already completed, skipping...");
-    } else {
-      console.log("No relevant elements found.");
-    }
-    await this.page.getByRole('link', { name: 'Tongram Logo' }).click();
-
-  } catch (error) {
-    console.error('Error during DailyLogin task:', error);
-  }
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-async AppExplorer() {
-  try {
-    await this.page.getByPlaceholder('Search for your favorite apps').first().click();
-    await this.page.getByPlaceholder('Search for your favorite apps').first().fill('PISTON');
-
-    await this.page.getByRole('banner').getByRole('link', { name: config.Search_Query_Data_1 }).click();
-    await this.page.getByRole('main').getByRole('button', { name: 'Open' }).click();
-
-    const page2Promise = this.page.waitForEvent('popup');
-    await this.page.getByRole('button', { name: 'Launch' }).click();
-    const page2 = await page2Promise;
-
-    await this.page.getByRole('link', { name: 'Tongram Logo' }).click();
-
-    await this.page.locator("(//span[@class='whitespace-nowrap font-semibold'])[1]").click();
-    await this.page.getByRole('button', { name: 'Earn More' }).click();
-
-    const claimButton = await this.page.locator('button:has-text("Claim")');
-    const completedImage = await this.page.locator('img[alt="Complete"]');
-
-    const pointTextBeforeClaim = await this.page.locator("(//p[@class='text-[28px] font-bold text-[#111111] md:text-3xl'])").innerText();
-    const pointsBeforeClaim = this.convertToPoints(pointTextBeforeClaim);
-    console.log(`Current Points before claim: ${pointsBeforeClaim}`);
-
-    if (await claimButton.count() > 0) {
-      await claimButton.click();
-
-      const pointTextAfterClaim = await this.page.locator("(//p[@class='text-[28px] font-bold text-[#111111] md:text-3xl'])").innerText();
-      const pointsAfterClaim = this.convertToPoints(pointTextAfterClaim);
-      console.log(`Current Points after claim: ${pointsAfterClaim}`);
-
-      if (pointsAfterClaim === pointsBeforeClaim + 50) {
-        console.log("Points increased by 50 after claiming!");
-      } else {
-        console.log("Points did not increase as expected.");
-      }
-    } else if (await completedImage.count() > 0) {
-      console.log("Claim already completed, skipping...");
-    } else {
-      console.log("No relevant elements found.");
-    }
-    await this.page.getByRole('link', { name: 'Tongram Logo' }).click();
-  } catch (error) {
-    console.error('Error during AppExplorer task:', error);
-  }
-}
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-async AppReviewer() {
-  try {
-    const searchPlaceholder = this.page.getByPlaceholder('Search for your favorite apps').first();
-    const feedbackMessageSelector = "//div[@class='relative flex h-[240px] flex-col items-center justify-center gap-y-4']//div[h5[text()='Submitted']]";
-    const alreadyReviewedSelector = "//div[@class='go2072408551']//div[@role='status' and @aria-live='polite' and text()='You have already reviewed this app!']";
-    const claimButtonLocator = this.page.locator('button:has-text("Claim")');
-    const completedImageLocator = this.page.locator('img[alt="Complete"]');
-    const pointsLocator = this.page.locator("(//p[@class='text-[28px] font-bold text-[#111111] md:text-3xl'])");
-
-    await searchPlaceholder.click();
-    await searchPlaceholder.fill(config.Search_Query_4);
-    await this.page.getByRole('banner').getByRole('link', { name: config.Search_Query_Data_4 }).click();
-    await this.page.waitForLoadState('networkidle');
-
-    await this.page.locator('body > main > section.mt-8.flex.flex-col.gap-y-6.pt-6 > div.flex.flex-col.gap-y-4 > div:nth-child(1) > div > div > div > svg:nth-child(5)').first().click();
-    await this.page.getByPlaceholder('What is on your mind?').fill(config.Content_Comment_Game);
-    await this.page.getByRole('button', { name: 'Submit', exact: true }).click();
-
- 
-    await this.page.waitForTimeout(1000); 
-
-    const feedbackSubmitted = await this.page.locator(feedbackMessageSelector).isVisible({ timeout: 5000 }).catch(() => false);
-    const alreadyReviewed = await this.page.locator(alreadyReviewedSelector).isVisible({ timeout: 5000 }).catch(() => false);
-
-    console.log("Feedback Submitted:", feedbackSubmitted);
-    console.log("Already Reviewed:", alreadyReviewed);
-
-    if (feedbackSubmitted && !alreadyReviewed) {
-      console.log("Feedback submitted successfully.");
-
-      // const gameText = config.Content_Comment_Game;
-      // const confirmationVisible = await this.page.locator('div').filter({ hasText: new RegExp(^a few seconds ago ${gameText}$) }).first().isVisible({ timeout: 5000 }).catch(() => false);
-    
-    } else if (alreadyReviewed) {
-      console.log("The game has already been reviewed.");      
-    } else {
-      console.error("Feedback submission failed or unexpected state.");
-    }
-
-    await this.page.getByRole('link', { name: 'Tongram Logo' }).click();
-    await this.page.locator("(//span[@class='whitespace-nowrap font-semibold'])[1]").click();
-    await this.page.getByRole('button', { name: 'Earn More' }).click();
-
-    const pointTextBeforeClaim = await pointsLocator.innerText();
-    const pointsBeforeClaim = this.convertToPoints(pointTextBeforeClaim);
-    console.log(`Current Points before claim: ${pointsBeforeClaim}`);
-
-    if (await claimButtonLocator.count() > 0) {
-      await claimButtonLocator.click();
-
-      const pointTextAfterClaim = await pointsLocator.innerText();
-      const pointsAfterClaim = this.convertToPoints(pointTextAfterClaim);
-      console.log(`Current Points after claim: ${pointsAfterClaim}`);
-      
-      if (pointsAfterClaim === pointsBeforeClaim + 20) {
-        console.log("Points increased by 20 after claiming!");
-      } else {
-        console.log("Points did not increase as expected.");
-      }
-    } else if (await completedImageLocator.count() > 0) {
-      console.log("Claim already completed, skipping...");
-    } else {
-      console.log("No relevant elements found.");
-    }
-
-    await this.page.getByRole('link', { name: 'Tongram Logo' }).click();
-
-  } catch (error) {
-    console.error('Error during AppReviewer task:', error);
-  }
-}
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-async AppSharer() {
-  try {
-    const searchPlaceholder = this.page.getByPlaceholder('Search for your favorite apps').first();
-    const claimButtonLocator = this.page.locator('button:has-text("Claim")');
-    const completedImageLocator = this.page.locator('img[alt="Complete"]');
-    const pointsLocator = this.page.locator("(//p[@class='text-[28px] font-bold text-[#111111] md:text-3xl'])");
-
-    await searchPlaceholder.click();
-    await searchPlaceholder.fill(config.Search_Query_4);
-    await this.page.getByRole('banner').getByRole('link', { name: config.Search_Query_Data_4 }).click();
-    await this.page.waitForLoadState('networkidle');
-
-    await this.page.getByRole('button', { name: 'Share' }).click();
-    await this.page.waitForTimeout(1000); 
-
-    await this.page.getByRole('link', { name: 'Tongram Logo' }).click();
-    await this.page.locator("(//span[@class='whitespace-nowrap font-semibold'])[1]").click();
-    await this.page.getByRole('button', { name: 'Earn More' }).click();
-
-    const pointTextBeforeClaim = await pointsLocator.innerText();
-    const pointsBeforeClaim = this.convertToPoints(pointTextBeforeClaim);
-    console.log(`Current Points before claim: ${pointsBeforeClaim}`);
-
-    if (await claimButtonLocator.count() > 0) {
-      await claimButtonLocator.click();
-
-      const pointTextAfterClaim = await pointsLocator.innerText();
-      const pointsAfterClaim = this.convertToPoints(pointTextAfterClaim);
-      console.log(`Current Points after claim: ${pointsAfterClaim}`);
-
-      if (pointsAfterClaim === pointsBeforeClaim + 20) {
-        console.log("Points increased by 20 after claiming!");
-      } else {
-        console.log("Points did not increase as expected.");
-      }
-    } else if (await completedImageLocator.count() > 0) {
-      console.log("Claim already completed, skipping...");
-    } else {
-      console.log("No relevant elements found.");
-    }
-
-    await this.page.getByRole('link', { name: 'Tongram Logo' }).click();
-
-  } catch (error) {
-    console.error('Error during AppSharer task:', error);
-  }
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async changeDEX() {
   try {
+    console.log('Attempting to change DEX...');
+
     console.log('Clicking on the DEX button...');
-    await this.page.getByRole('button', { name: 'DEX' }).click();
-    
+    const dexButton = this.page.getByRole('button', { name: 'DEX' });
+    await dexButton.click();
+
+    console.log('Verifying visibility of TON/GM and Swap...');
+    await expect(this.page.locator('div').filter({ hasText: /^TON\/GM$/ }).first()).toBeVisible({ timeout: 5000 });
+    await expect(this.page.locator('div').filter({ hasText: /^Swap$/ }).nth(2)).toBeVisible({ timeout: 5000 });
+
     console.log('Clicking on the first link in the list...');
     await this.page.locator('a').first().click();
+    await expect(this.page.getByRole('link', { name: 'Tongram Logo' })).toBeVisible({ timeout: 5000 });
 
     console.log('DEX change action completed successfully.');
 
   } catch (error) {
-    console.error('Error during changeDEX:', error);
-    throw error; // Re-throwing the error if you want the calling function to handle it too
+    console.error('Error occurred during changeDEX operation:', error.message);
+    throw error;
   }
 }
 
 
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////    OLD CODE    ///////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   async CalculatePoints() {
     try {

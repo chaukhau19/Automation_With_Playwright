@@ -1,6 +1,6 @@
 // /Pages/Friendify/FD_Actions.js
-import { config } from '../Utils/FD_config';
 import { expect } from '@playwright/test';
+import { config } from '../Utils/FD_config';
 
 export class ActionsPage {
   constructor(page) {

@@ -40,13 +40,9 @@ async Login() {
 
   async changeLanguageVI() {
     try {
-      // Click to change language to Vietnamese
       await this.page.getByRole('button', { name: 'en', exact: true }).click();
       await this.page.getByRole('link', { name: 'Vietnamese' }).click();
 
-      // await this.page.waitForTimeout(2000); 
-  
-      // Verify Vietnamese language elements
       await expect(this.page.getByPlaceholder('Tìm ứng dụng yêu thích của bạn').first()).toBeVisible();
       await expect(this.page.getByRole('button', { name: 'Danh mục' })).toBeVisible();
       await expect(this.page.getByRole('button', { name: 'DEX' })).toBeVisible();
@@ -129,11 +125,8 @@ async Login() {
 
 async changeLanguageEN() {
   try {
-    // await this.page.getByRole('link', { name: 'Tongram Logo' }).click();
-    // await this.page.getByRole('button', { name: 'kr' }).click();
-    // await this.page.getByRole('link', { name: 'English' }).click();
-    
-    // await this.page.waitForTimeout(2000); 
+    await this.page.getByRole('button', { name: 'en', exact: true }).click();
+    await this.page.getByRole('link', { name: 'English' }).click();
 
     await expect(this.page.getByPlaceholder('Search for your favorite apps').first()).toBeVisible();
     await expect(this.page.getByRole('button', { name: 'Categories' })).toBeVisible();
@@ -237,7 +230,7 @@ async changeLanguageEN() {
 async changeLanguageKR() {
   try {
     // Click to change language to Korean
-    await this.page.getByRole('button', { name: 'vi' }).click();
+    await this.page.getByRole('button', { name: 'en', exact: true }).click();
     await this.page.getByRole('link', { name: 'Korean' }).click();
 
     // await this.page.waitForTimeout(2000); 

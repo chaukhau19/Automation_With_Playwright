@@ -1,13 +1,18 @@
 // /Utils/TG_config.js
 export const config = {
+  //URL
   tongramUrl: 'https://tongram.app/en',
-  // tongramUrl: 'https://staging.tongram.app/',
+  CMSUrl: 'https://admin.tongram.app/admin/login',
   telegramAuthUrl: 'https://oauth.telegram.org/auth?bot_id=7241997507&origin=https%3A%2F%2Ftongram.app&request_access=true&return_to=https%3A%2F%2Ftongram.app%2Fen',
+  
+  //ACCOUNT
   phoneNumber: '339824931',
   cookiesDir: './Cookies',
   cookiesFile: 'cookies_tongram.json',
   point_Home: 'span.font-semibold.whitespace-nowrap',
   chatPointSelector: 'span.font-bold.leading-none.text-black',
+  CMSUser: 'khauntc2000@gmail.com',
+  CMSPassword: 'khauntc2000@gmail.com',
 
   //CSS HTML Current
   Point_1: "(//span[@class='whitespace-nowrap font-semibold'])[1]",
@@ -19,6 +24,7 @@ export const config = {
 
   Claim_Xpath: 'button:has-text("Claim")',
   Complete_Xpath: 'img[alt="Complete"]',
+  
 
   //Data Input
   Search_Query_1: 'PISTON',
@@ -29,9 +35,9 @@ export const config = {
   Search_Query_Data_2: 'Hamster Hamster Hello!',
   Verify_Search_Query_2: 'PISTON Hub',
 
-  Search_Query_3: 'TONsale',
-  Search_Query_Data_3: 'TONsale TONsale Premier',
-  Verify_Search_Query_3: 'TONsale',
+  Search_Query_3: 'Pizza',
+  Search_Query_Data_3: 'PizzaTon PizzaTon PizzaTon',
+  Verify_Search_Query_3: 'PizzaTon',
 
   Search_Query_4: 'Watchlist Topup',
   Search_Query_Data_4: 'Watchlist Topup Watchlist',
@@ -48,6 +54,6 @@ export const config = {
   Click_Share_Game_6: 'PISTON Farm PISTON Farm Tap',
   Comment_Game_6: 'PISTON Farm PISTON Farm Tap',
 
-  Content_Comment_Game: 'Good Game',
-  // Add other configuration variables here as needed
+  Content_Comment_Game: 'I see it verry good for me, so i will play everyday',
+
 };

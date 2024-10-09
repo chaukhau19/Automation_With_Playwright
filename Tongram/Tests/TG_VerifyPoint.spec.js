@@ -1,16 +1,25 @@
-import { test } from '@playwright/test';
+import { chromium, test } from '@playwright/test';
 import VerifyPointFunction from '../Pages/TG_VerifyPoint.js';
 
-test.describe('Verify Point', () => {
-  test('Login with Telegram and Verify Point', async ({ browser }) => {
-    const page = await browser.newPage();
-    const verifyPointFunction = new VerifyPointFunction(page);
+let verifyPointFunction;
 
-    await test.step('Login with Telegram', async () => {
-      await verifyPointFunction.Login();
-    });
-    await test.step('Verify Point', async () => {
-      await verifyPointFunction.verifyPoint();
-    });
-  });
+test.beforeAll(async () => {
+  const browser = await chromium.launch(); 
+  const page = await browser.newPage();
+  verifyPointFunction = new VerifyPointFunction(page); 
+});
+
+test.afterAll(async () => {
+  await verifyPointFunction.page.close(); 
+  const browser = verifyPointFunction.page.context().browser();
+  await browser.close(); 
+});
+
+test('Login with Telegram', async () => {
+  await verifyPointFunction.Login(); 
+});
+
+test('Verify Point', async () => {
+  await verifyPointFunction.Login();
+  await verifyPointFunction.verifyPoint(); 
 });

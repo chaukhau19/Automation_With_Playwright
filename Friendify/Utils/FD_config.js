@@ -10,7 +10,7 @@ export const config = {
   email: 'khauntc@gmail.com',
   password: 'Chaukhau2000!',
   googleEmail: 'tester26082024@gmail.com',
-  googlePassword: 'Tester2608',
+  googlePassword: 'Tester2608!',
   defaultPassword: 'Tester25082024',
   referralCode: 'FSPEZTEF',
 
