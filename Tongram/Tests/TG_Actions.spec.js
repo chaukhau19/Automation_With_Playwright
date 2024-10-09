@@ -4,51 +4,57 @@ import TGHomePage from '../Pages/TG_Actions.js';
 let tgHomePage;
 
 test.beforeAll(async () => {
-  const browser = await chromium.launch(); // Launch the browser
-  const page = await browser.newPage(); // Create a new page
-  tgHomePage = new TGHomePage(page); // Initialize the page class
+  const browser = await chromium.launch(); 
+  const page = await browser.newPage(); 
+  tgHomePage = new TGHomePage(page); 
 });
 
 test.afterAll(async () => {
-  await tgHomePage.page.close(); // Close the page
-  const browser = tgHomePage.page.context().browser(); // Get the browser instance
-  await browser.close(); // Close the browser
-});
-
-test('Login with Telegram', async () => {
-  await tgHomePage.Login(); // Perform the login
+  await tgHomePage.page.close(); 
+  const browser = tgHomePage.page.context().browser(); 
+  await browser.close(); 
 });
 
 test('Interact with Categories', async () => {
+  console.log('------- TCs Interact with Categories -------');
   await tgHomePage.Login(); 
   await tgHomePage.Categories(); 
 });
 
 test('Interact with DEX', async () => {
+  console.log('------- TCs Interact with DEX -------');
   await tgHomePage.Login(); 
-  await tgHomePage.changeDEX();
+  await tgHomePage.changeDEX(); 
 });
 
 test('Open Game', async () => {
+  console.log('------- TCs Open Game -------');
 });
-    
+
 test('Review Game', async () => {
+  console.log('------- TCs Review Game -------');
 });
 
 test('Share Game', async () => {
+  console.log('------- TCs Share Game -------');
 });
 
-test('Join telegram', async () => {
+test('Join Telegram', async () => {
+  console.log('------- TCs Join Telegram -------');
 });
 
-test('News page', async () => {
+test('News Page', async () => {
+  console.log('------- TCs News Page -------');
 });
 
 test('Submit App', async () => {
+  console.log('------- TCs Submit App -------');
 });
 
-test('Contact US', async () => {
+test('Contact Us', async () => {
+  console.log('------- TCs Contact Us -------');
 });
 
 test('Logout', async () => {
+  console.log('------- TCs Logout -------');
 });

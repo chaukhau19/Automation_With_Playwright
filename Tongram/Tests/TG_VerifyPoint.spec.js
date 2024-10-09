@@ -15,11 +15,8 @@ test.afterAll(async () => {
   await browser.close(); 
 });
 
-test('Login with Telegram', async () => {
-  await verifyPointFunction.Login(); 
-});
-
 test('Verify Point', async () => {
+  console.log('------- TCs Verify Point -------');
   await verifyPointFunction.Login();
   await verifyPointFunction.verifyPoint(); 
 });

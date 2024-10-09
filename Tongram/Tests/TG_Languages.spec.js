@@ -13,24 +13,20 @@ test.afterAll(async () => {
   await tgLanguagePage.page.context().browser().close();
 });
 
-test('Login with Telegram', async () => {
-  await tgLanguagePage.Login();
-});
-
 test('Change Language to English', async () => {
   await tgLanguagePage.Login(); 
-  console.log("Changing language to English...");
+  console.log("------- TCs Changing language to English -------");
   await tgLanguagePage.changeLanguageEN();
 });
 
 test('Change Language to Vietnamese', async () => {
   await tgLanguagePage.Login(); 
-  console.log("Changing language to Vietnamese...");
+  console.log("------- Changing language to Vietnamese -------");
   await tgLanguagePage.changeLanguageVI();
 });
 
 test('Change Language to Korean', async () => {
   await tgLanguagePage.Login(); 
-  console.log("Changing language to Korean...");
+  console.log("------- Changing language to Korean -------");
   await tgLanguagePage.changeLanguageKR();
 });

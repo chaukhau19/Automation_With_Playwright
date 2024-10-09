@@ -14,16 +14,19 @@ test.afterAll(async () => {
 });
 
 test('Daily Login', async () => {
+  console.log('------- TCs Daily Login -------');
   await dailyTaskPage.Login();
   await dailyTaskPage.DailyLogin(); 
 });
 
 test('Daily App Opener', async () => {
+  console.log('------- TCs Daily App Opener -------');
   await dailyTaskPage.Login();
   await dailyTaskPage.AppExplorer(); 
 });
 
 test('Daily App Reviewer', async () => {
+  console.log('------- TCs Daily App Reviewer -------');
   await dailyTaskPage.Login();
   await dailyTaskPage.AppReviewer(); 
   await dailyTaskPage.LoginCMS();
@@ -31,6 +34,8 @@ test('Daily App Reviewer', async () => {
 });
 
 test('Daily App Sharer', async () => {
+  console.log('------- TCs Daily App Sharer -------');
   await dailyTaskPage.Login();
   await dailyTaskPage.AppSharer(); 
 });
+

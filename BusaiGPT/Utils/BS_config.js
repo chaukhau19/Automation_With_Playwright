@@ -23,9 +23,9 @@ export const config = {
   //Verify
   expect_message1: 'Hello',
   expect_message2: '안녕하세요',
-  expect_title_Docs: '/^PDF_1MB\.pdf$/',
+  expect_title_Docs: "/^PDF_1MB\.pdf$/",
   expect_text_Docs: 'The text provides a series of',
-  expect_title_Audio: '/^file_example_MP3_700KB\.mp3$/',
+  expect_title_Audio: "/^file_example_MP3_700KB\.mp3$/",
   expect_text_Audio: 'The text is written in an',
   expect_title_Image_Summary: '/^Image_4KB\.png$/',
   expect_title_Image_RemoveObject: '/^Image_4KB\.png$/',

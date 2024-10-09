@@ -16,9 +16,11 @@ test.afterAll(async () => {
 });
 
 test('Login with Account', async () => {
+  console.log('------- TCs Login with Account -------');
   await login.loginWithAccount(); 
 });
 
 test('Login with Google', async () => {
+  console.log('------- TCs Login with Google -------');
   await login.loginWithGoogle(true); 
 });

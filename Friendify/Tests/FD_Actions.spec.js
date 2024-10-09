@@ -16,6 +16,7 @@ test.afterAll(async () => {
 });
 
 test('Login with Account and Perform First and Second Chats', async () => {
+  console.log('------- TCs Login with Account and Perform First and Second Chats -------');
   await actionsPage.loginWithAccount();
   await actionsPage.performFirstChat();
   await actionsPage.performSecondChat();
@@ -23,13 +24,17 @@ test('Login with Account and Perform First and Second Chats', async () => {
 });
 
 test('Login with Account and User Chat', async () => {
+  console.log('------- TCs Login with Account and User Chat -------');
   //Small Happiness
   //Big Happiness
   //Enter your amount
 });
 test('Login with Account and Generate Docs', async () => {
+  console.log('------- TCs Login with Account and Generate Docs -------');
 });
 test('Login with Account and Generate Audio', async () => {
+  console.log('------- TCs Login with Account and Generate Audio -------');
 });
 test('Login with Account and Generate Image', async () => {
+  console.log('------- TCs Login with Account and Generate Image -------');
 });
