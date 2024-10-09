@@ -9,8 +9,8 @@ export const config = {
   //User/Pass
   email: 'khauntc@gmail.com',
   password: 'Chaukhau2000!',
-  googleEmail: 'tester26082024@gmail.com',
-  googlePassword: 'Tester2608!',
+  googleEmail: 'tester29082024@gmail.com',
+  googlePassword: 'Tester2908',
   defaultPassword: 'Tester25082024',
   referralCode: 'FSPEZTEF',
 
