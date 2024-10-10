@@ -3,6 +3,7 @@ pipeline {
         docker { image 'mcr.microsoft.com/playwright:v1.46.0-jammy' }
     }
     environment {
+        //GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
         REPO_NAME = 'Friendify'
         FILE_SH = 'FD_Auto.sh'
         FILE_BAT = 'FD_Auto.bat'
@@ -13,15 +14,15 @@ pipeline {
         // GITHUB_USER = 'chaukhau2000@gmail.com'
         // GITHUB_TOKEN = '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'
     }
-    }
     triggers {
         cron('0 0 * * *') 
     }
 
-    stages {
+     stages {
         stage('CI: Checkout Code') {
             steps {
                 script {
+                    // Sử dụng credentialsId đúng cách
                     withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
                         git branch: "${BRANCH_NAME}", 
                             credentialsId: "${JENKINS_CREDENTIALS_ID}", 
@@ -111,34 +112,41 @@ pipeline {
         success {
             script {
                 def status = currentBuild.result ?: 'SUCCESS'
+                echo "All test cases passed. Build status: ${status}"
+
                 if (isUnix()) {
                     if (fileExists("${SERVER_PATH}/temp")) {
                         sh "rm -rf ${SERVER_PATH}/temp/*"
+                    } else {
+                        echo "Temporary folder does not exist."
                     }
                 } else {
                     bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
                 }
-                // emailext subject: "Build Successful: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                //     body: "The build was successful!\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nStatus: ${status}",
-                //     to: 'khauntc2000@gmail.com, experttest001@gmail.com, tester24082024@gmail.com'
 
+                emailext subject: "Build Successful: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                    body: "The build was successful!\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nStatus: ${status}",
+                    to: 'khauntc2000@gmail.com, experttest001@gmail.com, tester24082024@gmail.com'
             }
         }
-
         failure {
             script {
                 def status = currentBuild.result ?: 'FAILURE'
+                echo "Some test cases failed. Build status: ${status}"
+
                 if (isUnix()) {
                     if (fileExists("${SERVER_PATH}/temp")) {
                         sh "rm -rf ${SERVER_PATH}/temp/*"
+                    } else {
+                        echo "Temporary folder does not exist."
                     }
                 } else {
                     bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
                 }
 
-            //     emailext subject: "Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-            //         body: "Some test cases failed.\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nStatus: ${status}",
-            //         to: 'khauntc2000@gmail.com, experttest001@gmail.com, tester24082024@gmail.com'
+                emailext subject: "Build Successful: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                    body: "The build was successful!\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nStatus: ${status}",
+                    to: 'khauntc2000@gmail.com, experttest001@gmail.com, tester24082024@gmail.com'
             }
         }
     }
