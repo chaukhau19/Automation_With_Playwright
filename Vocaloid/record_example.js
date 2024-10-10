@@ -78,6 +78,15 @@ const { chromium } = require('playwright');
   await page.getByRole('link', { name: 'AI Mastering' }).click();
   await page.getByText('or Drop a File here...').first().click();
   await page.locator('body').setInputFiles('file_example_MP3_700KB.mp3');
+  await page.getByRole('button', { name: 'Start Mastering' }).click();
+  await page.getByText('Generate mastering').click();
+  await page.getByText('or Drop a File here...').nth(1).click();
+  await page.getByText('or Drop a File here...').first().click();
+  await page.locator('body').setInputFiles('file_example_MP3_5MG.mp3');
+  await page.getByRole('button', { name: 'Start Mastering' }).click();
+  await page.getByText('Generate mastering').click();
+  await page.getByText('🙌Generate mastering').click();
+  await page.getByText('Generate mastering').click();
 
   // ---------------------
   await context.close();

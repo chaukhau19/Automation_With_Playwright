@@ -12,13 +12,15 @@ export const config = {
   
     //Cookies
     cookiesDir: './Cookies',
-    cookiesFile: '',
+    cookiesFile: 'cookie_vocaloid.json',
   
-    //Lop for
+    //Lop for register
     numberOfIterations: 1,
 
-    //Path
-    Musiccoloi3phut: "D:/Git/Automation_With_Playwright/Vocaloid/Data/Ca khúc Cám ơn tình yêu.mp3",
+    //Path for audio
+    Music_Audio_1: "D:/Git/Automation_With_Playwright/Vocaloid/Data/Ca khúc Cám ơn tình yêu.mp3",
+    Music_Audio_2: "D:/Git/Automation_With_Playwright/Vocaloid/Data/Mãi Mãi Là Một Lời Nói Dối.mp3",
+    Music_Audio_3: "D:/Git/Automation_With_Playwright/Vocaloid/Data/Melting Strings.mp3",
 
   
   };

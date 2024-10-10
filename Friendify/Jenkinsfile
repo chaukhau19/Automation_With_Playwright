@@ -125,8 +125,10 @@ pipeline {
                 } else {
                     bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
                 }
-                
-                def message = "🔧 Jenkins Build #${env.BUILD_NUMBER}\n" +
+
+                def message = "📝 Playwright Test Report:\n" +
+                              "🔗 [View HTML Report](https://jenkins.playgroundvina.com/job/${env.JOB_NAME}/${env.BUILD_NUMBER}/artifact/playwright-report/index.html)\n"
+                              "🔧 Jenkins Build #${env.BUILD_NUMBER}\n" +
                               "✅ Status: ${currentBuild.currentResult}\n" +
                               "🕒 Time: ${currentBuild.durationString}\n" +
                               "🔗 Link: ${env.BUILD_URL}"
@@ -157,7 +159,9 @@ pipeline {
                     bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
                 }
 
-                def message = "🔧 Jenkins Build #${env.BUILD_NUMBER}\n" +
+                def message = "📝 Playwright Test Report:\n" +
+                              "🔗 [View HTML Report](https://jenkins.playgroundvina.com/job/${env.JOB_NAME}/${env.BUILD_NUMBER}/artifact/playwright-report/index.html)\n"
+                              "🔧 Jenkins Build #${env.BUILD_NUMBER}\n" +
                               "✅ Status: ${currentBuild.currentResult}\n" +
                               "🕒 Time: ${currentBuild.durationString}\n" +
                               "🔗 Link: ${env.BUILD_URL}"
