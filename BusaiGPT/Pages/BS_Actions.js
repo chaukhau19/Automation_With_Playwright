@@ -204,6 +204,7 @@ export class ActionsPage {
     const pointAfterGenerateDocsText = await this.page.locator(config.Locator_GetPoint).innerText();
     const pointAfterGenerateDocs = this.convertToPoints(pointAfterGenerateDocsText);
     console.log('Point after generate docs: ', pointAfterGenerateDocs);
+
     const totalPointUsedGenerateDocs = Math.round(pointBeforeGenerateDocs - pointAfterGenerateDocs);
     console.log('Total points used after generate docs: ', totalPointUsedGenerateDocs);
     if (totalPointUsedGenerateDocs === 1000) {
@@ -259,7 +260,9 @@ async deleteGenerateDocs() {
     const pointAfterFirstChatText = await this.page.locator(config.Locator_GetPoint).innerText();
     const pointAfterFirstChat = this.convertToPoints(pointAfterFirstChatText);
     console.log('Point after first generate: ', pointAfterFirstChat);
-    const totalPointUsedFirstChat = pointBeforeFirstChat - pointAfterFirstChat;
+    
+    const totalPointUsedFirstChat = Math.round(pointBeforeFirstChat - pointAfterFirstChat);
+    // const totalPointUsedFirstChat = pointBeforeFirstChat - pointAfterFirstChat;
     console.log('Total points used after first generate: ', totalPointUsedFirstChat);
     if (totalPointUsedFirstChat === 1000) {
         console.log('PASS: The points decreased correctly by 1000 after the first chat.');
