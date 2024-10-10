@@ -10,6 +10,8 @@ pipeline {
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
         JENKINS_CREDENTIALS_ID = '6f5eb65d-9009-4049-8b13-1becf88d77cb'
+        chatId = '-4520276469'  // Thay bằng chat ID của nhóm
+        botToken = '8085219018:AAHSTNao6k9OucZc15LQ476N-039N8NR7WI'  // Thay bằng token của bot Telegram
         //No need, because already setup Jenkins Credentials (usernamePassword credential)
         // GITHUB_USER = 'chaukhau2000@gmail.com'
         // GITHUB_TOKEN = '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'
@@ -123,11 +125,21 @@ pipeline {
                 } else {
                     bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
                 }
+                def message = "🔧 Jenkins Build #${env.BUILD_NUMBER}\n" +
+                              "✅ Status: ${currentBuild.currentResult}\n" +
+                              "🕒 Time: ${currentBuild.durationString}\n" +
+                              "🔗 Link: ${env.BUILD_URL}"
 
-                emailext subject: "Build Successful: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                    body: "The build was successful!\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nStatus: ${status}",
-                    to: 'khauntc2000@gmail.com, experttest001@gmail.com, tester24082024@gmail.com'
-            }
+                sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
+                // try {
+                
+                // emailext subject: "Build Successful: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                //     body: "The build was successful!\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nStatus: ${status}",
+                //     to: 'khauntc2000@gmail.com, experttest001@gmail.com, tester24082024@gmail.com'
+                // } catch (Exception e) {
+                //     echo "Failed to send email: ${e.getMessage()}"
+                // }
+            // }
         }
         failure {
             script {
@@ -144,10 +156,21 @@ pipeline {
                     bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
                 }
 
-                emailext subject: "Build Successful: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                    body: "The build was successful!\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nStatus: ${status}",
-                    to: 'khauntc2000@gmail.com, experttest001@gmail.com, tester24082024@gmail.com'
-            }
+                def message = "🔧 Jenkins Build #${env.BUILD_NUMBER}\n" +
+                              "✅ Status: ${currentBuild.currentResult}\n" +
+                              "🕒 Time: ${currentBuild.durationString}\n" +
+                              "🔗 Link: ${env.BUILD_URL}"
+
+                sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
+                
+                // try {
+                // emailext subject: "Build Successful: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                //     body: "The build was successful!\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nStatus: ${status}",
+                //     to: 'khauntc2000@gmail.com, experttest001@gmail.com, tester24082024@gmail.com'
+                // } catch (Exception e) {
+                //     echo "Failed to send email: ${e.getMessage()}"
+                // }
+            // }
         }
     }
 }

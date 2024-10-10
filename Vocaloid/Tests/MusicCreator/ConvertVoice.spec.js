@@ -1,15 +1,24 @@
-import { test } from '@playwright/test';
-import LoginUserPage from '../../Pages/Login/AccountUser';
-import ConvertVoicePage from '../../Pages/MusicCreator/ConvertVoice';
+import { chromium, test } from '@playwright/test';
+import LoginUserPage from '../../Pages/Login/AccountUser.js';
+import ConvertVoicePage from '../../Pages/MusicCreator/ConvertVoice.js';
 
+let loginUserPage; 
+let convertVoicePage;
 
-test('Convert Voice', async ({ browser }) => {
+test.beforeAll(async () => {
+  const browser = await chromium.launch();
   const page = await browser.newPage();
-  const loginUserPage = new LoginUserPage(page);
-  const convertVoicePage = new ConvertVoicePage(page);
+  loginUserPage = new LoginUserPage(page); 
+  convertVoicePage = new ConvertVoicePage(page);
+});
 
-  await test.step('Login and Convert Voice', async () => {
-    await loginUserPage.loginUser(); 
-    await convertVoicePage.ConvertVoice();
-  });
+test.afterAll(async () => {
+  await loginUserPage.page.context().browser().close(); 
+});
+
+test('Convert Voice', async () => {
+  console.log('------- TCs Convert Voice -------');
+  await loginUserPage.loginUser(); 
+  await convertVoicePage.convertVoice();
+  await convertVoicePage.performConvertVoice();
 });

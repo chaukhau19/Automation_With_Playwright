@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { config } from '../../Utils/AI';
+import { config } from '../../Utils/config';
 
 class LoginUserPage {
   constructor(page) {
