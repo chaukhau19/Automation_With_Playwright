@@ -9,8 +9,6 @@ pipeline {
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
         JENKINS_CREDENTIALS_ID = '6f5eb65d-9009-4049-8b13-1becf88d77cb'
-        TELEGRAM_BOT_TOKEN = '7348177664:AAFjWWZTUWudm2Lc6Uwb5fNe3i8Ajtq0kS0'
-        TELEGRAM_CHAT_ID = '<your_chat_id_here>' 
         //No need, because already setup Jenkins Credentials (usernamePassword credential)
         // GITHUB_USER = 'chaukhau2000@gmail.com'
         // GITHUB_TOKEN = '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'
@@ -120,18 +118,10 @@ pipeline {
                 } else {
                     bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
                 }
-
-                // Email notification
                 emailext subject: "Build Successful: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                     body: "The build was successful!\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nStatus: ${status}",
                     to: 'khauntc2000@gmail.com, experttest001@gmail.com, tester24082024@gmail.com'
-                
-                // // Telegram notification
-                // sh """
-                // curl -s -X POST https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage \\
-                // -d chat_id=${TELEGRAM_CHAT_ID} \\
-                // -d text="Build Successful: ${env.JOB_NAME} #${env.BUILD_NUMBER} Status: ${status}"
-                // """
+
             }
         }
 
@@ -146,17 +136,9 @@ pipeline {
                     bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
                 }
 
-                // Email notification
                 emailext subject: "Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                     body: "Some test cases failed.\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nStatus: ${status}",
                     to: 'khauntc2000@gmail.com, experttest001@gmail.com, tester24082024@gmail.com'
-                
-                // // Telegram notification
-                // sh """
-                // curl -s -X POST https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage \\
-                // -d chat_id=${TELEGRAM_CHAT_ID} \\
-                // -d text="Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER} Status: ${status}"
-                // """
             }
         }
     }
