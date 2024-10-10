@@ -126,22 +126,20 @@ pipeline {
                     bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
                 }
 
-                def message = "📝 Playwright Test Report:\n" +
-                              "🔗 [View HTML Report](https://jenkins.playgroundvina.com/job/${env.JOB_NAME}/${env.BUILD_NUMBER}/artifact/playwright-report/index.html)\n"
-                              "🔧 Jenkins Build #${env.BUILD_NUMBER}\n" +
+                 def message = "🔧 Jenkins Build #${env.BUILD_NUMBER}\n" +
                               "✅ Status: ${currentBuild.currentResult}\n" +
                               "🕒 Time: ${currentBuild.durationString}\n" +
                               "🔗 Link: ${env.BUILD_URL}"
 
                 sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
-                // try {
-                
-                // emailext subject: "Build Successful: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                //     body: "The build was successful!\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nStatus: ${status}",
-                //     to: 'khauntc2000@gmail.com, experttest001@gmail.com, tester24082024@gmail.com'
-                // } catch (Exception e) {
-                //     echo "Failed to send email: ${e.getMessage()}"
-                // }
+
+                try {
+                emailext subject: "Build Successful: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                    body: "The build was successful!\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nStatus: ${status}",
+                    to: 'khauntc2000@gmail.com, experttest001@gmail.com, tester24082024@gmail.com'
+                } catch (Exception e) {
+                    echo "Failed to send email: ${e.getMessage()}"
+                }
             }
         }
         failure {
@@ -159,22 +157,20 @@ pipeline {
                     bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
                 }
 
-                def message = "📝 Playwright Test Report:\n" +
-                              "🔗 [View HTML Report](https://jenkins.playgroundvina.com/job/${env.JOB_NAME}/${env.BUILD_NUMBER}/artifact/playwright-report/index.html)\n"
-                              "🔧 Jenkins Build #${env.BUILD_NUMBER}\n" +
+                def message = "🔧 Jenkins Build #${env.BUILD_NUMBER}\n" +
                               "✅ Status: ${currentBuild.currentResult}\n" +
                               "🕒 Time: ${currentBuild.durationString}\n" +
                               "🔗 Link: ${env.BUILD_URL}"
 
                 sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
 
-                // try {
-                // emailext subject: "Build Successful: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                //     body: "The build was successful!\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nStatus: ${status}",
-                //     to: 'khauntc2000@gmail.com, experttest001@gmail.com, tester24082024@gmail.com'
-                // } catch (Exception e) {
-                //     echo "Failed to send email: ${e.getMessage()}"
-                // }
+                 try {
+                emailext subject: "Build Successful: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                    body: "The build was successful!\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nStatus: ${status}",
+                    to: 'khauntc2000@gmail.com, experttest001@gmail.com, tester24082024@gmail.com'
+                } catch (Exception e) {
+                    echo "Failed to send email: ${e.getMessage()}"
+                }
             }
         }
     }
