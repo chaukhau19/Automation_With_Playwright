@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        docker { image 'mcr.microsoft.com/playwright:v1.48.0-jammy' }
+        docker { image 'mcr.microsoft.com/playwright:v1.47.2-jammy' }
     }
     environment {
         REPO_NAME = 'Friendify'
@@ -64,20 +64,20 @@ stage('Verify and Setup Playwright') {
             }
 
             // Navigate to the repository path
-            sh "cd ${env.REPO_PATH}"
-
-            // Check if Playwright is installed
-            if (sh(script: 'npx playwright --version', returnStatus: true) != 0) {
-                echo "Playwright is not installed. Installing dependencies..."
-                sh """
-                    cd ${env.REPO_PATH}
-                    rm -rf node_modules package-lock.json
-                    npm install --verbose
-                    npx playwright install
-                    npm install @playwright/test@latest --verbose
-                """
-            } else {
-                echo "Playwright is already installed."
+            dir("${env.REPO_PATH}") {
+                // Check if Playwright is installed by checking the existence of the node_modules directory
+                if (!fileExists('node_modules/playwright')) {
+                    echo "Playwright is not installed. Installing dependencies..."
+                    // Clean up and install Playwright and its dependencies
+                    sh """
+                        rm -rf node_modules package-lock.json
+                        npm install 
+                        npx playwright install
+                        npm install @playwright/test@latest
+                    """
+                } else {
+                    echo "Playwright is already installed."
+                }
             }
         }
     }
