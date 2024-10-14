@@ -11,9 +11,6 @@ pipeline {
         JENKINS_CREDENTIALS_ID = '6f5eb65d-9009-4049-8b13-1becf88d77cb'
         chatId = '-4520276469'  
         botToken = '8085219018:AAHSTNao6k9OucZc15LQ476N-039N8NR7WI' 
-        // GITHUB_USER = 'chaukhau2000@gmail.com'
-        // GITHUB_TOKEN = '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'
-        //GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
     }
     triggers {
         cron('0 0 * * *') 
@@ -36,20 +33,21 @@ pipeline {
                         echo "No changes detected. Skipping checkout."
                     }
 
-                    echo "Found current working directory at: ${sh(script: 'pwd', returnStdout: true).trim()}"
                     env.REPO_PATH = sh(script: "find . -type d -name '${REPO_NAME}'", returnStdout: true).trim()
                     if (env.REPO_PATH) {
                         echo "Found ${REPO_NAME} at: ${env.REPO_PATH}"
                     } else {
                         error "Repository directory ${REPO_NAME} not found."
                     }
-                }
 
-                sh """
-                    cd ${env.REPO_PATH}
-                    pwd
-                    ls -la
-                """
+                    echo "Found current working directory at: ${sh(script: 'pwd', returnStdout: true).trim()}"
+                }
+                dir("${env.REPO_PATH}") {
+                    sh """
+                        pwd
+                        ls -la
+                    """
+                }
             }
         }
 
@@ -62,8 +60,8 @@ pipeline {
                         def playwrightPath = sh(script: "which npx || echo 'Not_Installed'", returnStdout: true).trim()
                         def nodeVersion = sh(script: "node -v || echo 'Not_Installed'", returnStdout: true).trim()
                         def npmVersion = sh(script: "npm -v || echo 'Not_Installed'", returnStdout: true).trim()
-                        def playwrightInstalled = sh(script: "npm list playwright --depth=0 || echo 'Not_Installed'", returnStdout: true).trim()
-                        def playwrightTestInstalled = sh(script: "npm list @playwright/test --depth=0 || echo 'Not_Installed'", returnStdout: true).trim()
+                        def playwrightInstalled = sh(script: "npm list playwright || echo 'Not_Installed'", returnStdout: true).trim()
+                        def playwrightTestInstalled = sh(script: "npm list @playwright/test || echo 'Not_Installed'", returnStdout: true).trim()
 
                         echo "Node Version: ${nodeVersion} at ${nodePath}"
                         echo "NPM Version: ${npmVersion} at ${npmPath}"
@@ -80,11 +78,12 @@ pipeline {
 
                         if (needsPlaywrightInstall || needsPlaywrightTestInstall) {
                             echo "Installing missing dependencies..."
-                            sh "cd ${env.REPO_PATH} && npm install"  
+                            sh "cd ${env.REPO_PATH} && npm ci"  // Clean install
 
+                            // Clean the previous installations
                             if (needsPlaywrightInstall) {
-                                echo "Uninstalling invalid Playwright version..."
-                                sh "cd ${env.REPO_PATH} && npm uninstall playwright"
+                                echo "Removing invalid Playwright version..."
+                                sh "cd ${env.REPO_PATH} && rm -rf node_modules/playwright"
 
                                 echo "Installing Playwright..."
                                 sh "cd ${env.REPO_PATH} && npm install playwright@1.47.2"
@@ -101,8 +100,6 @@ pipeline {
                 }
             }
         }
-
-
 
         stage('CD: Run Tests') {
             steps {
@@ -164,17 +161,5 @@ pipeline {
                 sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
             }
         }
-    }
-}
-
-def cleanTemporaryFolder() {
-    if (isUnix()) {
-        if (fileExists("${SERVER_PATH}/temp")) {
-            sh "rm -rf ${SERVER_PATH}/temp/*"
-        } else {
-            echo "Temporary folder does not exist."
-        }
-    } else {
-        bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
     }
 }
