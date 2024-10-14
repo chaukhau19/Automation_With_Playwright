@@ -1,16 +1,15 @@
 pipeline {
     agent {
-        docker { image 'mcr.microsoft.com/playwright:v1.46.0-jammy' }  // Use valid image version
+        docker { image 'mcr.microsoft.com/playwright:v1.46.0-jammy' }
     }
     environment {
-        PROJECT_NAME = 'Vocaloid'
-        BRANCH_NAME = 'master'
-        JENKINS_CREDENTIALS_ID = '6f5eb65d-9009-4049-8b13-1becf88d77cb'
-        SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
+        REPO_NAME = 'Vocaloid'
         FILE_SH = 'Vocaloid_Auto.sh'
         FILE_BAT = 'Vocaloid_Auto.bat'
+        SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
+        BRANCH_NAME = 'master'
+        JENKINS_CREDENTIALS_ID = '6f5eb65d-9009-4049-8b13-1becf88d77cb'
     }
-
     triggers {
         cron('0 0 * * *') 
     }
@@ -49,7 +48,7 @@ pipeline {
             }
         }
 
-        stage('Setup Dependencies and Verify Installation') {
+        stage('Verify Installation and Setup Dependencies') {
             steps {
                 script {
                     def nodeVersion = sh(
@@ -74,31 +73,31 @@ pipeline {
                         sh """
                             cd ${env.REPO_PATH}
                             npm install
-                            npx playwright install  // Ensure that browsers are installed
+                            npx playwright install  
                             npm install @playwright/test@latest
                         """
                     }
                 }
             }
         }
-
-        stage('Run Tests') {
+        stage('CD: Run Tests') {
             steps {
-                echo 'Running tests for project'
+                echo 'Starting Tests'
                 script {
                     if (isUnix()) {
                         sh """
                             cd ${env.REPO_PATH}
-                            chmod +x ${PROJECT_NAME}_Auto.sh
-                            ./${PROJECT_NAME}_Auto.sh
+                            chmod +x ${FILE_SH} 
+                            ./${FILE_SH}
                         """
                     } else {
                         bat """
                             cd ${env.REPO_PATH}
-                            ${PROJECT_NAME}_Auto.bat
+                            ${FILE_BAT}
                         """
                     }
                 }
+                echo "Tests executed"
             }
         }
 
@@ -112,10 +111,20 @@ pipeline {
 
     post {
         success {
-            echo "Build and test successful for ${PROJECT_NAME}"
+            script {
+                def status = currentBuild.result ?: 'SUCCESS'
+                echo "All test cases passed. Build status: ${status}"
+
+               
+            }
         }
         failure {
-            echo "Build and test failed for ${PROJECT_NAME}"
+            script {
+                def status = currentBuild.result ?: 'FAILURE'
+                echo "Some test cases failed. Build status: ${status}"
+
+        
+            }
         }
     }
 }
