@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        docker { image 'mcr.microsoft.com/playwright:v1.46.0-jammy' }
+        docker { image 'mcr.microsoft.com/playwright:v1.48.0-jammy' }
     }
     environment {
         PROJECT_NAME = 'Vocaloid'  
