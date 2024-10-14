@@ -57,6 +57,7 @@ pipeline {
             steps {
                 script {
                     dir("${env.REPO_PATH}") {
+                        // Kiểm tra các phiên bản
                         def nodePath = sh(script: "which node || echo 'Not_Installed'", returnStdout: true).trim()
                         def npmPath = sh(script: "which npm || echo 'Not_Installed'", returnStdout: true).trim()
                         def playwrightPath = sh(script: "which npx || echo 'Not_Installed'", returnStdout: true).trim()
@@ -75,19 +76,24 @@ pipeline {
                             echo "Node or npm not installed. Installing Node.js and npm..."
                         }
 
-                        if (playwrightInstalled == 'Not_Installed') {
-                            echo "Playwright not installed. Installing Playwright..."
-                            sh "npm install"
-                            sh "npx playwright install"
-                        } else {
-                            echo "Playwright is already installed."
-                        }
+                        boolean needsPlaywrightInstall = playwrightInstalled == 'Not_Installed'
+                        boolean needsPlaywrightTestInstall = playwrightTestInstalled == 'Not_Installed'
 
-                        if (playwrightTestInstalled == 'Not_Installed') {
-                            echo "@playwright/test not installed. Installing @playwright/test..."
-                            sh "npm install @playwright/test@latest"
+                        if (needsPlaywrightInstall || needsPlaywrightTestInstall) {
+                            echo "Installing missing dependencies..."
+                            sh "cd ${env.REPO_PATH} && npm install"  
+
+                            if (needsPlaywrightInstall) {
+                                echo "Installing Playwright..."
+                                sh "cd ${env.REPO_PATH} && npx playwright install"
+                            }
+
+                            if (needsPlaywrightTestInstall) {
+                                echo "Installing @playwright/test..."
+                                sh "cd ${env.REPO_PATH} && npm install @playwright/test@latest"
+                            }
                         } else {
-                            echo "@playwright/test is already installed."
+                            echo "All dependencies are already installed."
                         }
                     }
                 }
