@@ -62,28 +62,38 @@ pipeline {
                         def playwrightPath = sh(script: "which npx || echo 'Not_Installed'", returnStdout: true).trim()
                         def nodeVersion = sh(script: "node -v || echo 'Not_Installed'", returnStdout: true).trim()
                         def npmVersion = sh(script: "npm -v || echo 'Not_Installed'", returnStdout: true).trim()
-                        def playwrightVersion = sh(script: "npx playwright --version || echo 'Not_Installed'", returnStdout: true).trim()
+                        def playwrightInstalled = sh(script: "npm list playwright --depth=0 || echo 'Not_Installed'", returnStdout: true).trim()
+                        def playwrightTestInstalled = sh(script: "npm list @playwright/test --depth=0 || echo 'Not_Installed'", returnStdout: true).trim()
 
                         echo "Node Version: ${nodeVersion} at ${nodePath}"
                         echo "NPM Version: ${npmVersion} at ${npmPath}"
-                        echo "Playwright Version: ${playwrightVersion} at ${playwrightPath}"
+                        echo "Playwright Path: ${playwrightPath}"
+                        echo "Playwright Installed: ${playwrightInstalled}"
+                        echo "@Playwright/Test Installed: ${playwrightTestInstalled}"
 
-                        if (nodeVersion == 'Not_Installed' || npmVersion == 'Not_Installed' || playwrightVersion == 'Not_Installed') {
-                            echo "Node, npm, or Playwright not installed. Installing dependencies..."
-                            sh """
-                                cd ${env.REPO_PATH}
-                                rm -rf node_modules package-lock.json
-                                npm install
-                                npx playwright install  
-                                npm install @playwright/test@latest
-                            """
+                        if (nodeVersion == 'Not_Installed' || npmVersion == 'Not_Installed') {
+                            echo "Node or npm not installed. Installing Node.js and npm..."
+                        }
+
+                        if (playwrightInstalled == 'Not_Installed') {
+                            echo "Playwright not installed. Installing Playwright..."
+                            sh "npm install"
+                            sh "npx playwright install"
                         } else {
-                            echo "Node, npm, and Playwright are already installed. Skipping setup."
+                            echo "Playwright is already installed."
+                        }
+
+                        if (playwrightTestInstalled == 'Not_Installed') {
+                            echo "@playwright/test not installed. Installing @playwright/test..."
+                            sh "npm install @playwright/test@latest"
+                        } else {
+                            echo "@playwright/test is already installed."
                         }
                     }
                 }
             }
         }
+
 
         stage('CD: Run Tests') {
             steps {
