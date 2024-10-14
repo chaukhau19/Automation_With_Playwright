@@ -72,6 +72,7 @@ pipeline {
                         echo "Node, npm, or Playwright not installed. Installing dependencies..."
                         sh """
                             cd ${env.REPO_PATH}
+                            rm -rf node_modules package-lock.json
                             npm install
                             npx playwright install  
                             npm install @playwright/test@latest
