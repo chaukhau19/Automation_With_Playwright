@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        docker { image 'mcr.microsoft.com/playwright:v1.47.2-jammy' }
+        docker { image 'mcr.microsoft.com/playwright:v1.46.0-jammy' }
     }
     environment {
         REPO_NAME = 'Friendify'
@@ -9,94 +9,69 @@ pipeline {
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
         JENKINS_CREDENTIALS_ID = '6f5eb65d-9009-4049-8b13-1becf88d77cb'
-        chatId = '-4520276469'
-        botToken = '8085219018:AAHSTNao6k9OucZc15LQ476N-039N8NR7WI'
+        //No need, because already setup Jenkins Credentials (username Password credential)
+        // GITHUB_USER = 'chaukhau2000@gmail.com'
+        // GITHUB_TOKEN = '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'
     }
     triggers {
-        cron('0 0 * * *')
+        cron('0 0 * * *') 
     }
-
-    stages {
+     stages {
         stage('CI: Checkout Code') {
             steps {
                 script {
-                    def changes = sh(script: "git diff --name-only origin/${BRANCH_NAME}..${BRANCH_NAME}", returnStdout: true).trim()
-                    if (changes) {
-                        echo "Changes detected. Checking out code..."
-                        withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
-                            git branch: "${BRANCH_NAME}",
-                                credentialsId: "${JENKINS_CREDENTIALS_ID}",
-                                url: "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/chaukhau19/Automation_With_Playwright.git"
-                        }
-                        echo "Code checked out from ${BRANCH_NAME}"
-                    } else {
-                        echo "No changes detected. Skipping checkout."
+                    // Sử dụng credentialsId đúng cách
+                    withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
+                        git branch: "${BRANCH_NAME}", 
+                            credentialsId: "${JENKINS_CREDENTIALS_ID}", 
+                            url: "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/chaukhau19/Automation_With_Playwright.git"
                     }
-
-                    env.REPO_PATH = sh(script: "find . -type d -name '${REPO_NAME}'", returnStdout: true).trim()
-                    if (env.REPO_PATH) {
-                        echo "Found ${REPO_NAME} at: ${env.REPO_PATH}"
+                }
+                echo "Code checked out from ${BRANCH_NAME}"
+                echo 'Current working directory:'
+                sh 'pwd'
+                echo "Finding ${REPO_NAME} directory:"
+                script {
+                    def repoPath = sh(script: "find . -type d -name '${REPO_NAME}'", returnStdout: true).trim()
+                    echo "Found ${REPO_NAME} at: ${repoPath}"
+                    if (repoPath) {
+                        env.REPO_PATH = repoPath
                     } else {
                         error "Repository directory ${REPO_NAME} not found."
                     }
-
-                    echo "Found current working directory at: ${sh(script: 'pwd', returnStdout: true).trim()}"
                 }
-                dir("${env.REPO_PATH}") {
+                echo "Changing directory to ${REPO_NAME} and listing contents:"
+                sh """
+                    cd ${env.REPO_PATH}
+                    pwd
+                    ls -la
+                """
+            }
+        }
+        stage('Setup Dependencies') {
+            steps {
+                echo 'Setting up dependencies'
+                script {
                     sh """
-                        pwd
-                        ls -la
+                        cd ${env.REPO_PATH}
+                        rm -rf node_modules package-lock.json
+                        npm install
+                        npx playwright install
+                        npm install @playwright/test@latest
                     """
                 }
             }
         }
-
-        stage('CI: Verify RPM and Setup Dependencies') {
+        stage('Verify Playwright Installation') {
             steps {
+                echo 'Verifying Playwright Installation'
                 script {
-                    dir("${env.REPO_PATH}") {
-                        def nodePath = sh(script: "which node || echo 'Not_Installed'", returnStdout: true).trim()
-                        def npmPath = sh(script: "which npm || echo 'Not_Installed'", returnStdout: true).trim()
-                        def playwrightPath = sh(script: "which npx || echo 'Not_Installed'", returnStdout: true).trim()
-                        def nodeVersion = sh(script: "node -v || echo 'Not_Installed'", returnStdout: true).trim()
-                        def npmVersion = sh(script: "npm -v || echo 'Not_Installed'", returnStdout: true).trim()
-                        def playwrightInstalled = sh(script: "npm list playwright || echo 'Not_Installed'", returnStdout: true).trim()
-                        def playwrightTestInstalled = sh(script: "npm list @playwright/test || echo 'Not_Installed'", returnStdout: true).trim()
-
-                        echo "Node Version: ${nodeVersion} at ${nodePath}"
-                        echo "NPM Version: ${npmVersion} at ${npmPath}"
-                        echo "Playwright Path: ${playwrightPath}"
-                        echo "Playwright Installed: ${playwrightInstalled}"
-                        echo "@Playwright/Test Installed: ${playwrightTestInstalled}"
-
-                        if (nodeVersion == 'Not_Installed' || npmVersion == 'Not_Installed') {
-                            error "Node.js or npm is not installed. Please install them before proceeding."
-                        }
-
-                        boolean needsPlaywrightInstall = playwrightInstalled == 'Not_Installed' || playwrightInstalled.contains('invalid')
-                        boolean needsPlaywrightTestInstall = playwrightTestInstalled == 'Not_Installed'
-
-                        if (needsPlaywrightInstall || needsPlaywrightTestInstall) {
-                            echo "Installing missing dependencies..."
-                            sh "cd ${env.REPO_PATH} && rm -rf node_modules package-lock.json"
-
-                            if (needsPlaywrightInstall) {
-                                echo "Installing Playwright..."
-                                sh "cd ${env.REPO_PATH} && npx playwright install"
-                            }
-
-                            if (needsPlaywrightTestInstall) {
-                                echo "Installing @playwright/test..."
-                                sh "cd ${env.REPO_PATH} && npm install @playwright/test@latest"
-                            }
-                        } else {
-                            echo "All dependencies are already installed."
-                        }
-                    }
+                    sh 'node -v'
+                    sh 'npm -v'
+                    sh 'npx playwright --version'
                 }
             }
         }
-
         stage('CD: Run Tests') {
             steps {
                 echo 'Starting Tests'
@@ -104,7 +79,7 @@ pipeline {
                     if (isUnix()) {
                         sh """
                             cd ${env.REPO_PATH}
-                            chmod +x ${FILE_SH}
+                            chmod +x ${FILE_SH} 
                             ./${FILE_SH}
                         """
                     } else {
@@ -117,7 +92,6 @@ pipeline {
                 echo "Tests executed"
             }
         }
-
         stage('Archive Test Results') {
             steps {
                 archiveArtifacts artifacts: '**/playwright-report/**/*', allowEmptyArchive: true
@@ -125,45 +99,34 @@ pipeline {
             }
         }
     }
-
     post {
         success {
             script {
                 def status = currentBuild.result ?: 'SUCCESS'
                 echo "All test cases passed. Build status: ${status}"
-
-                cleanTemporaryFolder()
-
-                def message = "🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}\n" +
-                              "✅ Status: ${currentBuild.currentResult}\n" +
-                              "🕒 Time: ${currentBuild.durationString}\n" +
-                              "🔗 Link: ${env.BUILD_URL}"
-
-                sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
+                if (isUnix()) {
+                    if (fileExists("${SERVER_PATH}/temp")) {
+                        sh "rm -rf ${SERVER_PATH}/temp/*"
+                    } else {
+                        echo "Temporary folder does not exist."
+                    }
+                } else {
+                    bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
+                }
             }
         }
         failure {
             script {
                 def status = currentBuild.result ?: 'FAILURE'
                 echo "Some test cases failed. Build status: ${status}"
-
-                cleanTemporaryFolder()
-
-                def message = "🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}\n" +
-                              "❌ Status: ${currentBuild.currentResult}\n" +
-                              "🕒 Time: ${currentBuild.durationString}\n" +
-                              "🔗 Link: ${env.BUILD_URL}"
-
-                sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
-            }
-        }
-        always {
-            script {
-                dir("${env.REPO_PATH}") {
-                    echo "Uninstalling all versions of Playwright and @playwright/test..."
-                    sh "npm uninstall @playwright/test"
-                    sh "npx playwright uninstall"
-                    sh "npm uninstall"
+                if (isUnix()) {
+                    if (fileExists("${SERVER_PATH}/temp")) {
+                        sh "rm -rf ${SERVER_PATH}/temp/*"
+                    } else {
+                        echo "Temporary folder does not exist."
+                    }
+                } else {
+                    bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
                 }
             }
         }
