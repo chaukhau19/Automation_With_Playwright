@@ -112,14 +112,14 @@ pipeline {
                 def status = currentBuild.result ?: 'SUCCESS'
                 echo "All test cases passed. Build status: ${status}"
 
-                if (isUnix()) {
-                    if (fileExists("${SERVER_PATH}")) {
-                        sh "rm -rf ${SERVER_PATH}"
-                    } else {
-                        echo "Temporary folder does not exist."
-                    }
-                } else {
-                    bat "if exist ${SERVER_PATH} del /Q ${SERVER_PATH}"
+                dir("${env.REPO_PATH}") {
+                    echo "Uninstalling npm packages..."
+                    sh """
+                        npm uninstall
+                        npx playwright uninstall  
+                        npm uninstall @playwright/test@latest
+                    """
+                    echo "Uninstalled npm packages successfully."
                 }
             }
         }
@@ -128,16 +128,17 @@ pipeline {
                 def status = currentBuild.result ?: 'FAILURE'
                 echo "Some test cases failed. Build status: ${status}"
 
-                if (isUnix()) {
-                    if (fileExists("${SERVER_PATH}")) {
-                        sh "rm -rf ${SERVER_PATH}"
-                    } else {
-                        echo "Temporary folder does not exist."
-                    }
-                } else {
-                    bat "if exist ${SERVER_PATH} del /Q ${SERVER_PATH}"
+                dir("${env.REPO_PATH}") {
+                    echo "Uninstalling npm packages due to failure..."
+                    sh """
+                        npm uninstall
+                        npx playwright uninstall  
+                        npm uninstall @playwright/test@latest
+                    """
+                    echo "Uninstalled npm packages due to failure."
                 }
             }
         }
     }
+
 }
