@@ -57,7 +57,6 @@ pipeline {
             steps {
                 script {
                     dir("${env.REPO_PATH}") {
-                        // Kiểm tra các phiên bản
                         def nodePath = sh(script: "which node || echo 'Not_Installed'", returnStdout: true).trim()
                         def npmPath = sh(script: "which npm || echo 'Not_Installed'", returnStdout: true).trim()
                         def playwrightPath = sh(script: "which npx || echo 'Not_Installed'", returnStdout: true).trim()
@@ -76,7 +75,7 @@ pipeline {
                             echo "Node or npm not installed. Installing Node.js and npm..."
                         }
 
-                        boolean needsPlaywrightInstall = playwrightInstalled == 'Not_Installed'
+                        boolean needsPlaywrightInstall = playwrightInstalled == 'Not_Installed' || playwrightInstalled.contains('invalid')
                         boolean needsPlaywrightTestInstall = playwrightTestInstalled == 'Not_Installed'
 
                         if (needsPlaywrightInstall || needsPlaywrightTestInstall) {
@@ -84,8 +83,11 @@ pipeline {
                             sh "cd ${env.REPO_PATH} && npm install"  
 
                             if (needsPlaywrightInstall) {
+                                echo "Uninstalling invalid Playwright version..."
+                                sh "cd ${env.REPO_PATH} && npm uninstall playwright"
+
                                 echo "Installing Playwright..."
-                                sh "cd ${env.REPO_PATH} && npx playwright install"
+                                sh "cd ${env.REPO_PATH} && npm install playwright@1.47.2"
                             }
 
                             if (needsPlaywrightTestInstall) {
@@ -99,6 +101,7 @@ pipeline {
                 }
             }
         }
+
 
 
         stage('CD: Run Tests') {
