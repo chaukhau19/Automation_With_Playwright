@@ -11,7 +11,7 @@ class CreateMusicPage {
     const timeTaken = Math.round((endTime - startTime) / 1000);
     const minutes = Math.floor(timeTaken / 60);
     const seconds = timeTaken % 60;
-    console.log(`✅ Time taken from header appearance to success message: ${minutes} minutes and ${seconds} seconds`);
+    console.log(`🕒 Time taken from header appearance to success message: ${minutes} minutes and ${seconds} seconds`);
   }
   
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

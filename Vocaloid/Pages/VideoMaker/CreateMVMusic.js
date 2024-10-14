@@ -6,6 +6,14 @@ class MVScriptsPage {
         this.page = page;
     }
 
+    logTimeTaken(startTime) {
+        const endTime = Date.now();
+        const timeTaken = Math.round((endTime - startTime) / 1000);
+        const minutes = Math.floor(timeTaken / 60);
+        const seconds = timeTaken % 60;
+        console.log(`🕒 Time taken from header appearance to success message: ${minutes} minutes and ${seconds} seconds`);
+    }
+
     async MVScripts() {
         try {
             await this.page.getByRole('link', { name: 'Create MV Script' }).click();
@@ -23,7 +31,10 @@ class MVScriptsPage {
             await expect(validLinkMessage).toBeVisible();
 
             await expect(this.page.locator(`//div[@class='header']//h2[text()='${config.MVScripts_Name}']`)).toBeVisible();
+            const startTime = Date.now(); 
+
             await expect(this.page.locator(`//div[@class='header']//span[text()='Success']`)).toBeVisible();
+            this.logTimeTaken(startTime);
             console.log('✅ Test Passed: Create script successfully!');
 
             await this.page.getByRole('link', { name: 'History Activities' }).click();

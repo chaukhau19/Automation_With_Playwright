@@ -5,15 +5,16 @@ import AvatarMVPage from '../../Pages/VideoMaker/AvatarMV.js';
 let loginUserPage; 
 let avatarMVPage;
 
+
 test.beforeAll(async () => {
-  const browser = await chromium.launch({ headless: false }); 
+  const browser = await chromium.launch();
   const page = await browser.newPage();
   loginUserPage = new LoginUserPage(page); 
   avatarMVPage = new AvatarMVPage(page);
 });
 
 test.afterAll(async () => {
-  await loginUserPage.page.context().browser().close();
+  await loginUserPage.page.context().browser().close(); 
 });
 
 test('Avatar MV', async () => {

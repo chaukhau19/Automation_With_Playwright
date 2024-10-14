@@ -15,8 +15,7 @@ class AIMasteringPage {
     const timeTaken = Math.round((Date.now() - startTime) / 1000);
     const minutes = Math.floor(timeTaken / 60);
     const seconds = timeTaken % 60;
-    console.log(`✅ Time taken from header appearance to success message: ${minutes} minutes and ${seconds} seconds`);
-    console.log('✅ Success message displayed immediately: Success');
+    console.log(`🕒 Time taken from header appearance to success message: ${minutes} minutes and ${seconds} seconds`);
   }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

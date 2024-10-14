@@ -1,4 +1,4 @@
-import { chromium, test } from '@playwright/test';
+import { test } from '@playwright/test';
 import LoginUserPage from '../../Pages/Login/AccountUser.js';
 import MVScriptsPage from '../../Pages/VideoMaker/CreateMVMusic.js';
 
@@ -17,7 +17,8 @@ test.afterAll(async () => {
   await browser.close(); 
 });
 
-test('Avatar MV', async () => {
+
+test('Create MV Music', async () => {
   console.log('------- TCs Create MV Music -------');
   await loginUserPage.loginUser(); 
   await mvScriptsPage.MVScripts();
