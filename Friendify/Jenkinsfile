@@ -168,18 +168,10 @@ def sendMessageToTelegram(message) {
     sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
 }
 
+
 def cleanRepository() {
-    script {
-        echo "Cleaning up the repository..."
-        // Ensure we run npm uninstall commands only if the directories exist
-        if (fileExists("${env.REPO_PATH}/node_modules")) {
-            sh "cd ${env.REPO_PATH} && npm uninstall --save $(ls ${env.REPO_PATH}/node_modules | tr '\\n' ' ') || true"
-        }
-
-        // Uninstall Playwright
-        sh "cd ${env.REPO_PATH} && npx playwright uninstall || true"
-
-        // Uninstall @playwright/test
-        sh "cd ${env.REPO_PATH} && npm uninstall @playwright/test || true"
-    }
+    sh """
+        cd ${env.REPO_PATH}
+        npm uninstall @playwright/test@latest
+    """
 }
