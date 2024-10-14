@@ -172,6 +172,7 @@ def sendMessageToTelegram(message) {
 def cleanRepository() {
     sh """
         cd ${env.REPO_PATH}
+        npx playwright uninstall
         npm uninstall @playwright/test@latest
     """
 }
