@@ -20,5 +20,4 @@ test('Create Music', async () => {
   console.log('------- TCs Create Music -------');
   await loginUserPage.loginUser(); 
   await createMusicPage.createMusic();
-  // await convertVoicePage.performCreateMusic();
 });

@@ -16,6 +16,7 @@ class LoginUserPage {
     await this.page.getByPlaceholder('Enter your password').fill(config.password);
     await this.page.getByRole('button', { name: 'Sign In' }).click();
     await expect(this.page.getByText('Login success')).toBeVisible(); 
+    console.log('✅ Login success'); 
   }
 
   async logoutUser() {

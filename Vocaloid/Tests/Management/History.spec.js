@@ -1,23 +1,25 @@
 import { chromium, test } from '@playwright/test';
 import LoginUserPage from '../../Pages/Login/AccountUser.js';
-import AIMasteringPage from '../../Pages/MusicCreator/CreateLyrics.js';
+import HistoryPage from '../../Pages/Management/History.js';
 
 let loginUserPage; 
-let createLyricsPage;
+let historyPage;
 
 test.beforeAll(async () => {
   const browser = await chromium.launch();
   const page = await browser.newPage();
   loginUserPage = new LoginUserPage(page); 
-  createLyricsPage = new CreateLyricsPage(page);
+  historyPage = new HistoryPage(page);
 });
 
 test.afterAll(async () => {
   await loginUserPage.page.context().browser().close(); 
 });
 
-test('Create Lyrics', async () => {
-  console.log('------- TCs Create Lyrics -------');
+test('Action History', async () => {
+  console.log('------- TCs Action History -------');
   await loginUserPage.loginUser(); 
-  await createLyricsPage.createLyrics();
+  await historyPage.rateHistory();
+  await historyPage.reportHistory();
+  await historyPage.deleteHistory();
 });

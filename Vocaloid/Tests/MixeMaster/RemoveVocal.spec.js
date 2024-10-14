@@ -16,8 +16,11 @@ test.afterAll(async () => {
   await loginUserPage.page.context().browser().close(); 
 });
 
-test('Remove Vocal', async () => {
-  console.log('------- TCs Remove Vocal -------');
+test('Remove Vocal by Link', async () => {
+  console.log('------- TCs Remove Vocal by Link -------');
   await loginUserPage.loginUser(); 
-  await removeVocalPage.RemoveVocal();
+  await removeVocalPage.removeVocalbyLink();
+});
+test('Remove Vocal by File', async () => {
+  console.log('------- TCs Remove Vocal by File -------');
 });

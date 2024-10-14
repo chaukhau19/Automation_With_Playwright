@@ -3,28 +3,49 @@ pipeline {
         docker { image 'mcr.microsoft.com/playwright:v1.46.0-jammy' }
     }
     environment {
-        //GITHUB_URL = 'https://github.com/chaukhau19/Automation_With_Playwright.git'
-        REPO_NAME = 'Friendify'
-        FILE_SH = 'FD_Auto.sh'
-        FILE_BAT = 'FD_Auto.bat'
+        REPO_NAME = 'Vocaloid'
+        FILE_SH = 'Vocaloid_Auto.sh'
+        FILE_BAT = 'Vocaloid_Auto.bat'
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
         JENKINS_CREDENTIALS_ID = '6f5eb65d-9009-4049-8b13-1becf88d77cb'
-        chatId = '-4520276469'  // Thay bằng chat ID của nhóm
-        botToken = '8085219018:AAHSTNao6k9OucZc15LQ476N-039N8NR7WI'  // Thay bằng token của bot Telegram
-        //No need, because already setup Jenkins Credentials (usernamePassword credential)
-        // GITHUB_USER = 'chaukhau2000@gmail.com'
-        // GITHUB_TOKEN = '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'
+        SKIP_DEPLOYMENT = 'false'
     }
     triggers {
         cron('0 0 * * *') 
     }
-
-     stages {
-        stage('CI: Checkout Code') {
+    
+    stages {
+        stage('Check for New Commits') {
             steps {
                 script {
-                    // Sử dụng credentialsId đúng cách
+                    def remoteCommitHash = sh(
+                        script: "git ls-remote https://github.com/chaukhau19/Automation_With_Playwright.git ${BRANCH_NAME} | cut -f1",
+                        returnStdout: true
+                    ).trim()
+                    
+                    def localCommitHash = sh(
+                        script: "[ -d ${REPO_NAME} ] && git -C ${REPO_NAME} rev-parse HEAD || echo 'NONE'",
+                        returnStdout: true
+                    ).trim()
+                    
+                    if (localCommitHash == remoteCommitHash) {
+                        echo "No new commits. Skipping Checkout and Setup stages."
+                        env.SKIP_DEPLOYMENT = 'true'
+                    } else {
+                        echo "New commits found. Proceeding with Checkout and Setup stages."
+                        env.SKIP_DEPLOYMENT = 'false'
+                    }
+                }
+            }
+        }
+        
+        stage('CI: Checkout Code') {
+            when {
+                expression { env.SKIP_DEPLOYMENT == 'false' }
+            }
+            steps {
+                script {
                     withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
                         git branch: "${BRANCH_NAME}", 
                             credentialsId: "${JENKINS_CREDENTIALS_ID}", 
@@ -56,6 +77,9 @@ pipeline {
         }
 
         stage('Setup Dependencies') {
+            when {
+                expression { env.SKIP_DEPLOYMENT == 'false' }
+            }
             steps {
                 echo 'Setting up dependencies'
                 script {
@@ -104,33 +128,10 @@ pipeline {
 
         stage('Archive Test Results') {
             steps {
-                script {
-                    echo 'Archiving Test Results'
-                    archiveArtifacts artifacts: '**/playwright-report/**/*', allowEmptyArchive: true
-                    echo 'Test results archived.'
-
-                    def indexPath = "${env.REPO_PATH}/playwright-report/index.html"
-                    if (fileExists(indexPath)) {
-                        def htmlContent = readFile(indexPath)
-
-                        def passedTests = (htmlContent.count('class="result passed"') ?: 0) 
-                        def failedTests = (htmlContent.count('class="result failed"') ?: 0)  
-
-                        def totalTests = passedTests + failedTests
-
-                        def passPercentage = totalTests > 0 ? (passedTests * 100 / totalTests) : 0
-                        def failPercentage = totalTests > 0 ? (failedTests * 100 / totalTests) : 0
-
-                        echo "Total Tests: ${totalTests}"
-                        echo "Passed Tests: ${passedTests} (${passPercentage}%)"
-                        echo "Failed Tests: ${failedTests} (${failPercentage}%)"
-                    } else {
-                        echo "Test report file not found: ${indexPath}"
-                    }
-                }
+                archiveArtifacts artifacts: '**/playwright-report/**/*', allowEmptyArchive: true
+                echo 'Test results archived.'
             }
         }
-
     }
 
     post {
@@ -148,14 +149,6 @@ pipeline {
                 } else {
                     bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
                 }
-
-                 def message = "🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}\n" +
-                              "✅ Status: ${currentBuild.currentResult}\n" +
-                              "🕒 Time: ${currentBuild.durationString}\n" +
-                              "🔗 Link: ${env.BUILD_URL}"
-
-                sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
-
             }
         }
         failure {
@@ -172,14 +165,6 @@ pipeline {
                 } else {
                     bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
                 }
-
-                def message = "🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}\n" +
-                              "✅ Status: ${currentBuild.currentResult}\n" +
-                              "🕒 Time: ${currentBuild.durationString}\n" +
-                              "🔗 Link: ${env.BUILD_URL}"
-
-                sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
-
             }
         }
     }

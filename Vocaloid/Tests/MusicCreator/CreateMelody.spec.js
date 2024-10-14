@@ -1,6 +1,6 @@
 import { chromium, test } from '@playwright/test';
 import LoginUserPage from '../../Pages/Login/AccountUser.js';
-import MelodyPage from '../../Pages/MusicCreator/Melody.js';
+import MelodyPage from '../../Pages/MusicCreator/CreateMelody.js';
 
 let loginUserPage; 
 let melodyPage;

@@ -16,8 +16,12 @@ test.afterAll(async () => {
   await loginUserPage.page.context().browser().close(); 
 });
 
-test('Music Splitter', async () => {
-  console.log('------- TCs Music Splitter -------');
+test('Music Splitter by Link', async () => {
+  console.log('------- TCs Music Splitter by Link -------');
   await loginUserPage.loginUser(); 
-  await musicSplitterPage.MusicSplitter();
+  await musicSplitterPage.MusicSplitterbyLink();
+});
+
+test('Music Splitter  by File', async () => {
+  console.log('------- TCs Music Splitter by File -------');
 });
