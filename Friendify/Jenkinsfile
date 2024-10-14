@@ -49,34 +49,40 @@ pipeline {
             }
         }
 
-        stage('Verify and Setup Playwright') {
-            steps {
-                echo 'Verifying Playwright Installation and Setting up Dependencies'
-                script {
-                    // Check if Node.js is installed
-                    if (sh(script: 'node -v', returnStatus: true) != 0) {
-                        error "Node.js is not installed. Please install Node.js."
-                    }
+stage('Verify and Setup Playwright') {
+    steps {
+        echo 'Verifying Playwright Installation and Setting up Dependencies'
+        script {
+            // Check if Node.js is installed
+            if (sh(script: 'node -v', returnStatus: true) != 0) {
+                error "Node.js is not installed. Please install Node.js."
+            }
 
-                    // Check if NPM is installed
-                    if (sh(script: 'npm -v', returnStatus: true) != 0) {
-                        error "NPM is not installed. Please install NPM."
-                    }
+            // Check if NPM is installed
+            if (sh(script: 'npm -v', returnStatus: true) != 0) {
+                error "NPM is not installed. Please install NPM."
+            }
 
-                    // Check if Playwright is installed
-                    if (sh(script: 'npx playwright --version', returnStatus: true) != 0) {
-                        echo "Playwright is not installed. Installing dependencies..."
-                        sh """
-                            cd ${env.REPO_PATH}
-                            rm -rf node_modules package-lock.json
-                            npm install --verbose
-                            npx playwright install
-                            npm install @playwright/test@latest --verbose
-                        """
-                    }
-                }
+            // Navigate to the repository path
+            sh "cd ${env.REPO_PATH}"
+
+            // Check if Playwright is installed
+            if (sh(script: 'npx playwright --version', returnStatus: true) != 0) {
+                echo "Playwright is not installed. Installing dependencies..."
+                sh """
+                    cd ${env.REPO_PATH}
+                    rm -rf node_modules package-lock.json
+                    npm install --verbose
+                    npx playwright install
+                    npm install @playwright/test@latest --verbose
+                """
+            } else {
+                echo "Playwright is already installed."
             }
         }
+    }
+}
+
 
 
 
