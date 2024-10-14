@@ -79,7 +79,6 @@ pipeline {
                 if (nodeVersion == 'Not_Installed' || npmVersion == 'Not_Installed' || playwrightVersion == 'Not_Installed') {
                     echo "One or more dependencies are missing. Installing dependencies..."
 
-                  // Clear previous installations and install dependencies in one command
                     sh """
                         rm -rf ${env.REPO_PATH}/node_modules ${env.REPO_PATH}/package-lock.json && \
                         cd ${env.REPO_PATH} && \
