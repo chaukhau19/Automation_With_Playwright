@@ -3,13 +3,13 @@ pipeline {
         docker { image 'mcr.microsoft.com/playwright:v1.46.0-jammy' }
     }
     environment {
-        PROJECT_NAME = 'Vocaloid'
+        PROJECT_NAME = 'Vocaloid'  
         REPO_NAME = 'Automation_With_Playwright'
         BRANCH_NAME = 'master'
         JENKINS_CREDENTIALS_ID = '6f5eb65d-9009-4049-8b13-1becf88d77cb'
         SKIP_CHECKOUT = 'false'
         SKIP_DEPENDENCIES = 'false'
-        REPO_PATH = ''
+        SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"  
     }
     stages {
         stage('Check for Code Changes') {
@@ -19,12 +19,12 @@ pipeline {
                         script: "git ls-remote https://github.com/chaukhau19/Automation_With_Playwright.git ${BRANCH_NAME} | cut -f1",
                         returnStdout: true
                     ).trim()
-                    
+
                     def localCommitHash = sh(
                         script: "[ -d ${PROJECT_NAME} ] && git -C ${PROJECT_NAME} log -n 1 --pretty=format:'%H' || echo 'NONE'",
                         returnStdout: true
                     ).trim()
-                    
+
                     if (remoteCommitHash == localCommitHash) {
                         echo "No new commits for ${PROJECT_NAME}. Skipping Checkout."
                         env.SKIP_CHECKOUT = 'true'
@@ -49,7 +49,7 @@ pipeline {
 
                     echo "Finding ${PROJECT_NAME} directory:"
                     env.REPO_PATH = sh(script: "find . -type d -name '${PROJECT_NAME}'", returnStdout: true).trim()
-                    
+
                     if (!env.REPO_PATH) {
                         error "Project directory ${PROJECT_NAME} not found."
                     } else {
@@ -59,52 +59,35 @@ pipeline {
             }
         }
 
-        stage('Check for Dependency Changes') {
+        stage('Setup Dependencies and Verify Installation') {
             steps {
                 script {
-                    def hasPackageChanges = sh(
-                        script: """
-                            cd ${env.REPO_PATH}
-                            git diff --name-only HEAD~1 HEAD | grep -E 'package.json|package-lock.json' || echo 'no'
-                        """,
+                    def nodeVersion = sh(
+                        script: "if [ -d ${SERVER_PATH}/node_modules ]; then node -v; else echo 'not_installed'; fi",
                         returnStdout: true
                     ).trim()
 
-                    if (hasPackageChanges == 'no' && fileExists("${env.REPO_PATH}/node_modules")) {
-                        echo "No changes in dependencies. Skipping Setup Dependencies."
-                        env.SKIP_DEPENDENCIES = 'true'
+                    def npmVersion = sh(
+                        script: "if [ -d ${SERVER_PATH}/node_modules ]; then npm -v; else echo 'not_installed'; fi",
+                        returnStdout: true
+                    ).trim()
+
+                    def playwrightVersion = sh(
+                        script: "if [ -d ${SERVER_PATH}/node_modules ]; then npx playwright --version; else echo 'not_installed'; fi",
+                        returnStdout: true
+                    ).trim()
+
+                    if (nodeVersion != 'not_installed' && npmVersion != 'not_installed' && playwrightVersion != 'not_installed') {
+                        echo "Node, npm, and Playwright are already installed. Skipping setup."
                     } else {
-                        echo "Dependency changes detected or node_modules not found. Proceeding with Setup Dependencies."
+                        echo "Node, npm, or Playwright not installed. Installing dependencies..."
+                        sh """
+                            cd ${env.REPO_PATH}
+                            npm install
+                            npx playwright install
+                            npm install @playwright/test@latest
+                        """
                     }
-                }
-            }
-        }
-
-        stage('Setup Dependencies') {
-            when {
-                expression { env.SKIP_DEPENDENCIES == 'false' }
-            }
-            steps {
-                script {
-                    echo "Installing/Updating Dependencies"
-                    sh """
-                        cd ${env.REPO_PATH}
-                        rm -rf node_modules package-lock.json
-                        npm install
-                        npx playwright install
-                        npm install @playwright/test@latest
-                    """
-                }
-            }
-        }
-
-        stage('Verify Playwright Installation') {
-            steps {
-                echo 'Verifying Playwright Installation'
-                script {
-                    sh 'node -v'
-                    sh 'npm -v'
-                    sh 'npx playwright --version'
                 }
             }
         }
@@ -136,7 +119,7 @@ pipeline {
             }
         }
     }
-    
+
     post {
         success {
             echo "Build and test successful for ${PROJECT_NAME}"
