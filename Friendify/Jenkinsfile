@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        docker { image 'mcr.microsoft.com/playwright:v1.47.2-jammy' }
+        docker { image 'mcr.microsoft.com/playwright:v1.48.0-jammy' }
     }
     environment {
         REPO_NAME = 'Friendify'
@@ -49,40 +49,64 @@ pipeline {
             }
         }
 
-stage('Verify and Setup Playwright') {
-    steps {
-        echo 'Verifying Playwright Installation and Setting up Dependencies'
-        script {
-            // Check if Node.js is installed
-            if (sh(script: 'node -v', returnStatus: true) != 0) {
-                error "Node.js is not installed. Please install Node.js."
-            }
+// stage('Verify and Setup Playwright') {
+//     steps {
+//         echo 'Verifying Playwright Installation and Setting up Dependencies'
+//         script {
+//             // Check if Node.js is installed
+//             if (sh(script: 'node -v', returnStatus: true) != 0) {
+//                 error "Node.js is not installed. Please install Node.js."
+//             }
 
-            // Check if NPM is installed
-            if (sh(script: 'npm -v', returnStatus: true) != 0) {
-                error "NPM is not installed. Please install NPM."
-            }
+//             // Check if NPM is installed
+//             if (sh(script: 'npm -v', returnStatus: true) != 0) {
+//                 error "NPM is not installed. Please install NPM."
+//             }
 
-            // Navigate to the repository path
-            dir("${env.REPO_PATH}") {
-                // Check if Playwright is installed by checking the existence of the node_modules directory
-                if (!fileExists('node_modules/playwright')) {
-                    echo "Playwright is not installed. Installing dependencies..."
-                    // Clean up and install Playwright and its dependencies
+//             // Navigate to the repository path
+//             sh "cd ${env.REPO_PATH}"
+
+//             // Check if Playwright is installed
+//             if (sh(script: 'npx playwright --version', returnStatus: true) != 0) {
+//                 echo "Playwright is not installed. Installing dependencies..."
+//                 sh """
+//                     cd ${env.REPO_PATH}
+//                     rm -rf node_modules package-lock.json
+//                     npm install 
+//                     npx playwright install
+//                     npm install @playwright/test@latest
+//                 """
+//             } else {
+//                 echo "Playwright is already installed."
+//             }
+//         }
+//     }
+// }
+
+        stage('Setup Dependencies') {
+            steps {
+                echo 'Setting up dependencies'
+                script {
                     sh """
+                        cd ${env.REPO_PATH}
                         rm -rf node_modules package-lock.json
-                        npm install 
-                        npx playwright install
-                        npm install @playwright/test@latest
+                        npm uninstall
+                        npx playwright uninstall
+                        npm uninstall @playwright/test@latest
                     """
-                } else {
-                    echo "Playwright is already installed."
                 }
             }
         }
-    }
-}
-
+        stage('Verify Playwright Installation') {
+            steps {
+                echo 'Verifying Playwright Installation'
+                script {
+                    sh 'node -v'
+                    sh 'npm -v'
+                    sh 'npx playwright --version'
+                }
+            }
+        }
 
 
 
