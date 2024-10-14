@@ -115,7 +115,6 @@ pipeline {
                 dir("${env.REPO_PATH}") {
                     echo "Uninstalling npm packages..."
                     sh """
-                        npm uninstall
                         npx playwright uninstall  
                         npm uninstall @playwright/test@latest
                     """
@@ -131,7 +130,6 @@ pipeline {
                 dir("${env.REPO_PATH}") {
                     echo "Uninstalling npm packages due to failure..."
                     sh """
-                        npm uninstall
                         npx playwright uninstall  
                         npm uninstall @playwright/test@latest
                     """
