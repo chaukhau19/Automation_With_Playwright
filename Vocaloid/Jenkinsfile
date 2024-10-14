@@ -1,61 +1,52 @@
 pipeline {
     agent {
-        docker { image 'mcr.microsoft.com/playwright:v1.48.0-jammy' }
+        docker { image 'mcr.microsoft.com/playwright:v1.46.0-jammy' }  // Use valid image version
     }
     environment {
-        PROJECT_NAME = 'Vocaloid'  
+        PROJECT_NAME = 'Vocaloid'
         REPO_NAME = 'Automation_With_Playwright'
         BRANCH_NAME = 'master'
         JENKINS_CREDENTIALS_ID = '6f5eb65d-9009-4049-8b13-1becf88d77cb'
-        SKIP_CHECKOUT = 'false'
-        SKIP_DEPENDENCIES = 'false'
-        SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"  
+        SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
+        FILE_SH = 'Vocaloid_Auto.sh'
+        FILE_BAT = 'Vocaloid_Auto.bat'
     }
-    stages {
-        stage('Check for Code Changes') {
-            steps {
-                script {
-                    def remoteCommitHash = sh(
-                        script: "git ls-remote https://github.com/chaukhau19/Automation_With_Playwright.git ${BRANCH_NAME} | cut -f1",
-                        returnStdout: true
-                    ).trim()
 
-                    def localCommitHash = sh(
-                        script: "[ -d ${PROJECT_NAME} ] && git -C ${PROJECT_NAME} log -n 1 --pretty=format:'%H' || echo 'NONE'",
-                        returnStdout: true
-                    ).trim()
+    triggers {
+        cron('0 0 * * *') 
+    }
 
-                    if (remoteCommitHash == localCommitHash) {
-                        echo "No new commits for ${PROJECT_NAME}. Skipping Checkout."
-                        env.SKIP_CHECKOUT = 'true'
-                    } else {
-                        echo "New commits found for ${PROJECT_NAME}. Proceeding with Checkout."
-                    }
-                }
-            }
-        }
-
-        stage('Checkout Code') {
-            when {
-                expression { env.SKIP_CHECKOUT == 'false' }
-            }
+     stages {
+        stage('CI: Checkout Code') {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
-                        git branch: "${BRANCH_NAME}",
-                            credentialsId: "${JENKINS_CREDENTIALS_ID}",
+                        git branch: "${BRANCH_NAME}", 
+                            credentialsId: "${JENKINS_CREDENTIALS_ID}", 
                             url: "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/chaukhau19/Automation_With_Playwright.git"
                     }
+                }
+                echo "Code checked out from ${BRANCH_NAME}"
+                echo 'Current working directory:'
+                sh 'pwd'
 
-                    echo "Finding ${PROJECT_NAME} directory:"
-                    env.REPO_PATH = sh(script: "find . -type d -name '${PROJECT_NAME}'", returnStdout: true).trim()
-
-                    if (!env.REPO_PATH) {
-                        error "Project directory ${PROJECT_NAME} not found."
+                echo "Finding ${REPO_NAME} directory:"
+                script {
+                    def repoPath = sh(script: "find . -type d -name '${REPO_NAME}'", returnStdout: true).trim()
+                    echo "Found ${REPO_NAME} at: ${repoPath}"
+                    if (repoPath) {
+                        env.REPO_PATH = repoPath
                     } else {
-                        echo "Found project at: ${env.REPO_PATH}"
+                        error "Repository directory ${REPO_NAME} not found."
                     }
                 }
+
+                echo "Changing directory to ${REPO_NAME} and listing contents:"
+                sh """
+                    cd ${env.REPO_PATH}
+                    pwd
+                    ls -la
+                """
             }
         }
 
@@ -63,17 +54,17 @@ pipeline {
             steps {
                 script {
                     def nodeVersion = sh(
-                        script: "if [ -d ${SERVER_PATH}/node_modules ]; then node -v; else echo 'not_installed'; fi",
+                        script: "if [ -d ${SERVER_PATH} ]; then node -v; else echo 'not_installed'; fi",
                         returnStdout: true
                     ).trim()
 
                     def npmVersion = sh(
-                        script: "if [ -d ${SERVER_PATH}/node_modules ]; then npm -v; else echo 'not_installed'; fi",
+                        script: "if [ -d ${SERVER_PATH} ]; then npm -v; else echo 'not_installed'; fi",
                         returnStdout: true
                     ).trim()
 
                     def playwrightVersion = sh(
-                        script: "if [ -d ${SERVER_PATH}/node_modules ]; then npx playwright --version; else echo 'not_installed'; fi",
+                        script: "if [ -d ${SERVER_PATH} ]; then npx playwright --version; else echo 'not_installed'; fi",
                         returnStdout: true
                     ).trim()
 
@@ -84,7 +75,7 @@ pipeline {
                         sh """
                             cd ${env.REPO_PATH}
                             npm install
-                            npx playwright install
+                            npx playwright install  // Ensure that browsers are installed
                             npm install @playwright/test@latest
                         """
                     }
