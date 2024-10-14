@@ -56,19 +56,26 @@ pipeline {
                         def nodePath = sh(script: "which node || echo 'Not_Installed'", returnStdout: true).trim()
                         def npmPath = sh(script: "which npm || echo 'Not_Installed'", returnStdout: true).trim()
                         def playwrightPath = sh(script: "which npx || echo 'Not_Installed'", returnStdout: true).trim()
+                        
                         def nodeVersion = sh(script: "node -v || echo 'Not_Installed'", returnStdout: true).trim()
                         def npmVersion = sh(script: "npm -v || echo 'Not_Installed'", returnStdout: true).trim()
                         def playwrightVersion = sh(script: "npx playwright --version || echo 'Not_Installed'", returnStdout: true).trim()
 
+                        // Log installed versions
                         echo "Node Version: ${nodeVersion} at ${nodePath}"
                         echo "NPM Version: ${npmVersion} at ${npmPath}"
                         echo "Playwright Version: ${playwrightVersion} at ${playwrightPath}"
 
+                        // Install missing dependencies
                         if (nodeVersion == 'Not_Installed' || npmVersion == 'Not_Installed' || playwrightVersion == 'Not_Installed') {
-                            echo "Node, npm, or Playwright not installed. Installing dependencies..."
+                            echo "One or more dependencies are missing. Installing dependencies..."
+
+                            // Clear previous installations
+                            sh "rm -rf ${env.REPO_PATH}/node_modules ${env.REPO_PATH}/package-lock.json"
+                            
+                            // Install dependencies
                             sh """
                                 cd ${env.REPO_PATH}
-                                rm -rf node_modules package-lock.json
                                 npm install
                                 npx playwright install  
                                 npm install @playwright/test@latest
@@ -80,6 +87,7 @@ pipeline {
                 }
             }
         }
+
 
         stage('CD: Run Tests') {
             steps {
