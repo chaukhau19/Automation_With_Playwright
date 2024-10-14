@@ -18,13 +18,20 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
-                        git branch: "${BRANCH_NAME}", 
-                            credentialsId: "${JENKINS_CREDENTIALS_ID}", 
-                            url: "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/chaukhau19/Automation_With_Playwright.git"
+                    def changes = sh(script: "git diff --name-only origin/${BRANCH_NAME}..${BRANCH_NAME}", returnStdout: true).trim()
+                    if (changes) {
+                        echo "Changes detected. Checking out code..."
+                        withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
+                            git branch: "${BRANCH_NAME}", 
+                                credentialsId: "${JENKINS_CREDENTIALS_ID}", 
+                                url: "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/chaukhau19/Automation_With_Playwright.git"
+                        }
+                        echo "Code checked out from ${BRANCH_NAME}"
+                    } else {
+                        echo "No changes detected. Skipping checkout."
                     }
                 }
-                echo "Code checked out from ${BRANCH_NAME}"
+
                 echo 'Current working directory:'
                 sh 'pwd'
 
