@@ -7,6 +7,7 @@ pipeline {
         FILE_SH = 'FD_Auto.sh'
         FILE_BAT = 'FD_Auto.bat'
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
+        SERVER_PROJECT = "Automation_With_Playwright"
         BRANCH_NAME = 'master'
         JENKINS_CREDENTIALS_ID = '6f5eb65d-9009-4049-8b13-1becf88d77cb'
         chatId = '-4520276469'
@@ -63,6 +64,7 @@ pipeline {
                         # Check if node_modules directory exists
                         if [ -d "node_modules" ]; then
                             echo "node_modules already exists. Checking Playwright version..."
+                            chmod +x node_modules/.bin/playwright
 
                             # Check if Playwright is installed and its version
                             if npx playwright --version; then
