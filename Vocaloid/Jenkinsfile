@@ -30,12 +30,9 @@ pipeline {
                     } else {
                         echo "No changes detected. Skipping checkout."
                     }
-                }
 
-                def currentDir = sh(script: 'pwd', returnStdout: true).trim()
-                echo "Found Current working directory at: ${currentDir}"
+                    echo "Found Current working directory at: ${sh(script: 'pwd', returnStdout: true).trim()}"
 
-                script {
                     env.REPO_PATH = sh(script: "find . -type d -name '${REPO_NAME}'", returnStdout: true).trim()
                     if (env.REPO_PATH) {
                         echo "Found ${REPO_NAME} at: ${env.REPO_PATH}"
@@ -51,7 +48,6 @@ pipeline {
                 """
             }
         }
-
 
         stage('CI: Verify RPM and Setup Dependencies') {
             steps {
