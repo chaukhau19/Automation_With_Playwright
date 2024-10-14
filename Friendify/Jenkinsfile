@@ -53,7 +53,6 @@ pipeline {
             }
         }
 
-
         stage('Setup Dependencies') {
             steps {
                 echo 'Setting up dependencies'
@@ -61,12 +60,10 @@ pipeline {
                     sh """
                         cd ${env.REPO_PATH}
 
-                        # Check if node_modules directory exists
                         if [ -d "node_modules" ]; then
                             echo "node_modules already exists. Checking Playwright version..."
                             chmod +x node_modules/.bin/playwright
 
-                            # Check if Playwright is installed and its version
                             if npx playwright --version; then
                                 echo "Playwright is already installed. Skipping installation."
                             else
@@ -86,7 +83,6 @@ pipeline {
                 }
             }
         }
-
 
         stage('CD: Run Tests') {
             steps {
@@ -119,43 +115,49 @@ pipeline {
         }
     }
 
-   post {
+    post {
         success {
             script {
                 def status = currentBuild.result ?: 'SUCCESS'
                 echo "All test cases passed. Build status: ${status}"
-
                 cleanTemporaryFolder()
 
                 // Prepare success message for Telegram
-                def message = "🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}\n" +
-                              "✅ Status: ${currentBuild.currentResult}\n" +
-                              "🕒 Time: ${currentBuild.durationString}\n" +
-                              "🔗 Link: ${env.BUILD_URL}"
+                def message = """
+                🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}
+                ✅ Status: ${currentBuild.currentResult}
+                🕒 Time: ${currentBuild.durationString}
+                🔗 Link: ${env.BUILD_URL}
+                """
 
                 // Send message to Telegram
-                sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
+                sendMessageToTelegram(message)
             }
         }
         failure {
             script {
                 def status = currentBuild.result ?: 'FAILURE'
                 echo "Some test cases failed. Build status: ${status}"
-
                 cleanTemporaryFolder()
 
                 // Prepare failure message for Telegram
-                def message = "🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}\n" +
-                              "❌ Status: ${currentBuild.currentResult}\n" +
-                              "🕒 Time: ${currentBuild.durationString}\n" +
-                              "🔗 Link: ${env.BUILD_URL}"
+                def message = """
+                🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}
+                ❌ Status: ${currentBuild.currentResult}
+                🕒 Time: ${currentBuild.durationString}
+                🔗 Link: ${env.BUILD_URL}
+                """
 
                 // Send message to Telegram
-                sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
+                sendMessageToTelegram(message)
             }
         }
-        
-    
+        always {
+            script {
+                echo "Cleaning up repository..."
+                cleanRepository()
+            }
+        }
     }
 }
 
@@ -170,4 +172,25 @@ def cleanTemporaryFolder() {
     } else {
         bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
     }
+}
+
+// Function to send message to Telegram
+def sendMessageToTelegram(message) {
+    sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
+}
+
+// Function to clean up the Git repository
+def cleanRepository() {
+    // Unlink the Git repository
+    sh """
+        cd ${env.REPO_PATH}
+        git remote remove origin
+    """
+    // Now remove the SERVER_PATH directory
+    if (isUnix()) {
+        sh "rm -rf ${SERVER_PATH}"
+    } else {
+        bat "rmdir /S /Q \"${SERVER_PATH}\""
+    }
+    echo "Repository at ${SERVER_PATH} has been deleted and unlinked from Git."
 }
