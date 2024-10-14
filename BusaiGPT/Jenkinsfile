@@ -1,53 +1,51 @@
 pipeline {
     agent {
-        docker { image 'mcr.microsoft.com/playwright:v1.46.0-jammy' }
+        docker { image 'mcr.microsoft.com/playwright:v1.47.2-jammy' }
     }
     environment {
         REPO_NAME = 'BusaiGPT'
         FILE_SH = 'BS_Auto.sh'
         FILE_BAT = 'BS_Auto.bat'
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
+        SERVER_PROJECT = "Automation_With_Playwright"
         BRANCH_NAME = 'master'
         JENKINS_CREDENTIALS_ID = '6f5eb65d-9009-4049-8b13-1becf88d77cb'
+        chatId = '-4520276469'
+        botToken = '8085219018:AAHSTNao6k9OucZc15LQ476N-039N8NR7WI'
     }
-
     triggers {
-        cron('0 0 * * *')
+        cron('0 0 * * *') 
     }
 
     stages {
         stage('CI: Checkout Code') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
-                        git branch: "${BRANCH_NAME}", 
-                            credentialsId: "${JENKINS_CREDENTIALS_ID}", 
-                            url: "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/chaukhau19/Automation_With_Playwright.git"
+                    def changes = sh(script: "git diff --name-only origin/${BRANCH_NAME}..${BRANCH_NAME}", returnStdout: true).trim()
+                    if (changes) {
+                        echo "Changes detected. Checking out code..."
+                        withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
+                            git branch: "${BRANCH_NAME}",
+                                credentialsId: "${JENKINS_CREDENTIALS_ID}",
+                                url: "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/chaukhau19/Automation_With_Playwright.git"
+                        }
+                        echo "Code checked out from ${BRANCH_NAME}"
+                    } else {
+                        echo "No changes detected. Skipping checkout."
                     }
-                }
-                echo "Code checked out from ${BRANCH_NAME}"
-                echo 'Current working directory:'
-                sh 'pwd'
 
-                echo "Finding ${REPO_NAME} directory:"
-                script {
-                    def repoPath = sh(script: "find . -type d -name '${REPO_NAME}'", returnStdout: true).trim()
-                    echo "Found ${REPO_NAME} at: ${repoPath}"
-                    if (repoPath) {
-                        env.REPO_PATH = repoPath
+                    env.REPO_PATH = sh(script: "find . -type d -name '${REPO_NAME}'", returnStdout: true).trim()
+                    if (env.REPO_PATH) {
+                        echo "Found ${REPO_NAME} at: ${env.REPO_PATH}"
                     } else {
                         error "Repository directory ${REPO_NAME} not found."
                     }
                 }
-
-                echo "Changing directory to ${REPO_NAME} and listing contents:"
                 sh """
                     cd ${env.REPO_PATH}
                     pwd
                     ls -la
                 """
-                echo "Checking if Data directory exists in ${REPO_PATH}:"
-                sh "ls -la ${env.REPO_PATH}/Data || echo 'Data directory does not exist.'"
             }
         }
 
@@ -57,22 +55,27 @@ pipeline {
                 script {
                     sh """
                         cd ${env.REPO_PATH}
-                        rm -rf node_modules package-lock.json
-                        npm install
-                        npx playwright install
-                        npm install @playwright/test@latest
-                    """
-                }
-            }
-        }
 
-        stage('Verify Playwright Installation') {
-            steps {
-                echo 'Verifying Playwright Installation'
-                script {
-                    sh 'node -v'  
-                    sh 'npm -v' 
-                    sh "ls -la ${env.REPO_PATH}/node_modules/playwright"
+                        if [ -d "node_modules" ]; then
+                            echo "node_modules already exists. Checking Playwright version..."
+                            chmod +x node_modules/.bin/playwright
+
+                            if npx playwright --version; then
+                                echo "Playwright is already installed. Skipping installation."
+                            else
+                                echo "Playwright is not installed. Installing..."
+                                rm -rf node_modules package-lock.json
+                                npm install
+                                npx playwright install
+                                npm install @playwright/test@latest
+                            fi
+                        else
+                            echo "node_modules does not exist. Installing dependencies..."
+                            npm install
+                            npx playwright install
+                            npm install @playwright/test@latest
+                        fi
+                    """
                 }
             }
         }
@@ -84,21 +87,13 @@ pipeline {
                     if (isUnix()) {
                         sh """
                             cd ${env.REPO_PATH}
-                            if [ -f ${FILE_SH} ]; then
-                                chmod +x ${FILE_SH}
-                                ./${FILE_SH}
-                            else
-                                echo "${FILE_SH} not found."
-                            fi
+                            chmod +x ${FILE_SH} 
+                            ./${FILE_SH}
                         """
                     } else {
                         bat """
                             cd ${env.REPO_PATH}
-                            if exist ${FILE_BAT} (
-                                ${FILE_BAT}
-                            ) else (
-                                echo ${FILE_BAT} not found.
-                            )
+                            ${FILE_BAT}
                         """
                     }
                 }
@@ -119,33 +114,65 @@ pipeline {
             script {
                 def status = currentBuild.result ?: 'SUCCESS'
                 echo "All test cases passed. Build status: ${status}"
+                cleanTemporaryFolder()
 
-                if (isUnix()) {
-                    if (fileExists("${SERVER_PATH}/temp")) {
-                        sh "rm -rf ${SERVER_PATH}/temp/*"
-                    } else {
-                        echo "Temporary folder does not exist."
-                    }
-                } else {
-                    bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
-                }
+                def message = """
+                🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}
+                ✅ Status: ${currentBuild.currentResult}
+                🕒 Time: ${currentBuild.durationString}
+                🔗 Link: ${env.BUILD_URL}
+                """
+
+                sendMessageToTelegram(message)
             }
         }
+
         failure {
             script {
                 def status = currentBuild.result ?: 'FAILURE'
                 echo "Some test cases failed. Build status: ${status}"
+                cleanTemporaryFolder()
 
-                if (isUnix()) {
-                    if (fileExists("${SERVER_PATH}/temp")) {
-                        sh "rm -rf ${SERVER_PATH}/temp/*"
-                    } else {
-                        echo "Temporary folder does not exist."
-                    }
-                } else {
-                    bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
-                }
+                def message = """
+                🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}
+                ❌ Status: ${currentBuild.currentResult}
+                🕒 Time: ${currentBuild.durationString}
+                🔗 Link: ${env.BUILD_URL}
+                """
+                sendMessageToTelegram(message)
+            }
+        }
+
+        always {
+            script {
+                echo "Cleaning up repository..."
+                // cleanRepository()
             }
         }
     }
+}
+
+def cleanTemporaryFolder() {
+    if (isUnix()) {
+        if (fileExists("${SERVER_PATH}/temp")) {
+            sh "rm -rf ${SERVER_PATH}/temp/*"
+        } else {
+            echo "Temporary folder does not exist."
+        }
+    } else {
+        bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
+    }
+}
+
+def sendMessageToTelegram(message) {
+    sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
+}
+
+
+def cleanRepository() {
+    sh """
+        cd ${env.REPO_PATH}
+        npx playwright uninstall
+        npm uninstall @playwright/test@latest
+    """
 }
