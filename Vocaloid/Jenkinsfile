@@ -15,7 +15,7 @@ pipeline {
     }
 
     stages {
-        stage('Checkout Code') {
+        stage('CI: Checkout Code') {
             steps {
                 script {
                     def changes = sh(script: "git diff --name-only origin/${BRANCH_NAME}..${BRANCH_NAME}", returnStdout: true).trim()
@@ -55,7 +55,7 @@ pipeline {
             }
         }
 
-        stage('Verify RPM and Setup Dependencies') {
+        stage('CI: Verify RPM and Setup Dependencies') {
             steps {
                 script {
                     dir("${env.REPO_PATH}") {
@@ -87,7 +87,7 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
+        stage('CD: Run Tests') {
             steps {
                 echo 'Starting Tests'
                 script {
@@ -117,10 +117,26 @@ pipeline {
     }
 
     post {
-        always {
+        success {
             script {
                 def status = currentBuild.result ?: 'SUCCESS'
-                echo "Build status: ${status}"
+                echo "All test cases passed. Build status: ${status}"
+
+                if (isUnix()) {
+                    if (fileExists("${SERVER_PATH}/temp")) {
+                        sh "rm -rf ${SERVER_PATH}/temp/*"
+                    } else {
+                        echo "Temporary folder does not exist."
+                    }
+                } else {
+                    bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
+                }
+            }
+        }
+        failure {
+            script {
+                def status = currentBuild.result ?: 'FAILURE'
+                echo "Some test cases failed. Build status: ${status}"
 
                 if (isUnix()) {
                     if (fileExists("${SERVER_PATH}/temp")) {
