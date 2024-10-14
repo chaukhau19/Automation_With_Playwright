@@ -111,12 +111,32 @@ pipeline {
             script {
                 def status = currentBuild.result ?: 'SUCCESS'
                 echo "All test cases passed. Build status: ${status}"
+
+                if (isUnix()) {
+                    if (fileExists("${SERVER_PATH}")) {
+                        sh "rm -rf ${SERVER_PATH}"
+                    } else {
+                        echo "Temporary folder does not exist."
+                    }
+                } else {
+                    bat "if exist ${SERVER_PATH} del /Q ${SERVER_PATH}"
+                }
             }
         }
         failure {
             script {
                 def status = currentBuild.result ?: 'FAILURE'
                 echo "Some test cases failed. Build status: ${status}"
+
+                if (isUnix()) {
+                    if (fileExists("${SERVER_PATH}")) {
+                        sh "rm -rf ${SERVER_PATH}"
+                    } else {
+                        echo "Temporary folder does not exist."
+                    }
+                } else {
+                    bat "if exist ${SERVER_PATH} del /Q ${SERVER_PATH}"
+                }
             }
         }
     }
