@@ -79,12 +79,14 @@ pipeline {
                 if (nodeVersion == 'Not_Installed' || npmVersion == 'Not_Installed' || playwrightVersion == 'Not_Installed') {
                     echo "One or more dependencies are missing. Installing dependencies..."
 
-                    sh """
-                        rm -rf ${env.REPO_PATH}/node_modules ${env.REPO_PATH}/package-lock.json && \
-                        npm install && \
-                        npx playwright install && \
-                        npm install @playwright/test@latest
-                    """
+                // Use absolute path for npx command
+                sh """
+                    rm -rf ${env.REPO_PATH}/node_modules ${env.REPO_PATH}/package-lock.json && \
+                    npm install && \
+                    $(which npx) playwright install && \
+                    npm install @playwright/test@latest
+                """
+
 
                 } else {
                     echo "Node, npm, and Playwright are already installed. Skipping setup."
