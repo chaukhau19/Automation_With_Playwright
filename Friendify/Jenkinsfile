@@ -81,7 +81,7 @@ pipeline {
 
                 // Use absolute path for npx command
                 sh """
-                    rm -rf ${env.REPO_PATH}/node_modules ${env.REPO_PATH}/package-lock.json && \
+                    rm -rf node_modules package-lock.json && \
                     npm install && \
                     $(which npx) playwright install && \
                     npm install @playwright/test@latest
