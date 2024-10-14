@@ -14,7 +14,7 @@ pipeline {
         cron('0 0 * * *') 
     }
 
-     stages {
+    stages {
         stage('CI: Checkout Code') {
             steps {
                 script {
@@ -51,36 +51,32 @@ pipeline {
         stage('Verify Installation and Setup Dependencies') {
             steps {
                 script {
-                    def nodeVersion = sh(
-                        script: "if [ -d ${SERVER_PATH} ]; then node -v; else echo 'not_installed'; fi",
-                        returnStdout: true
-                    ).trim()
+                    dir("${env.REPO_PATH}") {
+                        def nodeVersion = sh(script: "node -v || echo 'Not_Installed'", returnStdout: true).trim()
+                        def npmVersion = sh(script: "npm -v || echo 'Not_Installed'", returnStdout: true).trim()
+                        def playwrightVersion = sh(script: "npx playwright --version || echo 'Not_Installed'", returnStdout: true).trim()
 
-                    def npmVersion = sh(
-                        script: "if [ -d ${SERVER_PATH} ]; then npm -v; else echo 'not_installed'; fi",
-                        returnStdout: true
-                    ).trim()
+                        echo "Node Version: ${nodeVersion}"
+                        echo "NPM Version: ${npmVersion}"
+                        echo "Playwright Version: ${playwrightVersion}"
 
-                    def playwrightVersion = sh(
-                        script: "if [ -d ${SERVER_PATH} ]; then npx playwright --version; else echo 'not_installed'; fi",
-                        returnStdout: true
-                    ).trim()
-
-                    if (nodeVersion != 'not_installed' && npmVersion != 'not_installed' && playwrightVersion != 'not_installed') {
-                        echo "Node, npm, and Playwright are already installed. Skipping setup."
-                    } else {
-                        echo "Node, npm, or Playwright not installed. Installing dependencies..."
-                        sh """
-                            cd ${env.REPO_PATH}
-                            rm -rf node_modules package-lock.json
-                            npm install
-                            npx playwright install  
-                            npm install @playwright/test@latest
-                        """
+                        if (nodeVersion != 'Not_Installed' && npmVersion != 'Not_Installed' && playwrightVersion != 'Not_Installed') {
+                            echo "Node, npm, and Playwright are already installed. Skipping setup."
+                        } else {
+                            echo "Node, npm, or Playwright not installed. Installing dependencies..."
+                            sh """
+                                cd ${env.REPO_PATH}
+                                rm -rf node_modules package-lock.json
+                                npm install
+                                npx playwright install  
+                                npm install @playwright/test@latest
+                            """
+                        }
                     }
                 }
             }
         }
+
         stage('CD: Run Tests') {
             steps {
                 echo 'Starting Tests'
