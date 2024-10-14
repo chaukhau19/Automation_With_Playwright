@@ -153,18 +153,7 @@ pipeline {
             }
         }
         
-        always {
-            script {
-                echo "Cleaning up repository..."
-     
-                if (isUnix()) {
-                    sh "rm -rf ${SERVER_PATH}"
-                } else {
-                    bat "rmdir /S /Q \"${SERVER_PATH}\""
-                }
-                echo "Repository at ${SERVER_PATH} has been deleted and unlinked from Git."
-            }
-        }
+    
     }
 }
 
