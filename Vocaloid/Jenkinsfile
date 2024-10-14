@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        docker { image 'mcr.microsoft.com/playwright:v1.48.0-jammy' }  
+        docker { image 'mcr.microsoft.com/playwright:v1.47.2-jammy' }  
     }
     environment {
         REPO_NAME = 'Vocaloid'
@@ -48,17 +48,20 @@ pipeline {
             }
         }
 
-        stage('Verify Installation and Setup Dependencies') {
+       stage('Verify Installation and Setup Dependencies') {
             steps {
                 script {
                     dir("${env.REPO_PATH}") {
+                        def nodePath = sh(script: "which node || echo 'Not_Installed'", returnStdout: true).trim()
+                        def npmPath = sh(script: "which npm || echo 'Not_Installed'", returnStdout: true).trim()
+                        def playwrightPath = sh(script: "which npx || echo 'Not_Installed'", returnStdout: true).trim()
                         def nodeVersion = sh(script: "node -v || echo 'Not_Installed'", returnStdout: true).trim()
                         def npmVersion = sh(script: "npm -v || echo 'Not_Installed'", returnStdout: true).trim()
                         def playwrightVersion = sh(script: "npx playwright --version || echo 'Not_Installed'", returnStdout: true).trim()
 
-                        echo "Node Version: ${nodeVersion}"
-                        echo "NPM Version: ${npmVersion}"
-                        echo "Playwright Version: ${playwrightVersion}"
+                        echo "Node Version: ${nodeVersion} at ${nodePath}"
+                        echo "NPM Version: ${npmVersion} at ${npmPath}"
+                        echo "Playwright Version: ${playwrightVersion} at ${playwrightPath}"
 
                         if (nodeVersion != 'Not_Installed' && npmVersion != 'Not_Installed' && playwrightVersion != 'Not_Installed') {
                             echo "Node, npm, and Playwright are already installed. Skipping setup."
@@ -76,6 +79,7 @@ pipeline {
                 }
             }
         }
+
 
         stage('CD: Run Tests') {
             steps {
