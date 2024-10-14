@@ -49,66 +49,38 @@ pipeline {
             }
         }
 
-// stage('Verify and Setup Playwright') {
-//     steps {
-//         echo 'Verifying Playwright Installation and Setting up Dependencies'
-//         script {
-//             // Check if Node.js is installed
-//             if (sh(script: 'node -v', returnStatus: true) != 0) {
-//                 error "Node.js is not installed. Please install Node.js."
-//             }
-
-//             // Check if NPM is installed
-//             if (sh(script: 'npm -v', returnStatus: true) != 0) {
-//                 error "NPM is not installed. Please install NPM."
-//             }
-
-//             // Navigate to the repository path
-//             sh "cd ${env.REPO_PATH}"
-
-//             // Check if Playwright is installed
-//             if (sh(script: 'npx playwright --version', returnStatus: true) != 0) {
-//                 echo "Playwright is not installed. Installing dependencies..."
-//                 sh """
-//                     cd ${env.REPO_PATH}
-//                     rm -rf node_modules package-lock.json
-//                     npm install 
-//                     npx playwright install
-//                     npm install @playwright/test@latest
-//                 """
-//             } else {
-//                 echo "Playwright is already installed."
-//             }
-//         }
-//     }
-// }
-
-        stage('Setup Dependencies') {
+        stage('Verify and Setup Playwright') {
             steps {
-                echo 'Setting up dependencies'
+                echo 'Verifying Playwright Installation and Setting up Dependencies'
                 script {
-                    sh """
-                        cd ${env.REPO_PATH}
-                        rm -rf node_modules package-lock.json
-                        npm uninstall
-                        npx playwright uninstall
-                        npm uninstall @playwright/test@latest
-                    """
+                    // Check if Node.js is installed
+                    if (sh(script: 'node -v', returnStatus: true) != 0) {
+                        error "Node.js is not installed. Please install Node.js."
+                    }
+
+                    // Check if NPM is installed
+                    if (sh(script: 'npm -v', returnStatus: true) != 0) {
+                        error "NPM is not installed. Please install NPM."
+                    }
+
+                    // Navigate to the repository path
+                    sh "cd ${env.REPO_PATH}"
+
+                    // Check if Playwright is installed
+                    if (sh(script: 'npx playwright --version', returnStatus: true) != 0) {
+                        echo "Playwright is not installed. Installing dependencies..."
+                        sh """
+                            rm -rf node_modules package-lock.json
+                            npm install 
+                            npx playwright install
+                            npm install @playwright/test@latest
+                        """
+                    } else {
+                        echo "Playwright is already installed."
+                    }
                 }
             }
         }
-        stage('Verify Playwright Installation') {
-            steps {
-                echo 'Verifying Playwright Installation'
-                script {
-                    sh 'node -v'
-                    sh 'npm -v'
-                    sh 'npx playwright --version'
-                }
-            }
-        }
-
-
 
         stage('CD: Run Tests') {
             steps {
@@ -139,38 +111,61 @@ pipeline {
         }
     }
 
-    post {
-        success {
-            script {
-                def status = currentBuild.result ?: 'SUCCESS'
-                echo "All test cases passed. Build status: ${status}"
+   post {
+    success {
+        script {
+            def status = currentBuild.result ?: 'SUCCESS'
+            echo "All test cases passed. Build status: ${status}"
 
-                cleanTemporaryFolder()
+            cleanTemporaryFolder()
 
-                def message = "🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}\n" +
-                              "✅ Status: ${currentBuild.currentResult}\n" +
-                              "🕒 Time: ${currentBuild.durationString}\n" +
-                              "🔗 Link: ${env.BUILD_URL}"
+            def message = "🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}\n" +
+                          "✅ Status: ${currentBuild.currentResult}\n" +
+                          "🕒 Time: ${currentBuild.durationString}\n" +
+                          "🔗 Link: ${env.BUILD_URL}"
 
-                sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
-            }
-        }
-        failure {
-            script {
-                def status = currentBuild.result ?: 'FAILURE'
-                echo "Some test cases failed. Build status: ${status}"
-
-                cleanTemporaryFolder()
-
-                def message = "🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}\n" +
-                              "❌ Status: ${currentBuild.currentResult}\n" +
-                              "🕒 Time: ${currentBuild.durationString}\n" +
-                              "🔗 Link: ${env.BUILD_URL}"
-
-                sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
-            }
+            sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
         }
     }
+    failure {
+        script {
+            def status = currentBuild.result ?: 'FAILURE'
+            echo "Some test cases failed. Build status: ${status}"
+
+            cleanTemporaryFolder()
+
+            def message = "🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}\n" +
+                          "❌ Status: ${currentBuild.currentResult}\n" +
+                          "🕒 Time: ${currentBuild.durationString}\n" +
+                          "🔗 Link: ${env.BUILD_URL}"
+
+            sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
+        }
+    }
+    
+    always {
+        script {
+            echo "Cleaning up repository..."
+            // Unlink the Git repository
+            sh """
+                cd ${env.REPO_PATH}
+                git remote remove origin
+            """
+            // Now remove the SERVER_PATH directory
+            if (isUnix()) {
+                sh """
+                    rm -rf ${SERVER_PATH}
+                """
+            } else {
+                bat """
+                    rmdir /S /Q "${SERVER_PATH}"
+                """
+            }
+            echo "Repository at ${SERVER_PATH} has been deleted and unlinked from Git."
+        }
+    }
+}
+
 }
 
 def cleanTemporaryFolder() {
