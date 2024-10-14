@@ -107,36 +107,32 @@ pipeline {
     }
 
     post {
-        success {
+        always {
             script {
                 def status = currentBuild.result ?: 'SUCCESS'
-                echo "All test cases passed. Build status: ${status}"
+                echo "Build finished with status: ${status}"
 
-                dir("${env.REPO_PATH}") {
-                    echo "Uninstalling npm packages..."
-                    sh """
-                        npx playwright uninstall  
-                        npm uninstall @playwright/test@latest
-                    """
-                    echo "Uninstalled npm packages successfully."
-                }
+                // Uninstall npm packages from both REPO_PATH and Automation_With_Playwright
+                uninstallNpmPackages("${env.REPO_PATH}")
+                uninstallNpmPackages("Automation_With_Playwright")
             }
+        }
+        success {
+            echo "All test cases passed."
         }
         failure {
-            script {
-                def status = currentBuild.result ?: 'FAILURE'
-                echo "Some test cases failed. Build status: ${status}"
-
-                dir("${env.REPO_PATH}") {
-                    echo "Uninstalling npm packages due to failure..."
-                    sh """
-                        npx playwright uninstall  
-                        npm uninstall @playwright/test@latest
-                    """
-                    echo "Uninstalled npm packages due to failure."
-                }
-            }
+            echo "Some test cases failed."
         }
     }
+}
 
+def uninstallNpmPackages(path) {
+    dir(path) {
+        echo "Uninstalling npm packages in ${path}..."
+        sh """
+            npx playwright uninstall  
+            npm uninstall @playwright/test@latest
+        """
+        echo "Uninstalled npm packages successfully in ${path}."
+    }
 }
