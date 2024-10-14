@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        docker { image 'mcr.microsoft.com/playwright:v1.47.2-jammy' }  
+        docker { image 'mcr.microsoft.com/playwright:v1.47.2-jammy' }
     }
     environment {
         REPO_NAME = 'Friendify'
@@ -9,11 +9,11 @@ pipeline {
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
         JENKINS_CREDENTIALS_ID = '6f5eb65d-9009-4049-8b13-1becf88d77cb'
-        chatId = '-4520276469'  
-        botToken = '8085219018:AAHSTNao6k9OucZc15LQ476N-039N8NR7WI' 
+        chatId = '-4520276469'
+        botToken = '8085219018:AAHSTNao6k9OucZc15LQ476N-039N8NR7WI'
     }
     triggers {
-        cron('0 0 * * *') 
+        cron('0 0 * * *')
     }
 
     stages {
@@ -24,8 +24,8 @@ pipeline {
                     if (changes) {
                         echo "Changes detected. Checking out code..."
                         withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
-                            git branch: "${BRANCH_NAME}", 
-                                credentialsId: "${JENKINS_CREDENTIALS_ID}", 
+                            git branch: "${BRANCH_NAME}",
+                                credentialsId: "${JENKINS_CREDENTIALS_ID}",
                                 url: "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/chaukhau19/Automation_With_Playwright.git"
                         }
                         echo "Code checked out from ${BRANCH_NAME}"
@@ -77,7 +77,7 @@ pipeline {
                         boolean needsPlaywrightTestInstall = playwrightTestInstalled == 'Not_Installed'
 
                         if (needsPlaywrightInstall || needsPlaywrightTestInstall) {
-                            echo "Installing missing dependencies..."           
+                            echo "Installing missing dependencies..."
                             sh "cd ${env.REPO_PATH} && rm -rf node_modules package-lock.json"
 
                             if (needsPlaywrightInstall) {
@@ -86,7 +86,7 @@ pipeline {
                             }
 
                             if (needsPlaywrightTestInstall) {
-                                echo "Installing @playwright/test..." 
+                                echo "Installing @playwright/test..."
                                 sh "cd ${env.REPO_PATH} && npm install @playwright/test@latest"
                             }
                         } else {
@@ -104,7 +104,7 @@ pipeline {
                     if (isUnix()) {
                         sh """
                             cd ${env.REPO_PATH}
-                            chmod +x ${FILE_SH} 
+                            chmod +x ${FILE_SH}
                             ./${FILE_SH}
                         """
                     } else {
