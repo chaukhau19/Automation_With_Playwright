@@ -157,16 +157,14 @@ pipeline {
                 sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
             }
         }
-    }
-
-    // Adding uninstall step after post
-    cleanup {
-        script {
-            dir("${env.REPO_PATH}") {
-                echo "Uninstalling all versions of Playwright and @playwright/test..."
-                sh "npm uninstall @playwright/test"
-                sh "npx playwright uninstall"
-                sh "npm uninstall"
+        always {
+            script {
+                dir("${env.REPO_PATH}") {
+                    echo "Uninstalling all versions of Playwright and @playwright/test..."
+                    sh "npm uninstall @playwright/test"
+                    sh "npx playwright uninstall"
+                    sh "npm uninstall"
+                }
             }
         }
     }
