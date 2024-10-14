@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        docker { image 'mcr.microsoft.com/playwright:v1.46.0-jammy' }
+        docker { image 'mcr.microsoft.com/playwright:v1.48.0-jammy' }  
     }
     environment {
         REPO_NAME = 'Vocaloid'
@@ -114,16 +114,12 @@ pipeline {
             script {
                 def status = currentBuild.result ?: 'SUCCESS'
                 echo "All test cases passed. Build status: ${status}"
-
-               
             }
         }
         failure {
             script {
                 def status = currentBuild.result ?: 'FAILURE'
                 echo "Some test cases failed. Build status: ${status}"
-
-        
             }
         }
     }
