@@ -6,11 +6,13 @@ export const config = {
   loginUrl: 'https://app.friendify.ai/auth/login',
   url: 'https://friendify.ai/',
 
-  //User/Pass
+  //Login
   email: 'khauntc@gmail.com',
   password: 'Chaukhau2000!',
-  googleEmail: 'tester29082024@gmail.com',
-  googlePassword: 'Tester2908',
+  googleEmail: 'tester19082024@gmail.com',
+  googlePassword: 'Tester1908',
+  
+  //Register
   defaultPassword: 'Tester25082024',
   referralCode: 'FSPEZTEF',
 
