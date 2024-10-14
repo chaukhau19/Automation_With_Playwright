@@ -4,7 +4,6 @@ pipeline {
     }
     environment {
         PROJECT_NAME = 'Vocaloid'
-        REPO_NAME = 'Automation_With_Playwright'
         BRANCH_NAME = 'master'
         JENKINS_CREDENTIALS_ID = '6f5eb65d-9009-4049-8b13-1becf88d77cb'
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
