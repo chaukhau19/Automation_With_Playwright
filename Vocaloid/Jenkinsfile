@@ -32,21 +32,18 @@ pipeline {
                     }
                 }
 
-                echo 'Current working directory:'
-                sh 'pwd'
+                def currentDir = sh(script: 'pwd', returnStdout: true).trim()
+                echo "Found Current working directory at: ${currentDir}"
 
-                echo "Finding ${REPO_NAME} directory:"
                 script {
-                    def repoPath = sh(script: "find . -type d -name '${REPO_NAME}'", returnStdout: true).trim()
-                    echo "Found ${REPO_NAME} at: ${repoPath}"
-                    if (repoPath) {
-                        env.REPO_PATH = repoPath
+                    env.REPO_PATH = sh(script: "find . -type d -name '${REPO_NAME}'", returnStdout: true).trim()
+                    if (env.REPO_PATH) {
+                        echo "Found ${REPO_NAME} at: ${env.REPO_PATH}"
                     } else {
                         error "Repository directory ${REPO_NAME} not found."
                     }
                 }
 
-                echo "Changing directory to ${REPO_NAME} and listing contents:"
                 sh """
                     cd ${env.REPO_PATH}
                     pwd
@@ -54,6 +51,7 @@ pipeline {
                 """
             }
         }
+
 
         stage('CI: Verify RPM and Setup Dependencies') {
             steps {
