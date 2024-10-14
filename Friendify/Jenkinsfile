@@ -13,13 +13,14 @@ pipeline {
         botToken = '8085219018:AAHSTNao6k9OucZc15LQ476N-039N8NR7WI'
     }
     triggers {
-        cron('0 0 * * *')
+        cron('0 0 * * *') // Schedule job to run at midnight daily
     }
 
     stages {
         stage('CI: Checkout Code') {
             steps {
                 script {
+                    // Check for changes in the repository
                     def changes = sh(script: "git diff --name-only origin/${BRANCH_NAME}..${BRANCH_NAME}", returnStdout: true).trim()
                     if (changes) {
                         echo "Changes detected. Checking out code..."
@@ -33,6 +34,7 @@ pipeline {
                         echo "No changes detected. Skipping checkout."
                     }
 
+                    // Find the repository path
                     env.REPO_PATH = sh(script: "find . -type d -name '${REPO_NAME}'", returnStdout: true).trim()
                     if (env.REPO_PATH) {
                         echo "Found ${REPO_NAME} at: ${env.REPO_PATH}"
@@ -41,6 +43,7 @@ pipeline {
                     }
                 }
 
+                // List repository contents
                 sh """
                     cd ${env.REPO_PATH}
                     pwd
@@ -49,35 +52,34 @@ pipeline {
             }
         }
 
-        stage('Verify and Setup Playwright') {
+        stage('Setup Dependencies') {
             steps {
-                echo 'Verifying Playwright Installation and Setting up Dependencies'
+                echo 'Setting up dependencies'
                 script {
-                    // Check if Node.js is installed
-                    if (sh(script: 'node -v', returnStatus: true) != 0) {
-                        error "Node.js is not installed. Please install Node.js."
-                    }
+                    sh """
+                        cd ${env.REPO_PATH}
 
-                    // Check if NPM is installed
-                    if (sh(script: 'npm -v', returnStatus: true) != 0) {
-                        error "NPM is not installed. Please install NPM."
-                    }
+                        # Check if node_modules directory exists
+                        if [ -d "node_modules" ]; then
+                            echo "node_modules already exists. Checking Playwright version..."
 
-                    // Navigate to the repository path
-                    sh "cd ${env.REPO_PATH}"
-
-                    // Check if Playwright is installed
-                    if (sh(script: 'npx playwright --version', returnStatus: true) != 0) {
-                        echo "Playwright is not installed. Installing dependencies..."
-                        sh """
-                            rm -rf node_modules package-lock.json
-                            npm install 
+                            # Check if Playwright is installed
+                            if npx playwright --version; then
+                                echo "Playwright is already installed. Skipping installation."
+                            else
+                                echo "Playwright is not installed. Installing dependencies..."
+                                rm -rf node_modules package-lock.json
+                                npm install
+                                npx playwright install
+                                npm install @playwright/test@latest
+                            fi
+                        else
+                            echo "node_modules does not exist. Installing dependencies..."
+                            npm install
                             npx playwright install
                             npm install @playwright/test@latest
-                        """
-                    } else {
-                        echo "Playwright is already installed."
-                    }
+                        fi
+                    """
                 }
             }
         }
@@ -86,6 +88,7 @@ pipeline {
             steps {
                 echo 'Starting Tests'
                 script {
+                    // Execute the appropriate script for running tests
                     if (isUnix()) {
                         sh """
                             cd ${env.REPO_PATH}
@@ -105,6 +108,7 @@ pipeline {
 
         stage('Archive Test Results') {
             steps {
+                // Archive test results
                 archiveArtifacts artifacts: '**/playwright-report/**/*', allowEmptyArchive: true
                 echo 'Test results archived.'
             }
@@ -112,62 +116,62 @@ pipeline {
     }
 
    post {
-    success {
-        script {
-            def status = currentBuild.result ?: 'SUCCESS'
-            echo "All test cases passed. Build status: ${status}"
+        success {
+            script {
+                def status = currentBuild.result ?: 'SUCCESS'
+                echo "All test cases passed. Build status: ${status}"
 
-            cleanTemporaryFolder()
+                cleanTemporaryFolder()
 
-            def message = "🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}\n" +
-                          "✅ Status: ${currentBuild.currentResult}\n" +
-                          "🕒 Time: ${currentBuild.durationString}\n" +
-                          "🔗 Link: ${env.BUILD_URL}"
+                // Prepare success message for Telegram
+                def message = "🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}\n" +
+                              "✅ Status: ${currentBuild.currentResult}\n" +
+                              "🕒 Time: ${currentBuild.durationString}\n" +
+                              "🔗 Link: ${env.BUILD_URL}"
 
-            sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
-        }
-    }
-    failure {
-        script {
-            def status = currentBuild.result ?: 'FAILURE'
-            echo "Some test cases failed. Build status: ${status}"
-
-            cleanTemporaryFolder()
-
-            def message = "🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}\n" +
-                          "❌ Status: ${currentBuild.currentResult}\n" +
-                          "🕒 Time: ${currentBuild.durationString}\n" +
-                          "🔗 Link: ${env.BUILD_URL}"
-
-            sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
-        }
-    }
-    
-    always {
-        script {
-            echo "Cleaning up repository..."
-            // Unlink the Git repository
-            sh """
-                cd ${env.REPO_PATH}
-                git remote remove origin
-            """
-            // Now remove the SERVER_PATH directory
-            if (isUnix()) {
-                sh """
-                    rm -rf ${SERVER_PATH}
-                """
-            } else {
-                bat """
-                    rmdir /S /Q "${SERVER_PATH}"
-                """
+                // Send message to Telegram
+                sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
             }
-            echo "Repository at ${SERVER_PATH} has been deleted and unlinked from Git."
+        }
+        failure {
+            script {
+                def status = currentBuild.result ?: 'FAILURE'
+                echo "Some test cases failed. Build status: ${status}"
+
+                cleanTemporaryFolder()
+
+                // Prepare failure message for Telegram
+                def message = "🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}\n" +
+                              "❌ Status: ${currentBuild.currentResult}\n" +
+                              "🕒 Time: ${currentBuild.durationString}\n" +
+                              "🔗 Link: ${env.BUILD_URL}"
+
+                // Send message to Telegram
+                sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
+            }
+        }
+        
+        always {
+            script {
+                echo "Cleaning up repository..."
+                // Unlink the Git repository
+                sh """
+                    cd ${env.REPO_PATH}
+                    git remote remove origin
+                """
+                // Now remove the SERVER_PATH directory
+                if (isUnix()) {
+                    sh "rm -rf ${SERVER_PATH}"
+                } else {
+                    bat "rmdir /S /Q \"${SERVER_PATH}\""
+                }
+                echo "Repository at ${SERVER_PATH} has been deleted and unlinked from Git."
+            }
         }
     }
 }
 
-}
-
+// Function to clean temporary folders
 def cleanTemporaryFolder() {
     if (isUnix()) {
         if (fileExists("${SERVER_PATH}/temp")) {
