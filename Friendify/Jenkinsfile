@@ -14,14 +14,13 @@ pipeline {
         botToken = '8085219018:AAHSTNao6k9OucZc15LQ476N-039N8NR7WI'
     }
     triggers {
-        cron('0 0 * * *') // Schedule job to run at midnight daily
+        cron('0 0 * * *') 
     }
 
     stages {
         stage('CI: Checkout Code') {
             steps {
                 script {
-                    // Check for changes in the repository
                     def changes = sh(script: "git diff --name-only origin/${BRANCH_NAME}..${BRANCH_NAME}", returnStdout: true).trim()
                     if (changes) {
                         echo "Changes detected. Checking out code..."
@@ -35,7 +34,6 @@ pipeline {
                         echo "No changes detected. Skipping checkout."
                     }
 
-                    // Find the repository path
                     env.REPO_PATH = sh(script: "find . -type d -name '${REPO_NAME}'", returnStdout: true).trim()
                     if (env.REPO_PATH) {
                         echo "Found ${REPO_NAME} at: ${env.REPO_PATH}"
@@ -43,8 +41,6 @@ pipeline {
                         error "Repository directory ${REPO_NAME} not found."
                     }
                 }
-
-                // List repository contents
                 sh """
                     cd ${env.REPO_PATH}
                     pwd
@@ -88,7 +84,6 @@ pipeline {
             steps {
                 echo 'Starting Tests'
                 script {
-                    // Execute the appropriate script for running tests
                     if (isUnix()) {
                         sh """
                             cd ${env.REPO_PATH}
@@ -108,7 +103,6 @@ pipeline {
 
         stage('Archive Test Results') {
             steps {
-                // Archive test results
                 archiveArtifacts artifacts: '**/playwright-report/**/*', allowEmptyArchive: true
                 echo 'Test results archived.'
             }
@@ -122,7 +116,6 @@ pipeline {
                 echo "All test cases passed. Build status: ${status}"
                 cleanTemporaryFolder()
 
-                // Prepare success message for Telegram
                 def message = """
                 🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}
                 ✅ Status: ${currentBuild.currentResult}
@@ -130,28 +123,26 @@ pipeline {
                 🔗 Link: ${env.BUILD_URL}
                 """
 
-                // Send message to Telegram
                 sendMessageToTelegram(message)
             }
         }
+
         failure {
             script {
                 def status = currentBuild.result ?: 'FAILURE'
                 echo "Some test cases failed. Build status: ${status}"
                 cleanTemporaryFolder()
 
-                // Prepare failure message for Telegram
                 def message = """
                 🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}
                 ❌ Status: ${currentBuild.currentResult}
                 🕒 Time: ${currentBuild.durationString}
                 🔗 Link: ${env.BUILD_URL}
                 """
-
-                // Send message to Telegram
                 sendMessageToTelegram(message)
             }
         }
+
         always {
             script {
                 echo "Cleaning up repository..."
@@ -161,7 +152,6 @@ pipeline {
     }
 }
 
-// Function to clean temporary folders
 def cleanTemporaryFolder() {
     if (isUnix()) {
         if (fileExists("${SERVER_PATH}/temp")) {
@@ -174,23 +164,16 @@ def cleanTemporaryFolder() {
     }
 }
 
-// Function to send message to Telegram
 def sendMessageToTelegram(message) {
     sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
 }
 
-// Function to clean up the Git repository
+
 def cleanRepository() {
-    // Unlink the Git repository
     sh """
         cd ${env.REPO_PATH}
-        git remote remove origin
+         npm uninstall
+        npx playwright uninstall
+        npm uninstall @playwright/test@latest
     """
-    // Now remove the SERVER_PATH directory
-    if (isUnix()) {
-        sh "rm -rf ${SERVER_PATH}"
-    } else {
-        bat "rmdir /S /Q \"${SERVER_PATH}\""
-    }
-    echo "Repository at ${SERVER_PATH} has been deleted and unlinked from Git."
 }
