@@ -3,20 +3,16 @@ pipeline {
         docker { image 'mcr.microsoft.com/playwright:v1.46.0-jammy' }
     }
     environment {
-        REPO_NAME = 'Vocaloid'
-        FILE_SH = 'Vocaloid_Auto.sh'
-        FILE_BAT = 'Vocaloid_Auto.bat'
-        SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
+        PROJECT_NAME = 'Vocaloid'
+        REPO_NAME = 'Automation_With_Playwright'
         BRANCH_NAME = 'master'
         JENKINS_CREDENTIALS_ID = '6f5eb65d-9009-4049-8b13-1becf88d77cb'
-        SKIP_DEPLOYMENT = 'false'
+        SKIP_CHECKOUT = 'false'
+        SKIP_DEPENDENCIES = 'false'
+        REPO_PATH = ''
     }
-    triggers {
-        cron('0 0 * * *') 
-    }
-    
     stages {
-        stage('Check for New Commits') {
+        stage('Check for Code Changes') {
             steps {
                 script {
                     def remoteCommitHash = sh(
@@ -25,64 +21,72 @@ pipeline {
                     ).trim()
                     
                     def localCommitHash = sh(
-                        script: "[ -d ${REPO_NAME} ] && git -C ${REPO_NAME} rev-parse HEAD || echo 'NONE'",
+                        script: "[ -d ${PROJECT_NAME} ] && git -C ${PROJECT_NAME} log -n 1 --pretty=format:'%H' || echo 'NONE'",
                         returnStdout: true
                     ).trim()
                     
-                    if (localCommitHash == remoteCommitHash) {
-                        echo "No new commits. Skipping Checkout and Setup stages."
-                        env.SKIP_DEPLOYMENT = 'true'
+                    if (remoteCommitHash == localCommitHash) {
+                        echo "No new commits for ${PROJECT_NAME}. Skipping Checkout."
+                        env.SKIP_CHECKOUT = 'true'
                     } else {
-                        echo "New commits found. Proceeding with Checkout and Setup stages."
-                        env.SKIP_DEPLOYMENT = 'false'
+                        echo "New commits found for ${PROJECT_NAME}. Proceeding with Checkout."
                     }
                 }
             }
         }
-        
-        stage('CI: Checkout Code') {
+
+        stage('Checkout Code') {
             when {
-                expression { env.SKIP_DEPLOYMENT == 'false' }
+                expression { env.SKIP_CHECKOUT == 'false' }
             }
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
-                        git branch: "${BRANCH_NAME}", 
-                            credentialsId: "${JENKINS_CREDENTIALS_ID}", 
+                        git branch: "${BRANCH_NAME}",
+                            credentialsId: "${JENKINS_CREDENTIALS_ID}",
                             url: "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/chaukhau19/Automation_With_Playwright.git"
                     }
-                }
-                echo "Code checked out from ${BRANCH_NAME}"
-                echo 'Current working directory:'
-                sh 'pwd'
 
-                echo "Finding ${REPO_NAME} directory:"
-                script {
-                    def repoPath = sh(script: "find . -type d -name '${REPO_NAME}'", returnStdout: true).trim()
-                    echo "Found ${REPO_NAME} at: ${repoPath}"
-                    if (repoPath) {
-                        env.REPO_PATH = repoPath
+                    echo "Finding ${PROJECT_NAME} directory:"
+                    env.REPO_PATH = sh(script: "find . -type d -name '${PROJECT_NAME}'", returnStdout: true).trim()
+                    
+                    if (!env.REPO_PATH) {
+                        error "Project directory ${PROJECT_NAME} not found."
                     } else {
-                        error "Repository directory ${REPO_NAME} not found."
+                        echo "Found project at: ${env.REPO_PATH}"
                     }
                 }
+            }
+        }
 
-                echo "Changing directory to ${REPO_NAME} and listing contents:"
-                sh """
-                    cd ${env.REPO_PATH}
-                    pwd
-                    ls -la
-                """
+        stage('Check for Dependency Changes') {
+            steps {
+                script {
+                    def hasPackageChanges = sh(
+                        script: """
+                            cd ${env.REPO_PATH}
+                            git diff --name-only HEAD~1 HEAD | grep -E 'package.json|package-lock.json' || echo 'no'
+                        """,
+                        returnStdout: true
+                    ).trim()
+
+                    if (hasPackageChanges == 'no' && fileExists("${env.REPO_PATH}/node_modules")) {
+                        echo "No changes in dependencies. Skipping Setup Dependencies."
+                        env.SKIP_DEPENDENCIES = 'true'
+                    } else {
+                        echo "Dependency changes detected or node_modules not found. Proceeding with Setup Dependencies."
+                    }
+                }
             }
         }
 
         stage('Setup Dependencies') {
             when {
-                expression { env.SKIP_DEPLOYMENT == 'false' }
+                expression { env.SKIP_DEPENDENCIES == 'false' }
             }
             steps {
-                echo 'Setting up dependencies'
                 script {
+                    echo "Installing/Updating Dependencies"
                     sh """
                         cd ${env.REPO_PATH}
                         rm -rf node_modules package-lock.json
@@ -105,24 +109,23 @@ pipeline {
             }
         }
 
-        stage('CD: Run Tests') {
+        stage('Run Tests') {
             steps {
-                echo 'Starting Tests'
+                echo 'Running tests for project'
                 script {
                     if (isUnix()) {
                         sh """
                             cd ${env.REPO_PATH}
-                            chmod +x ${FILE_SH} 
-                            ./${FILE_SH}
+                            chmod +x ${PROJECT_NAME}_Auto.sh
+                            ./${PROJECT_NAME}_Auto.sh
                         """
                     } else {
                         bat """
                             cd ${env.REPO_PATH}
-                            ${FILE_BAT}
+                            ${PROJECT_NAME}_Auto.bat
                         """
                     }
                 }
-                echo "Tests executed"
             }
         }
 
@@ -133,19 +136,13 @@ pipeline {
             }
         }
     }
-
+    
     post {
         success {
-            script {
-                def status = currentBuild.result ?: 'SUCCESS'
-                echo "All test cases passed. Build status: ${status}"
-            }
+            echo "Build and test successful for ${PROJECT_NAME}"
         }
         failure {
-            script {
-                def status = currentBuild.result ?: 'FAILURE'
-                echo "Some test cases failed. Build status: ${status}"
-            }
+            echo "Build and test failed for ${PROJECT_NAME}"
         }
     }
 }
