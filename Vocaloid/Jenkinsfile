@@ -15,7 +15,7 @@ pipeline {
     }
 
     stages {
-        stage('CI: Checkout Code') {
+        stage('Checkout Code') {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
@@ -48,7 +48,7 @@ pipeline {
             }
         }
 
-       stage('Verify Installation and Setup Dependencies') {
+        stage('Verify RPM and Setup Dependencies') {
             steps {
                 script {
                     dir("${env.REPO_PATH}") {
@@ -63,9 +63,7 @@ pipeline {
                         echo "NPM Version: ${npmVersion} at ${npmPath}"
                         echo "Playwright Version: ${playwrightVersion} at ${playwrightPath}"
 
-                        if (nodeVersion != 'Not_Installed' && npmVersion != 'Not_Installed' && playwrightVersion != 'Not_Installed') {
-                            echo "Node, npm, and Playwright are already installed. Skipping setup."
-                        } else {
+                        if (nodeVersion == 'Not_Installed' || npmVersion == 'Not_Installed' || playwrightVersion == 'Not_Installed') {
                             echo "Node, npm, or Playwright not installed. Installing dependencies..."
                             sh """
                                 cd ${env.REPO_PATH}
@@ -74,14 +72,15 @@ pipeline {
                                 npx playwright install  
                                 npm install @playwright/test@latest
                             """
+                        } else {
+                            echo "Node, npm, and Playwright are already installed. Skipping setup."
                         }
                     }
                 }
             }
         }
 
-
-        stage('CD: Run Tests') {
+        stage('Run Tests') {
             steps {
                 echo 'Starting Tests'
                 script {
@@ -114,29 +113,18 @@ pipeline {
         always {
             script {
                 def status = currentBuild.result ?: 'SUCCESS'
-                echo "Build finished with status: ${status}"
+                echo "Build status: ${status}"
 
-                // Uninstall npm packages from both REPO_PATH and Automation_With_Playwright
-                uninstallNpmPackages("${env.REPO_PATH}")
-                uninstallNpmPackages("Automation_With_Playwright")
+                if (isUnix()) {
+                    if (fileExists("${SERVER_PATH}/temp")) {
+                        sh "rm -rf ${SERVER_PATH}/temp/*"
+                    } else {
+                        echo "Temporary folder does not exist."
+                    }
+                } else {
+                    bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
+                }
             }
         }
-        success {
-            echo "All test cases passed."
-        }
-        failure {
-            echo "Some test cases failed."
-        }
-    }
-}
-
-def uninstallNpmPackages(path) {
-    dir(path) {
-        echo "Uninstalling npm packages in ${path}..."
-        sh """
-            npx playwright uninstall  
-            npm uninstall @playwright/test@latest
-        """
-        echo "Uninstalled npm packages successfully in ${path}."
     }
 }
