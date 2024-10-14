@@ -63,15 +63,21 @@ pipeline {
                         if [ -d "node_modules" ]; then
                             echo "node_modules already exists. Checking Playwright version..."
 
-                            # Check if Playwright is installed
-                            if npx playwright --version; then
-                                echo "Playwright is already installed. Skipping installation."
+                            # Check if Playwright is installed and its version
+                            if [ -x "$(command -v npx)" ]; then
+                                npx playwright --version
+                                if [ $? -eq 0 ]; then
+                                    echo "Playwright is already installed. Skipping installation."
+                                else
+                                    echo "Playwright is not installed. Installing..."
+                                    rm -rf node_modules package-lock.json
+                                    npm install
+                                    npx playwright install
+                                    npm install @playwright/test@latest
+                                fi
                             else
-                                echo "Playwright is not installed. Installing dependencies..."
-                                rm -rf node_modules package-lock.json
-                                npm install
-                                npx playwright install
-                                npm install @playwright/test@latest
+                                echo "npx is not installed. Please install Node.js correctly."
+                                exit 1
                             fi
                         else
                             echo "node_modules does not exist. Installing dependencies..."
@@ -83,6 +89,7 @@ pipeline {
                 }
             }
         }
+
 
         stage('CD: Run Tests') {
             steps {
@@ -151,23 +158,6 @@ pipeline {
             }
         }
         
-        always {
-            script {
-                echo "Cleaning up repository..."
-                // Unlink the Git repository
-                sh """
-                    cd ${env.REPO_PATH}
-                    git remote remove origin
-                """
-                // Now remove the SERVER_PATH directory
-                if (isUnix()) {
-                    sh "rm -rf ${SERVER_PATH}"
-                } else {
-                    bat "rmdir /S /Q \"${SERVER_PATH}\""
-                }
-                echo "Repository at ${SERVER_PATH} has been deleted and unlinked from Git."
-            }
-        }
     }
 }
 
