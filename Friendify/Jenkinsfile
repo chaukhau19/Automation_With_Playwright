@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        docker { image 'mcr.microsoft.com/playwright:v1.47.2-jammy' }
+        docker { image 'mcr.microsoft.com/playwright:v1.48.0-jammy' }
     }
     environment {
         REPO_NAME = 'Friendify'
@@ -53,50 +53,31 @@ pipeline {
             steps {
                 echo 'Verifying Playwright Installation and Setting up Dependencies'
                 script {
-                    def nodeInstalled = sh(script: 'node -v', returnStatus: true)
-                    if (nodeInstalled == 0) {
-                        def nodeVersion = sh(script: 'node -v', returnStdout: true).trim()
-                        echo "Node.js version: ${nodeVersion}"
-                    } else {
-                        echo "Node.js is not installed. Installing Node.js..."
-                        def installNode = sh(script: """
-                            curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-                            sudo apt-get install -y nodejs
-                        """, returnStatus: true)
-                        if (installNode != 0) {
-                            error "Failed to install Node.js"
-                        }
+                    // Check if Node.js is installed
+                    if (sh(script: 'node -v', returnStatus: true) != 0) {
+                        error "Node.js is not installed. Please install Node.js."
                     }
 
-                    def npmInstalled = sh(script: 'npm -v', returnStatus: true)
-                    if (npmInstalled == 0) {
-                        def npmVersion = sh(script: 'npm -v', returnStdout: true).trim()
-                        echo "NPM version: ${npmVersion}"
-                    } else {
-                        echo "NPM is not installed. Installing NPM..."
-                        def installNpm = sh(script: 'sudo apt-get install -y npm', returnStatus: true)
-                        if (installNpm != 0) {
-                            error "Failed to install NPM"
-                        }
+                    // Check if NPM is installed
+                    if (sh(script: 'npm -v', returnStatus: true) != 0) {
+                        error "NPM is not installed. Please install NPM."
                     }
 
-                    def playwrightInstalled = sh(script: 'npx playwright --version', returnStatus: true)
-                    if (playwrightInstalled == 0) {
-                        def playwrightVersion = sh(script: 'npx playwright --version', returnStdout: true).trim()
-                        echo "Playwright version: ${playwrightVersion}"
-                    } else {
-                        echo "Playwright is not installed. Setting up dependencies..."
+                    // Check if Playwright is installed
+                    if (sh(script: 'npx playwright --version', returnStatus: true) != 0) {
+                        echo "Playwright is not installed. Installing dependencies..."
                         sh """
                             cd ${env.REPO_PATH}
                             rm -rf node_modules package-lock.json
-                            npm install
+                            npm install --verbose
                             npx playwright install
-                            npm install @playwright/test@latest
+                            npm install @playwright/test@latest --verbose
                         """
                     }
                 }
             }
         }
+
 
 
         stage('CD: Run Tests') {
