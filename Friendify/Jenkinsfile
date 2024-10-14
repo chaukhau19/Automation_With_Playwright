@@ -81,7 +81,6 @@ pipeline {
 
                     sh """
                         rm -rf ${env.REPO_PATH}/node_modules ${env.REPO_PATH}/package-lock.json && \
-                        cd ${env.REPO_PATH} && \
                         npm install && \
                         npx playwright install && \
                         npm install @playwright/test@latest
