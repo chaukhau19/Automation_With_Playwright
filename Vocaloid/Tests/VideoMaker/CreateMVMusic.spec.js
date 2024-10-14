@@ -4,17 +4,16 @@ import MVScriptsPage from '../../Pages/VideoMaker/CreateMVMusic.js';
 
 let loginUserPage; 
 let mvScriptsPage;
-let browser; 
 
 test.beforeAll(async () => {
-  browser = await chromium.launch({ headless: false }); 
+  const browser = await chromium.launch();
   const page = await browser.newPage();
   loginUserPage = new LoginUserPage(page); 
   mvScriptsPage = new MVScriptsPage(page);
 });
 
 test.afterAll(async () => {
-  await browser.close(); 
+  await loginUserPage.page.context().browser().close(); 
 });
 
 
