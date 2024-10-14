@@ -22,10 +22,12 @@ export const config = {
     numberOfIterations: 1,
 
     //Path for audio
-    Music_Audio_1: "D:/Git/Automation_With_Playwright/Vocaloid/Data/Ca khúc Cám ơn tình yêu.mp3",
+    Music_Audio_1: "./Data/Ca khúc Cám ơn tình yêu.mp3",
     Music_Text_1: "Ca khúc Cám ơn tình yêu.mp3",
-    Music_Audio_2: "D:/Git/Automation_With_Playwright/Vocaloid/Data/Mãi Mãi Là Một Lời Nói Dối.mp3",
-    Music_Audio_3: "D:/Git/Automation_With_Playwright/Vocaloid/Data/Melting Strings.mp3",
+    Music_Audio_2: "./Data/Mãi Mãi Là Một Lời Nói Dối.mp3",
+    Music_Text_2: "Mãi Mãi Là Một Lời Nói Dối.mp3",
+    Music_Audio_3: "./Data/Melting Strings.mp3",
+    Music_Text_3: "Melting Strings.mp3",
 
     //Link YTB
     Youtube_1: 'https://youtu.be/q2YUtZum9wc?si=mFe9GGfunznZaimb',

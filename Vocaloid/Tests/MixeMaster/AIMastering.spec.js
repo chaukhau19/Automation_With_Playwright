@@ -16,8 +16,8 @@ test.afterAll(async () => {
   await loginUserPage.page.context().browser().close(); 
 });
 
-test('Create Lyrics', async () => {
-  console.log('------- TCs Create Lyrics -------');
+test('AI Mastering', async () => {
+  console.log('------- TCs AI Mastering -------');
   await loginUserPage.loginUser(); 
   await AImasteringPage.AIMastering();
 });
