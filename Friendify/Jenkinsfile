@@ -51,55 +51,51 @@ pipeline {
             }
         }
 
-        stage('CI: Verify RPM and Setup Dependencies') {
-            steps {
-                script {
-                    dir("${env.REPO_PATH}") {
-                        def nodePath = sh(script: "which node || echo 'Not_Installed'", returnStdout: true).trim()
-                        def npmPath = sh(script: "which npm || echo 'Not_Installed'", returnStdout: true).trim()
-                        def playwrightPath = sh(script: "which npx || echo 'Not_Installed'", returnStdout: true).trim()
-                        def nodeVersion = sh(script: "node -v || echo 'Not_Installed'", returnStdout: true).trim()
-                        def npmVersion = sh(script: "npm -v || echo 'Not_Installed'", returnStdout: true).trim()
-                        def playwrightInstalled = sh(script: "npm list playwright || echo 'Not_Installed'", returnStdout: true).trim()
-                        def playwrightTestInstalled = sh(script: "npm list @playwright/test || echo 'Not_Installed'", returnStdout: true).trim()
+    stage('CI: Verify RPM and Setup Dependencies') {
+        steps {
+            script {
+                dir("${env.REPO_PATH}") {
+                    def nodePath = sh(script: "which node || echo 'Not_Installed'", returnStdout: true).trim()
+                    def npmPath = sh(script: "which npm || echo 'Not_Installed'", returnStdout: true).trim()
+                    def playwrightPath = sh(script: "which npx || echo 'Not_Installed'", returnStdout: true).trim()
+                    def nodeVersion = sh(script: "node -v || echo 'Not_Installed'", returnStdout: true).trim()
+                    def npmVersion = sh(script: "npm -v || echo 'Not_Installed'", returnStdout: true).trim()
+                    def playwrightInstalled = sh(script: "npm list playwright || echo 'Not_Installed'", returnStdout: true).trim()
+                    def playwrightTestInstalled = sh(script: "npm list @playwright/test || echo 'Not_Installed'", returnStdout: true).trim()
 
-                        echo "Node Version: ${nodeVersion} at ${nodePath}"
-                        echo "NPM Version: ${npmVersion} at ${npmPath}"
-                        echo "Playwright Path: ${playwrightPath}"
-                        echo "Playwright Installed: ${playwrightInstalled}"
-                        echo "@Playwright/Test Installed: ${playwrightTestInstalled}"
+                    echo "Node Version: ${nodeVersion} at ${nodePath}"
+                    echo "NPM Version: ${npmVersion} at ${npmPath}"
+                    echo "Playwright Path: ${playwrightPath}"
+                    echo "Playwright Installed: ${playwrightInstalled}"
+                    echo "@Playwright/Test Installed: ${playwrightTestInstalled}"
 
-                        if (nodeVersion == 'Not_Installed' || npmVersion == 'Not_Installed') {
-                            echo "Node or npm not installed. Installing Node.js and npm..."
+                    if (nodeVersion == 'Not_Installed' || npmVersion == 'Not_Installed') {
+                        error "Node.js or npm is not installed. Please install them before proceeding."
+                    }
+
+                    boolean needsPlaywrightInstall = playwrightInstalled == 'Not_Installed' || playwrightInstalled.contains('invalid')
+                    boolean needsPlaywrightTestInstall = playwrightTestInstalled == 'Not_Installed'
+
+                    if (needsPlaywrightInstall || needsPlaywrightTestInstall) {
+                        echo "Installing missing dependencies..."           
+                        sh "cd ${env.REPO_PATH} && rm -rf node_modules package-lock.json"
+
+                        if (needsPlaywrightInstall) {
+                            echo "Installing Playwright..."
+                            sh "cd ${env.REPO_PATH} && npx playwright install"
                         }
 
-                        boolean needsPlaywrightInstall = playwrightInstalled == 'Not_Installed' || playwrightInstalled.contains('invalid')
-                        boolean needsPlaywrightTestInstall = playwrightTestInstalled == 'Not_Installed'
-
-                        if (needsPlaywrightInstall || needsPlaywrightTestInstall) {
-                            echo "Installing missing dependencies..."
-                            sh "cd ${env.REPO_PATH} && npm ci"  // Clean install
-
-                            // Clean the previous installations
-                            if (needsPlaywrightInstall) {
-                                echo "Removing invalid Playwright version..."
-                                sh "cd ${env.REPO_PATH} && rm -rf node_modules/playwright"
-
-                                echo "Installing Playwright..."
-                                sh "cd ${env.REPO_PATH} && npm install playwright@1.47.2"
-                            }
-
-                            if (needsPlaywrightTestInstall) {
-                                echo "Installing @playwright/test..."
-                                sh "cd ${env.REPO_PATH} && npm install @playwright/test@latest"
-                            }
-                        } else {
-                            echo "All dependencies are already installed."
+                        if (needsPlaywrightTestInstall) {
+                            echo "Installing @playwright/test..." 
+                            sh "cd ${env.REPO_PATH} && npm install @playwright/test@latest"
                         }
+                    } else {
+                        echo "All dependencies are already installed."
                     }
                 }
             }
         }
+    }
 
         stage('CD: Run Tests') {
             steps {
