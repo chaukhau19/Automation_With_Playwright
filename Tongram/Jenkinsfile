@@ -105,16 +105,20 @@ pipeline {
         stage('Parse Test Results') {
             steps {
                 script {
+                    echo "Checking report directory structure..."
+                    sh "echo Current directory: ${env.REPO_PATH}"
+                    sh "ls -la ${env.REPO_PATH}/playwright-report"
+
                     def testResults = parseHtmlReport()
                     if (testResults) {
                         def resultsMessage = """
                         🔧 Jenkins Build for ${env.REPO_NAME} #${env.BUILD_NUMBER}
                         ✅ Status build: ${currentBuild.currentResult}
-                        ✅ Tổng số testcase: ${testResults.total}
-                        ✅ Testcase pass: ${testResults.passed}
+                        Tổng số testcase: ${testResults.total}
+                        Testcase pass: ${testResults.passed}
                         ${testResults.passedTestCases ? " - Testcase ${testResults.passedTestCases}" : ""}
-                        🔗 Testcase fail: ${testResults.failed}
-                        ✅ Passrate: ${testResults.passRate}%
+                        Testcase fail: ${testResults.failed}
+                        Passrate: ${testResults.passRate}%
                         🕒 Time: ${currentBuild.durationString}
                         🔗 Link: ${env.BUILD_URL}
                         """
