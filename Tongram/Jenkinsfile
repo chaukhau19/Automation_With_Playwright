@@ -179,17 +179,21 @@ def sendBuildStatusMessage(statusMessage) {
     TimeZone timeZone = TimeZone.getTimeZone('GMT+7')
     def currentDateTime = new Date().format("yyyy-MM-dd HH:mm:ss", timeZone)
 
-
     def message = """
-    *🔧 Jenkins Build Status*
-    ┌─────────────────────────────────────────────────────┐
-    │ Repository: ${REPO_NAME}                            │
-    │ Build Number: #${env.BUILD_NUMBER}                  │
-    │ Status: ${statusMessage}                            │
-    │ Duration: ${currentBuild.durationString}            │
-    │ Date: ${currentDateTime}                            │
-    │ Link: ${env.BUILD_URL}                              │
-    ├─────────────────────────────────────────────────────┤
+    *🔧 Jenkins Build Status* 🌟
+    ──────────────────────────────────────────────────────
+    | 📁 Repository:      ${REPO_NAME}                    
+    | 🔢 Build Number:    #${env.BUILD_NUMBER}            
+    | ✅ Status:          ${statusMessage}                 
+    | ⏳ Duration:        ${currentBuild.durationString}   
+    | 📅 Date:            ${currentDateTime}               
+    | 🔗 Link:            ${env.BUILD_URL}                 
+    ──────────────────────────────────────────────────────
+    | 📊 Total Test Cases:                                 
+    | ✅ Passed:                     
+    | ❌ Failed:                        
+    ──────────────────────────────────────────────────────
+    🔗 Thank you for your attention! 🚀
     """
 
     sendMessageToTelegram(message)
