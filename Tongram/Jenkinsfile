@@ -182,22 +182,22 @@ def sendBuildStatusMessage(statusMessage) {
     def message = """
     🔧 Jenkins Build Status 🌟
     ───────────────────────────────
-    | 📁 Repository:      ${REPO_NAME}                    
-    | 🔢 Build Number:    #${env.BUILD_NUMBER}            
-    | ✅ Status:          ${statusMessage}                 
-    | ⏳ Duration:        ${currentBuild.durationString}   
-    | 📅 Date:            ${currentDateTime}               
-    | 🔗 Link:            ${env.BUILD_URL}                 
-    ───────────────────────────────
-    | 📊 Total Test Cases:                                 
-    | ✅ Passed:                     
-    | ❌ Failed:                      
+     📁 Repository:      ${REPO_NAME}                    
+     🔢 Build Number:    #${env.BUILD_NUMBER}            
+     ✅ Status:          ${statusMessage}                 
+     ⏳ Duration:        ${currentBuild.durationString}   
+     📅 Date:            ${currentDateTime}               
+     🔗 Link:            ${env.BUILD_URL}                 
+     📊 Total Test Cases:                                 
+     ✅ Passed:                                         
+     ❌ Failed:                                         
     ───────────────────────────────
     🔗 Thank you for your attention! 🚀
     """
 
     sendMessageToTelegram(message)
 }
+
 
 
 def sendMessageToTelegram(message) {
