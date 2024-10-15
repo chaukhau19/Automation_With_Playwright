@@ -55,26 +55,15 @@ pipeline {
                 script {
                     sh """
                         cd ${env.REPO_PATH}
-
                         if [ -d "node_modules" ]; then
                             echo "node_modules already exists. Checking Playwright version..."
-                            chmod +x node_modules/.bin/playwright
-
-                            if npx playwright --version; then
-                                echo "Playwright is already installed. Skipping installation."
-                            else
-                                echo "Playwright is not installed. Installing..."
-                                rm -rf node_modules package-lock.json
-                                npm install
-                                npx playwright install
-                                npm install @playwright/test@latest
-                            fi
                         else
                             echo "node_modules does not exist. Installing dependencies..."
-                            npm install
-                            npx playwright install
-                            npm install @playwright/test@latest
                         fi
+
+                        npm install
+                        npx playwright install
+                        npm install @playwright/test@latest
                     """
                 }
             }
@@ -112,34 +101,15 @@ pipeline {
     post {
         success {
             script {
-                def status = currentBuild.result ?: 'SUCCESS'
-                echo "All test cases passed. Build status: ${status}"
+                sendBuildStatusMessage("✅ Status: ${currentBuild.currentResult}")
                 cleanTemporaryFolder()
-
-                def message = """
-                🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}
-                ✅ Status: ${currentBuild.currentResult}
-                🕒 Time: ${currentBuild.durationString}
-                🔗 Link: ${env.BUILD_URL}
-                """
-
-                sendMessageToTelegram(message)
             }
         }
 
         failure {
             script {
-                def status = currentBuild.result ?: 'FAILURE'
-                echo "Some test cases failed. Build status: ${status}"
+                sendBuildStatusMessage("❌ Status: ${currentBuild.currentResult}")
                 cleanTemporaryFolder()
-
-                def message = """
-                🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}
-                ❌ Status: ${currentBuild.currentResult}
-                🕒 Time: ${currentBuild.durationString}
-                🔗 Link: ${env.BUILD_URL}
-                """
-                sendMessageToTelegram(message)
             }
         }
     }
@@ -148,7 +118,20 @@ pipeline {
 def cleanTemporaryFolder() {
     script {
         echo 'Cleaning up temporary files and directories...'
+        def pathsToCheck = [
+            "${env.REPO_PATH}/node_modules",
+            "${env.REPO_PATH}/package-lock.json",
+            "${env.REPO_PATH}/playwright-report",
+            "${env.REPO_PATH}/Results",
+            "${env.REPO_PATH}/test-results",
+            "${env.REPO_PATH}/temp",
+            "${env.REPO_PATH}/logs"
+        ]
         if (isUnix()) {
+            pathsToCheck.each { path ->
+                sh "if [ -e '${path}' ]; then echo '${path} exists'; fi"
+            }
+
             sh """
                 rm -rf ${env.REPO_PATH}/node_modules 
                 rm -rf ${env.REPO_PATH}/package-lock.json 
@@ -160,6 +143,11 @@ def cleanTemporaryFolder() {
                 find ${env.REPO_PATH} -name '*.log' -delete  
             """
         } else {
+            pathsToCheck.each { path ->
+                def winPath = path.replace("/", "\\")
+                bat "if exist '${winPath}' (echo '${winPath} exists')"
+            }
+
             bat """
                 rmdir /s /q ${env.REPO_PATH}\\node_modules 
                 del /Q ${env.REPO_PATH}\\package-lock.json 
@@ -176,4 +164,14 @@ def cleanTemporaryFolder() {
 
 def sendMessageToTelegram(message) {
     sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
+}
+
+def sendBuildStatusMessage(statusMessage) {
+    def message = """
+    🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}
+    ${statusMessage}
+    🕒 Time: ${currentBuild.durationString}
+    🔗 Link: ${env.BUILD_URL}
+    """
+    sendMessageToTelegram(message)
 }
