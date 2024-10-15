@@ -105,30 +105,39 @@ pipeline {
         stage('Parse Test Results') {
             steps {
                 script {
-                    echo "Checking report directory structure..."
+                    echo "Checking for the index.html report file..."
                     sh "echo Current directory: ${env.REPO_PATH}"
-                    sh "ls -la ${env.REPO_PATH}/playwright-report"
+                    sh "find ${env.REPO_PATH} -name 'index.html'"
 
-                    def testResults = parseHtmlReport()
-                    if (testResults) {
-                        def resultsMessage = """
-                        🔧 Jenkins Build for ${env.REPO_NAME} #${env.BUILD_NUMBER}
-                        ✅ Status build: ${currentBuild.currentResult}
-                        Tổng số testcase: ${testResults.total}
-                        Testcase pass: ${testResults.passed}
-                        ${testResults.passedTestCases ? " - Testcase ${testResults.passedTestCases}" : ""}
-                        Testcase fail: ${testResults.failed}
-                        Passrate: ${testResults.passRate}%
-                        🕒 Time: ${currentBuild.durationString}
-                        🔗 Link: ${env.BUILD_URL}
-                        """
-                        sendMessageToTelegram(resultsMessage)
+                    // Lưu trữ đường dẫn đến tệp index.html
+                    def reportPath = sh(script: "find ${env.REPO_PATH} -name 'index.html'", returnStdout: true).trim()
+
+                    if (reportPath) {
+                        echo "Found report at: ${reportPath}"
+                        def testResults = parseHtmlReport(reportPath)
+                        if (testResults) {
+                            def resultsMessage = """
+                            🔧 Jenkins Build for ${env.REPO_NAME} #${env.BUILD_NUMBER}
+                            ✅ Status build: ${currentBuild.currentResult}
+                            Tổng số testcase: ${testResults.total}
+                            Testcase pass: ${testResults.passed}
+                            ${testResults.passedTestCases ? " - Testcase ${testResults.passedTestCases}" : ""}
+                            Testcase fail: ${testResults.failed}
+                            Passrate: ${testResults.passRate}%
+                            🕒 Time: ${currentBuild.durationString}
+                            🔗 Link: ${env.BUILD_URL}
+                            """
+                            sendMessageToTelegram(resultsMessage)
+                        } else {
+                            echo "No test results found."
+                        }
                     } else {
-                        echo "No test results found."
+                        error "Report file not found."
                     }
                 }
             }
         }
+
     }
 
     post {
@@ -152,7 +161,7 @@ def cleanTemporaryFolder() {
         def pathsToCheck = [
             "${env.REPO_PATH}/node_modules",
             "${env.REPO_PATH}/package-lock.json",
-            "${env.REPO_PATH}/playwright-report",
+            // "${env.REPO_PATH}/playwright-report",
             "${env.REPO_PATH}/Results",
             "${env.REPO_PATH}/test-results",
             "${env.REPO_PATH}/temp",
@@ -166,7 +175,6 @@ def cleanTemporaryFolder() {
             sh """
                 rm -rf ${env.REPO_PATH}/node_modules
                 rm -rf ${env.REPO_PATH}/package-lock.json
-                rm -rf ${env.REPO_PATH}/playwright-report
                 rm -rf ${env.REPO_PATH}/Results
                 rm -rf ${env.REPO_PATH}/test-results
                 rm -rf ${env.REPO_PATH}/temp/*
@@ -197,12 +205,11 @@ def sendMessageToTelegram(message) {
     sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
 }
 
-def parseHtmlReport() {
+def parseHtmlReport(reportPath) {
     def total = 0
     def passed = 0
     def failed = 0
     def passedTestCases = []
-    def reportPath = "${env.REPO_PATH}/playwright-report/index.html"
 
     if (!fileExists(reportPath)) {
         error "Report file not found: ${reportPath}"
@@ -242,3 +249,4 @@ def parseHtmlReport() {
 
     return [total: total, passed: passed, failed: failed, passRate: passRate, passedTestCases: passedTestCases]
 }
+
