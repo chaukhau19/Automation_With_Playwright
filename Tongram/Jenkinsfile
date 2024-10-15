@@ -105,19 +105,22 @@ pipeline {
         stage('Parse Test Results') {
             steps {
                 script {
-                    if (fileExists("${env.REPO_PATH}/playwright-report/index.html")) {
-                        def testResults = parseHtmlReport()
+                    def testResults = parseHtmlReport()
+                    if (testResults) {
                         def resultsMessage = """
-                        📊 Test Results for ${env.REPO_NAME} #${env.BUILD_NUMBER}
-                        Total Test Cases: ${testResults.total}
-                        Passed Test Cases: ${testResults.passed}
-                        Failed Test Cases: ${testResults.failed}
+                        🔧 Jenkins Build for ${env.REPO_NAME} #${env.BUILD_NUMBER}
+                        ✅ Status build: ${currentBuild.currentResult}
+                        ✅ Tổng số testcase: ${testResults.total}
+                        ✅ Testcase pass: ${testResults.passed}
+                        ${testResults.passedTestCases ? " - Testcase ${testResults.passedTestCases}" : ""}
+                        🔗 Testcase fail: ${testResults.failed}
+                        ✅ Passrate: ${testResults.passRate}%
                         🕒 Time: ${currentBuild.durationString}
                         🔗 Link: ${env.BUILD_URL}
                         """
                         sendMessageToTelegram(resultsMessage)
                     } else {
-                        echo "Test report not found, skipping parsing."
+                        echo "No test results found."
                     }
                 }
             }
@@ -127,14 +130,12 @@ pipeline {
     post {
         success {
             script {
-                sendBuildStatusMessage("✅ Status: ${currentBuild.currentResult}")
                 cleanTemporaryFolder()
             }
         }
 
         failure {
             script {
-                sendBuildStatusMessage("❌ Status: ${currentBuild.currentResult}")
                 cleanTemporaryFolder()
             }
         }
@@ -169,7 +170,7 @@ def cleanTemporaryFolder() {
                 find ${env.REPO_PATH} -name '*.log' -delete
             """
         } else {
-            pathsToCheck.each { path ->
+            pathsToCheck.each { path -> 
                 def winPath = path.replace("/", "\\")
                 bat "if exist '${winPath}' (echo '${winPath} exists')"
             }
@@ -192,20 +193,11 @@ def sendMessageToTelegram(message) {
     sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
 }
 
-def sendBuildStatusMessage(statusMessage) {
-    def message = """
-    🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}
-    ${statusMessage}
-    🕒 Time: ${currentBuild.durationString}
-    🔗 Link: ${env.BUILD_URL}
-    """
-    sendMessageToTelegram(message)
-}
-
 def parseHtmlReport() {
     def total = 0
     def passed = 0
     def failed = 0
+    def passedTestCases = []
     def reportPath = "${env.REPO_PATH}/playwright-report/index.html"
 
     if (!fileExists(reportPath)) {
@@ -218,6 +210,7 @@ def parseHtmlReport() {
     def totalMatcher = (htmlContent =~ /Total Tests:\s*(\d+)/)
     def passedMatcher = (htmlContent =~ /Passed:\s*(\d+)/)
     def failedMatcher = (htmlContent =~ /Failed:\s*(\d+)/)
+    def caseMatcher = (htmlContent =~ /<td class="test-name">(.+?)<\/td>/)
 
     if (totalMatcher && totalMatcher.size() > 0) {
         total = totalMatcher[0][1] as int
@@ -236,6 +229,12 @@ def parseHtmlReport() {
     } else {
         error "Failed tests not found in report."
     }
+    
+    caseMatcher.each { match ->
+        passedTestCases << match[1].trim()
+    }
 
-    return [total: total, passed: passed, failed: failed]
+    def passRate = total > 0 ? (passed / total) * 100 : 0
+
+    return [total: total, passed: passed, failed: failed, passRate: passRate, passedTestCases: passedTestCases]
 }
