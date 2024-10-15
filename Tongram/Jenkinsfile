@@ -12,6 +12,7 @@ pipeline {
         JENKINS_CREDENTIALS_ID = '6f5eb65d-9009-4049-8b13-1becf88d77cb'
         chatId = '-1002308985537'
         botToken = '8085219018:AAHSTNao6k9OucZc15LQ476N-039N8NR7WI'
+        RESULTS_FILE = "${env.REPO_PATH}/Results/test_results.json" // Define the results file path
     }
     triggers {
         cron('0 19 * * *')
@@ -55,6 +56,7 @@ pipeline {
                 script {
                     sh """
                         cd ${env.REPO_PATH}
+
                         if [ -d "node_modules" ]; then
                             echo "node_modules already exists. Checking Playwright version..."
                             chmod +x node_modules/.bin/playwright
@@ -86,69 +88,74 @@ pipeline {
                     if (isUnix()) {
                         sh """
                             cd ${env.REPO_PATH}
-                            chmod +x ${FILE_SH}
+                            chmod +x ${FILE_SH} 
                             ./${FILE_SH}
                         """
-                        echo "Executed ${FILE_SH} script."
                     } else {
                         bat """
                             cd ${env.REPO_PATH}
                             ${FILE_BAT}
                         """
-                        echo "Executed ${FILE_BAT} script."
                     }
                 }
                 echo "Tests executed"
             }
         }
 
-        stage('Parse Test Results') {
+        stage('Count Test Results') {
             steps {
                 script {
-                    echo "Checking for the index.html report file..."
-                    sh "echo Current directory: ${env.REPO_PATH}"
-                    sh "find ${env.REPO_PATH} -name 'index.html'"
+                    echo 'Counting test results...'
+                    def resultFilePath = "${env.REPO_PATH}/playwright-report/Results.json"
+                    def results = readJSON(file: resultFilePath)
 
-                    def reportPath = sh(script: "find ${env.REPO_PATH} -name 'index.html'", returnStdout: true).trim()
+                    int passCount = results.passed ?: 0
+                    int failCount = results.failed ?: 0
+                    def totalCases = passCount + failCount
 
-                    if (reportPath) {
-                        echo "Found report at: ${reportPath}"
-                        def testResults = parseHtmlReport(reportPath)
-                        if (testResults) {
-                            def resultsMessage = """
-                            🔧 Jenkins Build for ${env.REPO_NAME} #${env.BUILD_NUMBER}
-                            ✅ Status build: ${currentBuild.currentResult}
-                            Tổng số testcase: ${testResults.total}
-                            Testcase pass: ${testResults.passed}
-                            ${testResults.passedTestCases ? " - Testcase ${testResults.passedTestCases}" : ""}
-                            Testcase fail: ${testResults.failed}
-                            Passrate: ${testResults.passRate}%
-                            🕒 Time: ${currentBuild.durationString}
-                            🔗 Link: ${env.BUILD_URL}
-                            """
-                            sendMessageToTelegram(resultsMessage)
-                        } else {
-                            echo "No test results found."
-                        }
-                    } else {
-                        error "Report file not found."
-                    }
+                    // Extracting the names of passed and failed test cases
+                    def passedCases = results.tests.findAll { it.status == 'passed' }
+                    def failedCases = results.tests.findAll { it.status == 'failed' }
+
+                    def passNames = passedCases.collect { "- Testcase ${it.name}" }.join('\n')
+                    def failNames = failedCases.collect { "- Testcase ${it.name}" }.join('\n')
+
+                    def message = """
+                    🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}
+                    ${currentBuild.currentResult == 'SUCCESS' ? '✅ Status build: SUCCESS' : '❌ Status build: FAILURE'}
+                    Tổng số testcase: ${totalCases}
+                    Testcase pass: ${passCount}
+                    ${passCount > 0 ? passNames : '- Không có test case nào pass'}
+                    Testcase fail: ${failCount}
+                    ${failCount > 0 ? failNames : '- Không có test case nào fail'}
+                    🕒 Time: ${currentBuild.durationString}
+                    🔗 Link: ${env.BUILD_URL}
+                    """
+                    sendMessageToTelegram(message)
                 }
             }
         }
 
+        stage('Archive Test Results') {
+            steps {
+                archiveArtifacts artifacts: '**/playwright-report/**/*', allowEmptyArchive: true
+                echo 'Test results archived.'
+            }
+        }
     }
 
     post {
         success {
             script {
-                // cleanTemporaryFolder()
+                sendBuildStatusMessage("✅ Status: ${currentBuild.currentResult}")
+                cleanTemporaryFolder()
             }
         }
 
         failure {
             script {
-                // cleanTemporaryFolder()
+                sendBuildStatusMessage("❌ Status: ${currentBuild.currentResult}")
+                cleanTemporaryFolder()
             }
         }
     }
@@ -172,30 +179,30 @@ def cleanTemporaryFolder() {
             }
 
             sh """
-                rm -rf ${env.REPO_PATH}/node_modules
-                rm -rf ${env.REPO_PATH}/package-lock.json
-                rm -rf ${env.REPO_PATH}/playwright-report
-                rm -rf ${env.REPO_PATH}/Results
-                rm -rf ${env.REPO_PATH}/test-results
+                rm -rf ${env.REPO_PATH}/node_modules 
+                rm -rf ${env.REPO_PATH}/package-lock.json 
+                rm -rf ${env.REPO_PATH}/playwright-report 
+                rm -rf ${env.REPO_PATH}/Results 
+                rm -rf ${env.REPO_PATH}/test-results 
                 rm -rf ${env.REPO_PATH}/temp/*
-                rm -rf ${env.REPO_PATH}/logs/*
-                find ${env.REPO_PATH} -name '*.log' -delete
+                rm -rf ${env.REPO_PATH}/logs/*        
+                find ${env.REPO_PATH} -name '*.log' -delete  
             """
         } else {
-            pathsToCheck.each { path -> 
+            pathsToCheck.each { path ->
                 def winPath = path.replace("/", "\\")
                 bat "if exist '${winPath}' (echo '${winPath} exists')"
             }
 
             bat """
-                rmdir /s /q ${env.REPO_PATH}\\node_modules
-                del /Q ${env.REPO_PATH}\\package-lock.json
-                rmdir /s /q ${env.REPO_PATH}\\playwright-report
-                rmdir /s /q ${env.REPO_PATH}\\Results
-                rmdir /s /q ${env.REPO_PATH}\\test-results
-                del /Q ${env.REPO_PATH}\\temp\\*
-                del /Q ${env.REPO_PATH}\\logs\\*
-                del /Q ${env.REPO_PATH}\\*.log
+                rmdir /s /q ${env.REPO_PATH}\\node_modules 
+                del /Q ${env.REPO_PATH}\\package-lock.json 
+                rmdir /s /q ${env.REPO_PATH}\\playwright-report 
+                rmdir /s /q ${env.REPO_PATH}\\Results 
+                rmdir /s /q ${env.REPO_PATH}\\test-results 
+                del /Q ${env.REPO_PATH}\\temp\\* 
+                del /Q ${env.REPO_PATH}\\logs\\*           
+                del /Q ${env.REPO_PATH}\\*.log              
             """
         }
     }
@@ -205,48 +212,12 @@ def sendMessageToTelegram(message) {
     sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
 }
 
-def parseHtmlReport(reportPath) {
-    def total = 0
-    def passed = 0
-    def failed = 0
-    def passedTestCases = []
-
-    if (!fileExists(reportPath)) {
-        error "Report file not found: ${reportPath}"
-    }
-    
-    def htmlContent = readFile(reportPath)
-    echo "HTML Content Snippet: ${htmlContent.take(1000)}"
-
-    def totalMatcher = (htmlContent =~ /Total Tests:\s*(\d+)/)
-    def passedMatcher = (htmlContent =~ /Passed:\s*(\d+)/)
-    def failedMatcher = (htmlContent =~ /Failed:\s*(\d+)/)
-    def caseMatcher = (htmlContent =~ /<td class="test-name">(.+?)<\/td>/)
-
-    if (totalMatcher && totalMatcher.size() > 0) {
-        total = totalMatcher[0][1] as int
-    } else {
-        error "Total tests not found in report."
-    }
-    
-    if (passedMatcher && passedMatcher.size() > 0) {
-        passed = passedMatcher[0][1] as int
-    } else {
-        error "Passed tests not found in report."
-    }
-    
-    if (failedMatcher && failedMatcher.size() > 0) {
-        failed = failedMatcher[0][1] as int
-    } else {
-        error "Failed tests not found in report."
-    }
-    
-    caseMatcher.each { match ->
-        passedTestCases << match[1].trim()
-    }
-
-    def passRate = total > 0 ? (passed / total) * 100 : 0
-
-    return [total: total, passed: passed, failed: failed, passRate: passRate, passedTestCases: passedTestCases]
+def sendBuildStatusMessage(statusMessage) {
+    def message = """
+    🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}
+    ${statusMessage}
+    🕒 Time: ${currentBuild.durationString}
+    🔗 Link: ${env.BUILD_URL}
+    """
+    sendMessageToTelegram(message)
 }
-
