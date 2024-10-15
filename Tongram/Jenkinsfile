@@ -12,9 +12,6 @@ pipeline {
         JENKINS_CREDENTIALS_ID = '6f5eb65d-9009-4049-8b13-1becf88d77cb'
         chatId = '-1002308985537'  
         botToken = '8085219018:AAHSTNao6k9OucZc15LQ476N-039N8NR7WI'
-        // No need, because already setup Jenkins Credentials (usernamePassword credential)
-        // GITHUB_USER = 'chaukhau2000@gmail.com'
-        // GITHUB_TOKEN = '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'
     }
     triggers {
         cron('0 19 * * *')
@@ -149,14 +146,31 @@ pipeline {
 }
 
 def cleanTemporaryFolder() {
-    if (isUnix()) {
-        if (fileExists("${SERVER_PATH}/temp")) {
-            sh "rm -rf ${SERVER_PATH}/temp/*"
+    script {
+        echo 'Cleaning up temporary files and directories...'
+        if (isUnix()) {
+            sh """
+                rm -rf ${env.REPO_PATH}/node_modules 
+                rm -rf ${env.REPO_PATH}/package-lock.json 
+                rm -rf ${env.REPO_PATH}/playwright-report 
+                rm -rf ${env.REPO_PATH}/Results 
+                rm -rf ${env.REPO_PATH}/test-results 
+                rm -rf ${env.REPO_PATH}/temp/*
+                rm -rf ${env.REPO_PATH}/logs/*        
+                find ${env.REPO_PATH} -name '*.log' -delete  
+            """
         } else {
-            echo "Temporary folder does not exist."
+            bat """
+                rmdir /s /q ${env.REPO_PATH}\\node_modules 
+                del /Q ${env.REPO_PATH}\\package-lock.json 
+                rmdir /s /q ${env.REPO_PATH}\\playwright-report 
+                rmdir /s /q ${env.REPO_PATH}\\Results 
+                rmdir /s /q ${env.REPO_PATH}\\test-results 
+                del /Q ${env.REPO_PATH}\\temp\\* 
+                del /Q ${env.REPO_PATH}\\logs\\*           
+                del /Q ${env.REPO_PATH}\\*.log              
+            """
         }
-    } else {
-        bat "if exist ${SERVER_PATH}\\temp\\* del /Q ${SERVER_PATH}\\temp\\*"
     }
 }
 
