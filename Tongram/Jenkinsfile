@@ -175,7 +175,7 @@ def cleanTemporaryFolder() {
 }
 
 
-def sendBuildStatusMessage(statusMessage) {
+def sendBuildStatusMessage(statusBuild) {
     TimeZone timeZone = TimeZone.getTimeZone('GMT+7')
     def currentDateTime = new Date().format("yyyy-MM-dd HH:mm:ss", timeZone)
 
@@ -184,7 +184,7 @@ def sendBuildStatusMessage(statusMessage) {
     ═════════════════════════════════════════
     📁 Repository:      ${REPO_NAME}                    
     🔢 Build Number:    #${env.BUILD_NUMBER}            
-    ✅ StatusBuild:     ${statusMessage}  
+    ✅ Build Status:    ${statusBuild}  
     ⏳ Duration:        ${currentBuild.durationString}   
     📅 Date:            ${currentDateTime}               
     🔗 Link:            ${env.BUILD_URL}                 
