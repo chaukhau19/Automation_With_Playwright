@@ -90,35 +90,41 @@ pipeline {
                             chmod +x ${FILE_SH} 
                             ./${FILE_SH}
                         """
+                        echo "Executed ${FILE_SH} script."
                     } else {
                         bat """
                             cd ${env.REPO_PATH}
                             ${FILE_BAT}
                         """
+                        echo "Executed ${FILE_BAT} script."
                     }
                 }
                 echo "Tests executed"
             }
         }
+
         stage('Parse Test Results') {
             steps {
                 script {
-                    def testResults = parseHtmlReport()
-
-                    def resultsMessage = """
-                    📊 Test Results for ${env.REPO_NAME} #${env.BUILD_NUMBER}
-                    Total Test Cases: ${testResults.total}
-                    Passed Test Cases: ${testResults.passed}
-                    Failed Test Cases: ${testResults.failed}
-                    🕒 Time: ${currentBuild.durationString}
-                    🔗 Link: ${env.BUILD_URL}
-                    """
-                
-                    sendMessageToTelegram(resultsMessage)
+                    // Ensure the report is generated before parsing
+                    if (fileExists("${env.REPO_PATH}/playwright-report/index.html")) {
+                        def testResults = parseHtmlReport()
+                        def resultsMessage = """
+                        📊 Test Results for ${env.REPO_NAME} #${env.BUILD_NUMBER}
+                        Total Test Cases: ${testResults.total}
+                        Passed Test Cases: ${testResults.passed}
+                        Failed Test Cases: ${testResults.failed}
+                        🕒 Time: ${currentBuild.durationString}
+                        🔗 Link: ${env.BUILD_URL}
+                        """
+                        
+                        sendMessageToTelegram(resultsMessage)
+                    } else {
+                        echo "Test report not found, skipping parsing."
+                    }
                 }
             }
         }
-
 
     post {
         success {
