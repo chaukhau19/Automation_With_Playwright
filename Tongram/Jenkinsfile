@@ -10,7 +10,7 @@ pipeline {
         SERVER_PROJECT = "Automation_With_Playwright"
         BRANCH_NAME = 'master'
         JENKINS_CREDENTIALS_ID = '6f5eb65d-9009-4049-8b13-1becf88d77cb'
-        chatId = '-1002308985537'  
+        chatId = '-1002308985537'
         botToken = '8085219018:AAHSTNao6k9OucZc15LQ476N-039N8NR7WI'
     }
     triggers {
@@ -55,7 +55,6 @@ pipeline {
                 script {
                     sh """
                         cd ${env.REPO_PATH}
-
                         if [ -d "node_modules" ]; then
                             echo "node_modules already exists. Checking Playwright version..."
                             chmod +x node_modules/.bin/playwright
@@ -87,7 +86,7 @@ pipeline {
                     if (isUnix()) {
                         sh """
                             cd ${env.REPO_PATH}
-                            chmod +x ${FILE_SH} 
+                            chmod +x ${FILE_SH}
                             ./${FILE_SH}
                         """
                         echo "Executed ${FILE_SH} script."
@@ -106,7 +105,6 @@ pipeline {
         stage('Parse Test Results') {
             steps {
                 script {
-                    // Ensure the report is generated before parsing
                     if (fileExists("${env.REPO_PATH}/playwright-report/index.html")) {
                         def testResults = parseHtmlReport()
                         def resultsMessage = """
@@ -117,7 +115,6 @@ pipeline {
                         🕒 Time: ${currentBuild.durationString}
                         🔗 Link: ${env.BUILD_URL}
                         """
-                        
                         sendMessageToTelegram(resultsMessage)
                     } else {
                         echo "Test report not found, skipping parsing."
@@ -125,6 +122,7 @@ pipeline {
                 }
             }
         }
+    }
 
     post {
         success {
@@ -161,14 +159,14 @@ def cleanTemporaryFolder() {
             }
 
             sh """
-                rm -rf ${env.REPO_PATH}/node_modules 
-                rm -rf ${env.REPO_PATH}/package-lock.json 
-                rm -rf ${env.REPO_PATH}/playwright-report 
-                rm -rf ${env.REPO_PATH}/Results 
-                rm -rf ${env.REPO_PATH}/test-results 
+                rm -rf ${env.REPO_PATH}/node_modules
+                rm -rf ${env.REPO_PATH}/package-lock.json
+                rm -rf ${env.REPO_PATH}/playwright-report
+                rm -rf ${env.REPO_PATH}/Results
+                rm -rf ${env.REPO_PATH}/test-results
                 rm -rf ${env.REPO_PATH}/temp/*
-                rm -rf ${env.REPO_PATH}/logs/*        
-                find ${env.REPO_PATH} -name '*.log' -delete  
+                rm -rf ${env.REPO_PATH}/logs/*
+                find ${env.REPO_PATH} -name '*.log' -delete
             """
         } else {
             pathsToCheck.each { path ->
@@ -177,14 +175,14 @@ def cleanTemporaryFolder() {
             }
 
             bat """
-                rmdir /s /q ${env.REPO_PATH}\\node_modules 
-                del /Q ${env.REPO_PATH}\\package-lock.json 
-                rmdir /s /q ${env.REPO_PATH}\\playwright-report 
-                rmdir /s /q ${env.REPO_PATH}\\Results 
-                rmdir /s /q ${env.REPO_PATH}\\test-results 
-                del /Q ${env.REPO_PATH}\\temp\\* 
-                del /Q ${env.REPO_PATH}\\logs\\*           
-                del /Q ${env.REPO_PATH}\\*.log              
+                rmdir /s /q ${env.REPO_PATH}\\node_modules
+                del /Q ${env.REPO_PATH}\\package-lock.json
+                rmdir /s /q ${env.REPO_PATH}\\playwright-report
+                rmdir /s /q ${env.REPO_PATH}\\Results
+                rmdir /s /q ${env.REPO_PATH}\\test-results
+                del /Q ${env.REPO_PATH}\\temp\\*
+                del /Q ${env.REPO_PATH}\\logs\\*
+                del /Q ${env.REPO_PATH}\\*.log
             """
         }
     }
@@ -208,40 +206,31 @@ def parseHtmlReport() {
     def total = 0
     def passed = 0
     def failed = 0
-
     def reportPath = "${env.REPO_PATH}/playwright-report/index.html"
 
-    // Check if the report file exists
     if (!fileExists(reportPath)) {
         error "Report file not found: ${reportPath}"
     }
     
-    // Read the HTML content of the report
     def htmlContent = readFile(reportPath)
-    
-    // Log the first 1000 characters of the HTML content for debugging
     echo "HTML Content Snippet: ${htmlContent.take(1000)}"
 
-    // Use regex to find the necessary metrics
     def totalMatcher = (htmlContent =~ /Total Tests:\s*(\d+)/)
     def passedMatcher = (htmlContent =~ /Passed:\s*(\d+)/)
     def failedMatcher = (htmlContent =~ /Failed:\s*(\d+)/)
 
-    // Capture total tests
     if (totalMatcher && totalMatcher.size() > 0) {
         total = totalMatcher[0][1] as int
     } else {
         error "Total tests not found in report."
     }
     
-    // Capture passed tests
     if (passedMatcher && passedMatcher.size() > 0) {
         passed = passedMatcher[0][1] as int
     } else {
         error "Passed tests not found in report."
     }
     
-    // Capture failed tests
     if (failedMatcher && failedMatcher.size() > 0) {
         failed = failedMatcher[0][1] as int
     } else {
