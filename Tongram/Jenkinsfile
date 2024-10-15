@@ -17,7 +17,7 @@ environment {
     triggers {
         cron('0 19 * * *')
     }
-
+    
     stages {
         stage('CI: Checkout Code') {
             steps {
@@ -56,9 +56,11 @@ environment {
                 script {
                     sh """
                         cd ${env.REPO_PATH}
+
                         if [ -d "node_modules" ]; then
                             echo "node_modules already exists. Checking Playwright version..."
                             chmod +x node_modules/.bin/playwright
+
                             if npx playwright --version; then
                                 echo "Playwright is already installed. Skipping installation."
                             else
@@ -86,12 +88,13 @@ environment {
                     if (isUnix()) {
                         sh """
                             cd ${env.REPO_PATH}
-                            npx playwright test TG_VerifyPoint.spec.js --reporter=html,json --output=./Results --workers=1
+                            chmod +x ${FILE_SH} 
+                            ./${FILE_SH}
                         """
                     } else {
                         bat """
                             cd ${env.REPO_PATH}
-                            npx playwright test TG_VerifyPoint.spec.js --reporter=html,json --output=./Results --workers=1
+                            ${FILE_BAT}
                         """
                     }
                 }
@@ -99,29 +102,10 @@ environment {
             }
         }
 
-
         stage('Archive Test Results') {
             steps {
                 archiveArtifacts artifacts: '**/playwright-report/**/*', allowEmptyArchive: true
                 echo 'Test results archived.'
-            }
-        }
-
-        stage('Process Test Results') {
-            steps {
-                script {
-                    // Read test results from the JSON file
-                    def jsonFileContent = readFile(file: RESULTS_FILE)
-                    def testResults = readJSON(text: jsonFileContent)
-                    
-                    // Count passed and failed tests
-                    def passedCount = testResults.passed
-                    def failedCount = testResults.failed
-                    def totalCount = passedCount + failedCount
-                    
-                    // Send message to Telegram
-                    sendTestResultsMessage(passedCount, failedCount, totalCount)
-                }
             }
         }
     }
@@ -199,17 +183,6 @@ def sendBuildStatusMessage(statusMessage) {
     🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}
     ${statusMessage}
     🕒 Time: ${currentBuild.durationString}
-    🔗 Link: ${env.BUILD_URL}
-    """
-    sendMessageToTelegram(message)
-}
-
-def sendTestResultsMessage(passed, failed, total) {
-    def message = """
-    🧪 Test Results for ${REPO_NAME} #${env.BUILD_NUMBER}
-    ✅ Passed: ${passed}
-    ❌ Failed: ${failed}
-    📊 Total: ${total}
     🔗 Link: ${env.BUILD_URL}
     """
     sendMessageToTelegram(message)
