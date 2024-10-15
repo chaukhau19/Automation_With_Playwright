@@ -17,7 +17,7 @@ pipeline {
         // GITHUB_TOKEN = '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'
     }
     triggers {
-        cron('0 2 * * *')
+        cron('0 19 * * *')
     }
 
     stages {

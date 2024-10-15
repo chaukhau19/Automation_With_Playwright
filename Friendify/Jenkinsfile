@@ -14,7 +14,7 @@ pipeline {
         botToken = '8085219018:AAHSTNao6k9OucZc15LQ476N-039N8NR7WI'
     }
     triggers {
-        cron('0 1 * * *')
+       cron('0 18 * * *')
     }
 
     stages {
