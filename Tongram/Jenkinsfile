@@ -174,11 +174,8 @@ def cleanTemporaryFolder() {
     }
 }
 
-def sendMessageToTelegram(message) {
-    sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
-}
 
-def sendBuildStatusMessage(statusMessage, totalTestCases, passedTestCases, failedTestCases) {
+def sendBuildStatusMessage(statusMessage) {
     TimeZone timeZone = TimeZone.getTimeZone('GMT+7')
     def currentDateTime = new Date().format("yyyy-MM-dd HH:mm:ss", timeZone)
 
@@ -192,11 +189,15 @@ def sendBuildStatusMessage(statusMessage, totalTestCases, passedTestCases, faile
     │ Date: ${currentDateTime}                    │
     │ Link: ${env.BUILD_URL}                      │
     ├─────────────────────────────────────────────┤
-    │ Total number of test cases: ${totalTestCases}   │
-    │ Testcases passed: ${passedTestCases}        │
-    │ Testcases failed: ${failedTestCases}        │
+    │ Total number of test cases:                 │
+    │ Testcases passed:                           │
+    │ Testcases failed:                           │
     └─────────────────────────────────────────────┘
     """
 
     sendMessageToTelegram(message)
+}
+
+def sendMessageToTelegram(message) {
+    sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
 }
