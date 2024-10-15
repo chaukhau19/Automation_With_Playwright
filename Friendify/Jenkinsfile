@@ -142,13 +142,6 @@ pipeline {
                 sendMessageToTelegram(message)
             }
         }
-
-        always {
-            script {
-                echo "Cleaning up repository..."
-                // cleanRepository()
-            }
-        }
     }
 }
 
@@ -166,13 +159,4 @@ def cleanTemporaryFolder() {
 
 def sendMessageToTelegram(message) {
     sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
-}
-
-
-def cleanRepository() {
-    sh """
-        cd ${env.REPO_PATH}
-        npx playwright uninstall
-        npm uninstall @playwright/test@latest
-    """
 }
