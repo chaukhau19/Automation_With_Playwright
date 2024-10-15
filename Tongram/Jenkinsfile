@@ -63,11 +63,7 @@ pipeline {
                             if npx playwright --version; then
                                 echo "Playwright is already installed. Skipping installation."
                             else
-                                echo "Playwright is not installed. Installing..."
-                                rm -rf node_modules package-lock.json
-                                npm install
-                                npx playwright install
-                                npm install @playwright/test@latest
+                                error "Playwright is not installed. Please check."
                             fi
                         else
                             echo "node_modules does not exist. Installing dependencies..."
@@ -98,6 +94,28 @@ pipeline {
                     }
                 }
                 echo "Tests executed"
+            }
+        }
+
+        stage('Parse Test Results') {
+            steps {
+                script {
+                    // Lấy thông tin kết quả test case từ HTML
+                    def testResults = parseHtmlReport()
+                
+                    // Tạo thông điệp để gửi lên Telegram
+                    def resultsMessage = """
+                    📊 Test Results for ${env.REPO_NAME} #${env.BUILD_NUMBER}
+                    Total Test Cases: ${testResults.total}
+                    Passed Test Cases: ${testResults.passed}
+                    Failed Test Cases: ${testResults.failed}
+                    🕒 Time: ${currentBuild.durationString}
+                    🔗 Link: ${env.BUILD_URL}
+                    """
+                
+                    // Gửi thông điệp lên Telegram
+                    sendMessageToTelegram(resultsMessage)
+                }
             }
         }
 
@@ -139,7 +157,7 @@ def cleanTemporaryFolder() {
             "${env.REPO_PATH}/logs"
         ]
         if (isUnix()) {
-            pathsToCheck.each { path ->
+            pathsToCheck.each { path -> 
                 sh "if [ -e '${path}' ]; then echo '${path} exists'; fi"
             }
 
@@ -154,7 +172,7 @@ def cleanTemporaryFolder() {
                 find ${env.REPO_PATH} -name '*.log' -delete  
             """
         } else {
-            pathsToCheck.each { path ->
+            pathsToCheck.each { path -> 
                 def winPath = path.replace("/", "\\")
                 bat "if exist '${winPath}' (echo '${winPath} exists')"
             }
@@ -165,24 +183,57 @@ def cleanTemporaryFolder() {
                 rmdir /s /q ${env.REPO_PATH}\\playwright-report 
                 rmdir /s /q ${env.REPO_PATH}\\Results 
                 rmdir /s /q ${env.REPO_PATH}\\test-results 
-                del /Q ${env.REPO_PATH}\\temp\\* 
-                del /Q ${env.REPO_PATH}\\logs\\*           
-                del /Q ${env.REPO_PATH}\\*.log              
+                del /Q ${env.REPO_PATH}\\temp\\*    
+                del /Q ${env.REPO_PATH}\\logs\\* 
+                forfiles /p ${env.REPO_PATH} /s /m *.log /c "cmd /c del @path" 
             """
         }
     }
 }
 
-def sendMessageToTelegram(message) {
-    sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
+def parseHtmlReport() {
+    def total = 0
+    def passed = 0
+    def failed = 0
+
+    def reportPath = "${env.REPO_PATH}/playwright-report/index.html"
+    
+    if (!fileExists(reportPath)) {
+        error "Report file not found: ${reportPath}"
+    }
+    
+    def htmlContent = readFile(reportPath)
+    
+    def totalMatcher = (htmlContent =~ /Total Tests:\s*(\d+)/)
+    def passedMatcher = (htmlContent =~ /Passed:\s*(\d+)/)
+    def failedMatcher = (htmlContent =~ /Failed:\s*(\d+)/)
+
+    if (totalMatcher) {
+        total = totalMatcher[0][1] as int
+    }
+    if (passedMatcher) {
+        passed = passedMatcher[0][1] as int
+    }
+    if (failedMatcher) {
+        failed = failedMatcher[0][1] as int
+    }
+    
+    return [total: total, passed: passed, failed: failed]
 }
 
-def sendBuildStatusMessage(statusMessage) {
-    def message = """
-    🔧 Jenkins Build for ${REPO_NAME} #${env.BUILD_NUMBER}
-    ${statusMessage}
-    🕒 Time: ${currentBuild.durationString}
-    🔗 Link: ${env.BUILD_URL}
+def sendMessageToTelegram(String message) {
+    def url = "https://api.telegram.org/bot${botToken}/sendMessage"
+    def json = """{
+        "chat_id": "${chatId}",
+        "text": "${message}",
+        "parse_mode": "Markdown"
+    }"""
+
+    sh """
+        curl -X POST -H "Content-Type: application/json" -d '${json}' '${url}'
     """
+}
+
+def sendBuildStatusMessage(String message) {
     sendMessageToTelegram(message)
 }
