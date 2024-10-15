@@ -9,8 +9,8 @@ pipeline {
         SERVER_PATH = "Automation_With_Playwright/${REPO_NAME}"
         BRANCH_NAME = 'master'
         JENKINS_CREDENTIALS_ID = '6f5eb65d-9009-4049-8b13-1becf88d77cb'
-        chatId = '6262959786'  
-        botToken = '7348177664:AAFjWWZTUWudm2Lc6Uwb5fNe3i8Ajtq0kS0' 
+        chatId = '-1002308985537'  
+        botToken = '8085219018:AAHSTNao6k9OucZc15LQ476N-039N8NR7WI' 
     }
     triggers {
         cron('0 20 * * *')
