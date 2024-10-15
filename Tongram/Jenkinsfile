@@ -184,7 +184,7 @@ def sendBuildStatusMessage(statusBuild) {
     ═════════════════════════════════════════
     📁 Repository:      ${REPO_NAME}                    
     🔢 Build Number:    #${env.BUILD_NUMBER}            
-    ✅ Build Status:    ${statusBuild}  
+    Build Status:       ${statusBuild}  
     ⏳ Duration:        ${currentBuild.durationString}   
     📅 Date:            ${currentDateTime}               
     🔗 Link:            ${env.BUILD_URL}                 
