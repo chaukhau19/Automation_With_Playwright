@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        docker { image 'mcr.microsoft.com/playwright:v1.47.2-jammy' }  
+        docker { image 'mcr.microsoft.com/playwright:v1.48.0-jammy' }  
     }
     environment {
         REPO_NAME = 'Vocaloid'
@@ -112,7 +112,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('CD: Run Tests') {
             steps {
                 echo 'Starting Tests'
