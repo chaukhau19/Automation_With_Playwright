@@ -1,40 +1,83 @@
 import { chromium, test } from '@playwright/test';
 import { ActionsPage } from '../Pages/FD_Actions';
 
+let browser;
 let actionsPage;
 
 test.beforeAll(async () => {
-  const browser = await chromium.launch();
+  browser = await chromium.launch();
+});
+
+test.afterAll(async () => {
+  await browser.close();
+});
+
+test.beforeEach(async () => {
   const page = await browser.newPage();
   actionsPage = new ActionsPage(page);
 });
 
-test.afterAll(async () => {
-  await actionsPage.page.close();
-  const browser = actionsPage.page.context().browser();
-  await browser.close();
+test.afterEach(async () => {
+  try {
+    await actionsPage.page.close();
+  } catch (error) {
+    console.error('Error closing the page:', error);
+  }
 });
 
-test('Login with Account and Perform First and Second Chats', async () => {
-  console.log('------- TCs Login with Account and Perform First and Second Chats -------');
+test('Perform First and Second Chats', async () => {
+  console.log('------- TCs Perform First and Second Chats -------');
   await actionsPage.loginWithAccount();
+  console.log('------- User Chat with Speed -------');
   await actionsPage.performFirstChat();
+  console.log('------- User Chat with Intelligent -------');
   await actionsPage.performSecondChat();
   await actionsPage.performOtherActions();
 });
 
-test('Login with Account and User Chat', async () => {
-  console.log('------- TCs Login with Account and User Chat -------');
-  //Small Happiness
-  //Big Happiness
-  //Enter your amount
+test('User Create Image Normal', async () => {
+  console.log('------- TCs User Create Image Normal -------');
+  await actionsPage.loginWithAccount();
+  await actionsPage.generateImage_1();
 });
-test('Login with Account and Generate Docs', async () => {
-  console.log('------- TCs Login with Account and Generate Docs -------');
+
+test('User Create Image Pro', async () => {
+  console.log('------- TCs User Create Image Pro -------');
+  await actionsPage.loginWithAccount();
+  await actionsPage.generateImage_2();
 });
-test('Login with Account and Generate Audio', async () => {
-  console.log('------- TCs Login with Account and Generate Audio -------');
+
+test('Generate Docs', async () => {
+  console.log('------- TCs Generate Docs -------');
+  await actionsPage.loginWithAccount();
+  await actionsPage.generateDoc();
+  await actionsPage.deleteGenerateDocs();
 });
-test('Login with Account and Generate Image', async () => {
-  console.log('------- TCs Login with Account and Generate Image -------');
+
+test('Generate Audio', async () => {
+  console.log('------- TCs Generate Audio -------');
+  await actionsPage.loginWithAccount();
+  await actionsPage.generateAudio();
+  await actionsPage.deleteGenerateAudio();
+});
+
+test('Generate Image Summary', async () => {
+  console.log('------- TCs Generate Image Summary -------');
+  await actionsPage.loginWithAccount();
+  await actionsPage.generateImage_Summary();
+  await actionsPage.deleteGenerateImage_Summary();
+});
+
+test('Generate Image Object', async () => {
+  console.log('------- TCs Generate Image Object -------');
+  await actionsPage.loginWithAccount();
+  await actionsPage.generateImage_Object();
+  await actionsPage.deleteGenerateImage_Object();
+});
+
+test('Generate Image Text', async () => {
+  console.log('------- TCs Generate Image Text -------');
+  await actionsPage.loginWithAccount();
+  await actionsPage.generateImage_Text();
+  await actionsPage.deleteGenerateImage_Text();
 });

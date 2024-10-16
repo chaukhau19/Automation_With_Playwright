@@ -1,18 +1,9 @@
 // @ts-check
-import { writeFileSync, appendFileSync } from 'fs';
-import { join } from 'path';
 import { defineConfig, devices } from '@playwright/test';
 // const fs = require('fs');
 // const path = require('path');
 // const { defineConfig, devices } = require('@playwright/test');
 
-
-const COLORS = {
-  YELLOW: '\x1b[33m',
-  GREEN: '\x1b[32m',
-  RED: '\x1b[31m',
-  RESET: '\x1b[0m'
-};
 
 /**
  * Read environment variables from file.

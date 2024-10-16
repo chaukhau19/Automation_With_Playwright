@@ -1,6 +1,6 @@
 import { test } from '@playwright/test';
 import { ActionsPage } from '../Pages/BS_Actions'; // Đảm bảo đường dẫn chính xác
-import { config } from '../Utils/BS_config'; // Đảm bảo đường dẫn chính xác
+import { config } from '../Utils/BS_config';
 
 test.describe('Busai Actions', () => {
   test('Group Busai', async ({ browser }) => {
@@ -11,12 +11,10 @@ test.describe('Busai Actions', () => {
       });
 
       await test.step('AI Chat GPT 1', async () => {
-        // await actionsPage.openWithSavedCookies();
         await actionsPage.performFirstChat(config.message1); 
       });
 
       await test.step('AI Chat GPT 2', async () => {
-        // await actionsPage.openWithSavedCookies();
         await actionsPage.performSecondChat(config.message2); 
       });
 

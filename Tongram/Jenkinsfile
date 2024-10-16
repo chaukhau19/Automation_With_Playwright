@@ -89,6 +89,7 @@ environment {
 
                         if [ ! -d "node_modules" ]; then
                             echo "node_modules does not exist. Installing dependencies..."
+                            chmod +x node_modules/.bin/playwright
                             npm install
                         fi
                         
@@ -155,7 +156,6 @@ def cleanTemporaryFolder() {
     script {
         echo 'Cleaning up temporary files and directories...'
         def pathsToCheck = [
-            "${env.REPO_PATH}/node_modules",
             "${env.REPO_PATH}/package-lock.json",
             "${env.REPO_PATH}/playwright-report",
             "${env.REPO_PATH}/Results",
@@ -169,7 +169,6 @@ def cleanTemporaryFolder() {
             }
 
             sh """
-                rm -rf ${env.REPO_PATH}/node_modules 
                 rm -rf ${env.REPO_PATH}/package-lock.json 
                 rm -rf ${env.REPO_PATH}/playwright-report 
                 rm -rf ${env.REPO_PATH}/Results 
@@ -185,7 +184,6 @@ def cleanTemporaryFolder() {
             }
 
             bat """
-                rmdir /s /q ${env.REPO_PATH}\\node_modules 
                 del /Q ${env.REPO_PATH}\\package-lock.json 
                 rmdir /s /q ${env.REPO_PATH}\\playwright-report 
                 rmdir /s /q ${env.REPO_PATH}\\Results 

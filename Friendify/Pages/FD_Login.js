@@ -6,7 +6,7 @@ export class LoginPage {
   constructor(page) {
     this.page = page;
   }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////
   async saveCookies() {
     const cookies = await this.page.context().cookies();
     const filePath = path.join(config.cookiesDir, config.cookiesFile);
@@ -15,31 +15,32 @@ export class LoginPage {
     }
     fs.writeFileSync(filePath, JSON.stringify(cookies, null, 2));
   }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////
   async loginWithAccount() {
-    await this.page.goto(config.url);
+    await this.page.goto(config.url);  
     await this.page.getByText('Login').click();
-
     await this.page.getByPlaceholder('Email...').fill(config.email);
+    console.log(`Entered email: ${config.email}`);
     await this.page.getByPlaceholder('Password...').fill(config.password);
+    console.log(`Entered password: ${config.password}`);
     await this.page.getByRole('button', { name: 'Login' }).click();
-
+  
     const logoVisible = await this.page.locator("//img[@alt='avatar']").isVisible();
-
     if (!logoVisible) {
-      console.log('Login failed. Please check your credentials or account status.');
+      console.log('❌ Login failed. Please check your credentials or account status.');
       throw new Error('Login failed.');
     }
-    
+    console.log('✅ Login successfully');
     await this.page.getByRole('button', { name: 'avatar' }).click();
-    await this.page.getByText('Logout').click();
+    await this.page.getByText('Logout').click();  
     await this.page.getByRole('button', { name: 'Confirm' }).click();
+    console.log('✅ Logout successfully');
   }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////
   async loginWithGoogle(skipReferral) {
     await this.page.goto(config.url);
     await this.page.getByText('Login').click();
-  
+    
     const popupPromise = this.page.waitForEvent('popup');
     await this.page.getByText('Continue with Google').click();
     const popup = await popupPromise;
@@ -49,14 +50,23 @@ export class LoginPage {
     await popup.getByLabel('Enter your password').fill(config.googlePassword);
     await popup.getByRole('button', { name: 'Next' }).click();
 
-    const logoVisible = await this.page.locator("//img[@alt='avatar']").isVisible();
-
-    if (!logoVisible) {
-      console.log('Login failed. Please check your credentials or account status.');
-      throw new Error('Login failed.'); 
-    } else {
-      await this.saveCookies(); 
+    try {
+      const skipButton = await this.page.getByRole('button', { name: 'Skip' });
+      await skipButton.click();
+      console.log('⏭️   Skip button clicked');
+    } catch (error) {
+      console.log('⏭️   Skip button not found');
     }
-  }  
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    const logoVisible = await this.page.locator("//img[@alt='avatar']").isVisible();
+    if (!logoVisible) {
+      console.log('❌ Login failed. Please check your credentials or account status.');
+      throw new Error('Login failed.');
+    }
+    console.log('✅ Login successfully');
+    await this.page.getByRole('button', { name: 'avatar' }).click();
+    await this.page.getByText('Logout').click();  
+    await this.page.getByRole('button', { name: 'Confirm' }).click();
+    console.log('✅ Logout successfully');
+  }
 }

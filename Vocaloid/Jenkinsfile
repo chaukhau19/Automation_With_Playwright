@@ -120,6 +120,7 @@ pipeline {
 
                         if [ ! -d "node_modules" ]; then
                             echo "node_modules does not exist. Installing dependencies..."
+                            chmod +x node_modules/.bin/playwright
                             npm install
                         fi
                         
