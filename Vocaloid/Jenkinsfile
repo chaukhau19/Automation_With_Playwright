@@ -91,27 +91,30 @@ pipeline {
 
                         if [ -d "node_modules" ]; then
                             echo "node_modules already exists. Checking Playwright version..."
-                            chmod +x node_modules/.bin/playwright
-
                             if npx playwright --version; then
-                                echo "Playwright is already installed. Skipping installation."
+                                echo "Playwright is already installed. Checking if browsers are installed..."
+                                if [ ! -d "ms-playwright" ] || ! npx playwright show-browsers | grep 'chromium'; then
+                                    echo "Playwright browsers are missing. Installing browsers..."
+                                    npx playwright install
+                                else
+                                    echo "Playwright browsers are already installed. Skipping installation."
+                                fi
                             else
-                                echo "Playwright is not installed. Installing..."
+                                echo "Playwright is not installed. Installing Playwright and browsers..."
                                 rm -rf node_modules package-lock.json
                                 npm install
                                 npx playwright install
-                                npm install @playwright/test@latest
                             fi
                         else
-                            echo "node_modules does not exist. Installing dependencies..."
+                            echo "node_modules does not exist. Installing dependencies and Playwright browsers..."
                             npm install
                             npx playwright install
-                            npm install @playwright/test@latest
                         fi
                     """
                 }
             }
         }
+
 
         stage('CD: Run Tests') {
             steps {
