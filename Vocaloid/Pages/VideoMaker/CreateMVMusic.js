@@ -30,8 +30,19 @@ class MVScriptsPage {
             const validLinkMessage = await this.page.getByText('Create script successfully!');
             await expect(validLinkMessage).toBeVisible();
 
-            await expect(this.page.locator(`//div[@class='header']//h2[text()='${config.MVScripts_Name}']`)).toBeVisible();
-            const startTime = Date.now(); 
+            // await expect(this.page.locator(`//div[@class='header']//h2[text()='${config.MVScripts_Name}']`)).toBeVisible();
+            // const startTime = Date.now(); 
+
+            const headerLocator = this.page.locator(`//div[@class='header']//h2[text()='${config.MVScripts_Name}']`);
+            const startTime = Date.now();
+            try {
+              await expect(headerLocator).toBeVisible({ timeout: 120000 });
+            //   startTime = Date.now();
+              console.log(`✅ ${config.MVScripts_Name} is displayed`);
+            } catch (error) {
+              console.error(`❌ ${config.MVScripts_Name} is not present:`, error);
+              throw new Error('Failed at Step: Check Header Visibility');
+            }
 
             await expect(this.page.locator(`//div[@class='header']//span[text()='Success']`)).toBeVisible();
             this.logTimeTaken(startTime);

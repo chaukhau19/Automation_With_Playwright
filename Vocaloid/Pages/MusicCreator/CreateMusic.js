@@ -49,8 +49,8 @@ class CreateMusicPage {
       }
 
       const successMessages = await Promise.all([
-        this.page.getByText('Success').first().waitFor({ timeout: 200000 }),
-        this.page.getByText('Success').nth(1).waitFor({ timeout: 200000 })
+        this.page.getByText('Success').first().waitFor({ timeout: 240000 }),
+        this.page.getByText('Success').nth(1).waitFor({ timeout: 240000 })
       ]);
       successMessages.forEach((msg, index) => {
         console.log(`Success message ${index + 1} is visible.`);

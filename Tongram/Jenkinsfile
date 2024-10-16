@@ -181,14 +181,14 @@ def sendBuildStatusMessage(statusBuild) {
 
     def message = """
     🔧 Jenkins Build Status 🌟
-    ═════════════════════════════════════════
+    ══════════════════════
     📁 Repository:      ${REPO_NAME}                    
     🔢 Build Number:    #${env.BUILD_NUMBER}            
     Build Status:       ${statusBuild}  
     ⏳ Duration:        ${currentBuild.durationString}   
     📅 Date:            ${currentDateTime}               
     🔗 Link:            ${env.BUILD_URL}                 
-    ═════════════════════════════════════════
+    ══════════════════════
     🔗 Thank you for your attention! 🚀
     """
 

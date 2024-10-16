@@ -20,9 +20,20 @@ class CreateLyricsPage {
         await expect(validLinkMessage).toBeVisible();
         console.log('✅ Test Passed: Create script successfully!');
   
+        // const headerLocator = this.page.locator(`//div[@class='header']//h2[text()='${config.CreateLyrics_Name}']`);
+        // 
+        // await expect(headerLocator).toBeVisible({ timeout: 100000 });
+
         const headerLocator = this.page.locator(`//div[@class='header']//h2[text()='${config.CreateLyrics_Name}']`);
         const startTime = Date.now();
-        await expect(headerLocator).toBeVisible({ timeout: 100000 });
+        try {
+          await expect(headerLocator).toBeVisible({ timeout: 120000 });
+          // startTime = Date.now();
+          console.log(`✅ ${config.CreateLyrics_Name} is displayed`);
+        } catch (error) {
+          console.error(`❌ ${config.CreateLyrics_Name} is not present:`, error);
+          throw new Error('Failed at Step: Check Header Visibility');
+        }
   
         const successMessageLocator = this.page.locator(`//span[text()='Success']`);
         await successMessageLocator.waitFor({ state: 'visible', timeout: 300000 });

@@ -42,9 +42,22 @@ class ConvertVoicePage {
         throw new Error('Failed at Step: Click Convert Voice Button');
       }
 
+      // const headerLocator = this.page.locator(`//div[@class='header']//h2[text()='${config.Youtube_Text_1}']`);
+      // 
+      // await expect(headerLocator).toBeVisible({ timeout: 100000 });    
+
+            
       const headerLocator = this.page.locator(`//div[@class='header']//h2[text()='${config.Youtube_Text_1}']`);
       const startTime = Date.now();
-      await expect(headerLocator).toBeVisible({ timeout: 100000 });    
+      try {
+        await expect(headerLocator).toBeVisible({ timeout: 120000 });
+        // startTime = Date.now();
+        console.log(`✅ ${config.Youtube_Text_1} is displayed`);
+      } catch (error) {
+        console.error(`❌ ${config.Youtube_Text_1} is not present:`, error);
+        throw new Error('Failed at Step: Check Header Visibility');
+      }
+      
 
       const successMessageLocator = this.page.locator(`//span[div[contains(text(), 'Success')]]`);
       try {

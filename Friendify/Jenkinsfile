@@ -14,7 +14,7 @@ pipeline {
         botToken = '8085219018:AAHSTNao6k9OucZc15LQ476N-039N8NR7WI'
     }
     triggers {
-       cron('0 18 * * *')
+        cron('0 18 * * *')
     }
 
     stages {
@@ -183,17 +183,16 @@ def sendBuildStatusMessage(statusBuild) {
 
     def message = """
     🔧 Jenkins Build Status 🌟
-    ═════════════════════════════════════════
+    ══════════════════════
     📁 Repository:      ${REPO_NAME}                    
     🔢 Build Number:    #${env.BUILD_NUMBER}            
     Build Status:       ${statusBuild}  
     ⏳ Duration:        ${currentBuild.durationString}   
     📅 Date:            ${currentDateTime}               
     🔗 Link:            ${env.BUILD_URL}                 
-    ═════════════════════════════════════════
+    ══════════════════════
     🔗 Thank you for your attention! 🚀
     """
 
     sendMessageToTelegram(message)
 }
-

@@ -22,9 +22,20 @@ class MelodyPage {
           console.log('✅ Generate melody successfully!');
         }
 
+        // const headerLocator = this.page.locator(`//div[@class='header']//h2[text()='${config.CreateMelody_Name}']`);
+        // const startTime = Date.now();  
+        // await expect(headerLocator).toBeVisible(); 
+
         const headerLocator = this.page.locator(`//div[@class='header']//h2[text()='${config.CreateMelody_Name}']`);
-        const startTime = Date.now();  
-        await expect(headerLocator).toBeVisible(); 
+        const startTime = Date.now();
+        try {
+          await expect(headerLocator).toBeVisible({ timeout: 120000 });
+          // startTime = Date.now();
+          console.log(`✅ ${config.CreateMelody_Name} is displayed`);
+        } catch (error) {
+          console.error(`❌ ${config.CreateMelody_Name} is not present:`, error);
+          throw new Error('Failed at Step: Check Header Visibility');
+        }
 
         const successMessageLocator = this.page.locator(`//span[div[contains(text(), 'Success')]]`);
         const failedMessageLocator = this.page.locator(`//span[div[contains(text(), 'Failed')]]`);

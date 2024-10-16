@@ -24,7 +24,7 @@ class MusicSplitterPage {
       throw new Error('Failed at Step: Click Music Splitter Link');
     }
 
-    const youtubeLink = config.Youtube_1;
+    const youtubeLink = config.Youtube_6;
     try {
       await this.page.getByPlaceholder('Paste a Youtube link...').fill(youtubeLink);
     } catch (error) {
@@ -63,13 +63,13 @@ class MusicSplitterPage {
       throw new Error('Failed at Step: Check Valid Link Message');
     }
 
-    const headerLocator = this.page.locator(`//div[@class='header']//h2[text()='${config.Youtube_Text_1}']`);
+    const headerLocator = this.page.locator(`//div[@class='header']//h2[text()='${config.Youtube_Text_6}']`);
     try {
       await expect(headerLocator).toBeVisible({ timeout: 120000 });
       startTime = Date.now();
-      console.log(`✅ ${config.Youtube_Text_1} is displayed`);
+      console.log(`✅ ${config.Youtube_Text_6} is displayed`);
     } catch (error) {
-      console.error(`❌ ${config.Youtube_Text_1} is not present:`, error);
+      console.error(`❌ ${config.Youtube_Text_6} is not present:`, error);
       throw new Error('Failed at Step: Check Header Visibility');
     }
 
@@ -85,15 +85,15 @@ class MusicSplitterPage {
 
     try {
       await this.page.getByRole('link', { name: 'History Activities' }).click();
-      await this.page.waitForSelector(`//h6[text()='${config.Youtube_Text_1}']`, { state: 'visible' });
+      await this.page.waitForSelector(`//h6[text()='${config.Youtube_Text_6}']`, { state: 'visible' });
     } catch (error) {
       console.error('❌ Error accessing History Activities:', error);
       throw new Error('Failed at Step: Access History Activities');
     }
 
-    const successTd = this.page.locator(`//tr[.//h6[text()='${config.Youtube_Text_1}']][1]//p[text()='Success']`);
+    const successTd = this.page.locator(`//tr[.//h6[text()='${config.Youtube_Text_6}']][1]//p[text()='Success']`);
     const isSuccessVisible = await successTd.count() > 0 && await successTd.isVisible();
-    const failedTd = this.page.locator(`//tr[.//h6[text()='${config.Youtube_Text_1}']][1]//p[text()='Failed']`);
+    const failedTd = this.page.locator(`//tr[.//h6[text()='${config.Youtube_Text_6}']][1]//p[text()='Failed']`);
     const isFailedVisible = await failedTd.count() > 0 && await failedTd.isVisible();
     if (isSuccessVisible) {
       console.log('✅ Test Passed: Song created with Success status on history summary page');
@@ -104,8 +104,8 @@ class MusicSplitterPage {
     }
 
     try {
-      await this.page.waitForSelector(`//tr[.//h6[text()='${config.Youtube_Text_1}']][1]//button[contains(@class, 'delete-button')]`, { state: 'visible' });
-      await this.page.locator(`//tr[.//h6[text()='${config.Youtube_Text_1}']][1]//button[contains(@class, 'delete-button')]`).click();
+      await this.page.waitForSelector(`//tr[.//h6[text()='${config.Youtube_Text_6}']][1]//button[contains(@class, 'delete-button')]`, { state: 'visible' });
+      await this.page.locator(`//tr[.//h6[text()='${config.Youtube_Text_6}']][1]//button[contains(@class, 'delete-button')]`).click();
       const deleteSuccessMessage = this.page.getByText('Delete success!');
       await expect(deleteSuccessMessage).toBeVisible();
       console.log('✅ Test Passed: Delete success on history!');
