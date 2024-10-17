@@ -238,10 +238,16 @@ def sendBuildStatusMessage(statusBuild) {
     def durationMillis = currentBuild.duration ?: 0
     def minutes = (durationMillis / 60000).toInteger()  
     def seconds = ((durationMillis % 60000) / 1000).toInteger()  
-  
+
+    def framedStatus = """
+    ══════════════════════
+    🔧 ${statusBuild} 🌟
+    ══════════════════════
+    """
+
     def message = """
-    🔧 Jenkins Build ${statusBuild} 🌟
-    ══════════════════════ 
+    ══════════════════════
+    ${framedStatus}
     📁 Repository:      ${env.REPO_NAME}       
     📅 Date:            ${currentDateTime}                              
     ⏳ Duration:        ${minutes} min ${seconds} sec  
@@ -251,7 +257,5 @@ def sendBuildStatusMessage(statusBuild) {
     🔗 Thank you for your attention! 🚀
     """
 
-    // Send message to Telegram
     sendMessageToTelegram(message)
 }
-
