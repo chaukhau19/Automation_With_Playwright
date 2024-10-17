@@ -235,19 +235,28 @@ def sendBuildStatusMessage(statusBuild) {
     TimeZone timeZone = TimeZone.getTimeZone('GMT+7')
     def currentDateTime = new Date().format("yyyy-MM-dd HH:mm:ss", timeZone)
 
+    def startTime = currentBuild.startTime
+    def duration = startTime ? new Date().getTime() - startTime.getTime() : 0
+    def minutes = duration / 60000
+    def seconds = (duration % 60000) / 1000
+
+    def buildStatus = statusBuild == "SUCCESS" ? "SUCCESSED" : "FAILED"
+
+    def repoName = env.REPO_NAME ?: "Unknown Repository"
+    def buildUrl = env.BUILD_URL ?: "No Build URL"
+
     def message = """
-    🔧 Jenkins Build Status 🌟
+    🔧 Jenkins Build  🌟
+    ══════════════════════ 
+    ✅ Status:          ${buildStatus}
+    📁 Repository:      ${repoName}       
+    📅 Date:            ${currentDateTime}                              
+    ⏳ Duration:        ${minutes} min ${seconds} sec  
     ══════════════════════
-    📁 Repository:      ${REPO_NAME}                    
-    🔢 Build Number:    #${env.BUILD_NUMBER}            
-    Build Status:       ${statusBuild}  
-    ⏳ Duration:        ${currentBuild.durationString}   
-    📅 Date:            ${currentDateTime}               
-    🔗 Link:            ${env.BUILD_URL}                 
+    🔗 ${buildUrl}                 
     ══════════════════════
     🔗 Thank you for your attention! 🚀
     """
 
     sendMessageToTelegram(message)
 }
-
