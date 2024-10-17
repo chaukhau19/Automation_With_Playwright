@@ -1,5 +1,6 @@
-import { chromium, test } from '@playwright/test';
-import TGHomePage from '../Pages/TG_Actions.js';
+const { chromium, test, expect } = require('@playwright/test');
+const TGHomePage = require('../Pages/TG_Actions.js');
+const config = require('../Utils/TG_config.js');
 
 let tgHomePage;
 
@@ -10,51 +11,51 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  await tgHomePage.page.close(); 
   const browser = tgHomePage.page.context().browser(); 
   await browser.close(); 
 });
 
+
 test('Interact with Categories', async () => {
-  console.log('------- TCs Interact with Categories -------');
+  console.log('============== Testcase Interact with Categories ==============');
   await tgHomePage.Login(); 
   await tgHomePage.Categories(); 
 });
 
 test('Interact with DEX', async () => {
-  console.log('------- TCs Interact with DEX -------');
+  console.log('============== Testcases Interact with DEX ==============');
   await tgHomePage.Login(); 
   await tgHomePage.changeDEX(); 
 });
 
 test('Open Game', async () => {
-  console.log('------- TCs Open Game -------');
+  console.log('============== Testcase Open Game ==============');
 });
 
 test('Review Game', async () => {
-  console.log('------- TCs Review Game -------');
+  console.log('============== Testcase Review Game ==============');
 });
 
 test('Share Game', async () => {
-  console.log('------- TCs Share Game -------');
+  console.log('============== Testcase Share Game ==============');
 });
 
 test('Join Telegram', async () => {
-  console.log('------- TCs Join Telegram -------');
+  console.log('============== Testcase Join Telegram ==============');
 });
 
 test('News Page', async () => {
-  console.log('------- TCs News Page -------');
+  console.log('============== Testcase News Page ==============');
 });
 
 test('Submit App', async () => {
-  console.log('------- TCs Submit App -------');
+  console.log('============== Testcase Submit App ==============');
 });
 
 test('Contact Us', async () => {
-  console.log('------- TCs Contact Us -------');
+  console.log('============== Testcase Contact Us ==============');
 });
 
 test('Logout', async () => {
-  console.log('------- TCs Logout -------');
+  console.log('============== Testcase Logout ==============');
 });

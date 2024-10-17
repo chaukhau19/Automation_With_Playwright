@@ -17,7 +17,7 @@ test.afterAll(async () => {
 });
 
 test('AI Mastering', async () => {
-  console.log('------- TCs AI Mastering -------');
+  console.log('============== Testcase AI Mastering ==============');
   await loginUserPage.loginUser(); 
   await AImasteringPage.AIMastering();
 });

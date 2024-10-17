@@ -17,7 +17,7 @@ test.afterAll(async () => {
 });
 
 test('Create Music', async () => {
-  console.log('------- TCs Create Music -------');
+  console.log('============== Testcase Create Music ==============');
   await loginUserPage.loginUser(); 
   await createMusicPage.createMusic();
 });

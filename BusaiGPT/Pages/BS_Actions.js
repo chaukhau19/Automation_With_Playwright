@@ -56,12 +56,12 @@ export class ActionsPage {
   async checkPointsUsed(expectedPointsUsed) {
     try {
       const pointBefore = await this.getPoints();
-      console.log(`Point before operation: ${pointBefore}`);
+      console.log(`💰 Point before operation: ${pointBefore}`);
       await this.page.waitForTimeout(15000);
       const pointAfter = await this.getPoints();
-      console.log(`Point after operation: ${pointAfter}`);
+      console.log(`💰 Point after operation: ${pointAfter}`);
       const totalPointsUsed = pointBefore - pointAfter;
-      console.log(`Total points used: ${totalPointsUsed}`);
+      console.log(`🌟🌟🌟 Total points used to generate : ${totalPointsUsed}`);
       expect(totalPointsUsed).toBe(expectedPointsUsed);
     } catch (error) {
       console.error('Error checking points used:', error);
@@ -92,9 +92,12 @@ export class ActionsPage {
 //////////////////////////////////////                 TEST CASE                //////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 async performFirstChat(message1) {
-  console.log('📝 ------- TCs 1: performFirstChat -------');
+  console.log('📝 ============== Testcase 1: performFirstChat ==============');
+
+  console.log('🔍 Checking current points...');
+  await this.page.waitForTimeout(3000); 
   const pointBeforeFirstChat = await this.getPoints();
-  console.log('💰 Point before first chat:', pointBeforeFirstChat);
+  console.log('💰 Point before chat:', pointBeforeFirstChat);
   
   try {
     console.log('💬 Initiating new chat...');
@@ -128,7 +131,7 @@ async performFirstChat(message1) {
   console.log('💰 Point after first chat:', pointAfterFirstChat);
   
   const totalPointUsedFirstChat = pointBeforeFirstChat - pointAfterFirstChat;
-  console.log('🔢 Total points used after first chat:', totalPointUsedFirstChat);
+  console.log('🌟🌟🌟 Total points used after chat:', totalPointUsedFirstChat);
   
   if (totalPointUsedFirstChat === 250) {
     console.log('✅ PASS: The points decreased correctly by 250 after the first chat.');
@@ -141,10 +144,13 @@ async performFirstChat(message1) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async performSecondChat(message2) {
-  console.log('📝 ------- TCs 2: performSecondChat -------');
+  console.log('📝 ============== Testcase 2: performSecondChat ==============');
+
+  console.log('🔍 Checking current points...');
+  await this.page.waitForTimeout(3000); 
   const pointBeforeFirstChatText = await this.page.locator(config.Locator_GetPoint).innerText();
   const pointBeforeFirstChat = this.convertToPoints(pointBeforeFirstChatText);
-  console.log('💰 Point before second chat:', pointBeforeFirstChat);
+  console.log('💰 Point before chat:', pointBeforeFirstChat);
 
   try {
     console.log('💬 Initiating new chat...');
@@ -186,7 +192,7 @@ async performSecondChat(message2) {
   console.log('💰 Point after second chat:', pointAfterSecondChat);
   
   const totalPointUsedSecondChat = pointBeforeFirstChat - pointAfterSecondChat;
-  console.log('🔢 Total points used after second chat:', totalPointUsedSecondChat);
+  console.log('🌟🌟🌟 Total points used after chat:', totalPointUsedSecondChat);
   
   if (totalPointUsedSecondChat === 250) {
     console.log('✅ PASS: The points decreased correctly by 250 after the second chat.');
@@ -198,7 +204,7 @@ async performSecondChat(message2) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async performGenerateDocs() {
-  console.log('🚀 ------- TCs 3 performGenerateDocs -------');
+  console.log('🚀 ============== Testcase 3 performGenerateDocs ==============');
 
   console.log('🔍 Checking current points...');
   await this.page.waitForTimeout(3000); 
@@ -240,7 +246,7 @@ async performGenerateDocs() {
   console.log('💰 Point after generate docs: ', pointAfterGenerateDocs);
 
   const totalPointUsedGenerateDocs = Math.round(pointBeforeGenerateDocs - pointAfterGenerateDocs);
-  console.log('💳 Total points used after generate docs: ', totalPointUsedGenerateDocs);
+  console.log('🌟🌟🌟 Total points used after generate docs: ', totalPointUsedGenerateDocs);
   
   if (totalPointUsedGenerateDocs === 1000) {
     console.log('🎉 PASS: The points decreased correctly by 1000 after generate docs.');
@@ -253,7 +259,7 @@ async performGenerateDocs() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async deleteGenerateDocs() {
-  console.log('🚀 ------- TCs 4 deleteGenerateDocs -------');
+  console.log('🚀 ============== Testcase 4 deleteGenerateDocs ==============');
 
   await this.page.getByRole('link', { name: 'Ask' }).click();
   await this.page.getByRole('link', { name: 'Assist' }).click();
@@ -266,14 +272,14 @@ async deleteGenerateDocs() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async performGenerateAudio() {
-  console.log('🎤 ------- TCs 5 performGenerateAudio -------');
+  console.log('🎤 ============== Testcase 5 performGenerateAudio ==============');
 
   console.log('🔍 Checking current points...');
   await this.page.waitForTimeout(3000); 
   const pointBeforeFirstChatText = await this.page.locator(config.Locator_GetPoint).innerText();
   console.log('💰 Current inner text:', pointBeforeFirstChatText);
   const pointBeforeFirstChat = this.convertToPoints(pointBeforeFirstChatText);
-  console.log('💰 Point before first generate: ', pointBeforeFirstChat);
+  console.log('💰 Point before generate: ', pointBeforeFirstChat);
 
   try {
       await this.page.getByRole('link', { name: 'Assist' }).click();
@@ -307,7 +313,7 @@ async performGenerateAudio() {
   console.log('🔍 Point after first generate: ', pointAfterFirstChat);
   
   const totalPointUsedFirstChat = Math.round(pointBeforeFirstChat - pointAfterFirstChat);
-  console.log('🔢 Total points used after first generate: ', totalPointUsedFirstChat);
+  console.log('🌟🌟🌟 Total points used after generate: ', totalPointUsedFirstChat);
   
   if (totalPointUsedFirstChat === 1000) {
       console.log('✅ PASS: The points decreased correctly by 1000 after the first chat.');
@@ -319,7 +325,7 @@ async performGenerateAudio() {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 async deleteGenerateAudio() {
-  console.log('🚀 ------- TCs 6 deleteGenerateAudio -------');
+  console.log('🚀 ===== Testcase 6 deleteGenerateAudio ==============');
 
   try {
       await this.page.getByRole('link', { name: 'Ask' }).click();
@@ -339,12 +345,12 @@ async deleteGenerateAudio() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async performGenerateImage_Summary() {
-  console.log('🖼️ ------- TCs 7 performGenerateImage_Summary -------');
+  console.log('🖼️ ============== Testcase 7 performGenerateImage_Summary ==============');
 
   console.log('🔍 Checking current points...');
   await this.page.waitForTimeout(3000); 
   const pointBefore = await this.getPoints();
-  console.log('🔍 Point before first generate: ', pointBefore);
+  console.log('🔍 Point before generate: ', pointBefore);
 
   try {
       await this.page.getByRole('link', { name: 'Assist' }).click();
@@ -359,10 +365,7 @@ async performGenerateImage_Summary() {
       console.log('📂 File uploaded');
 
       await this.page.getByRole('button', { name: 'icon action Summary' }).click();
-      console.log('✅ Clicked Summary');
       await expect(this.page.getByText('points to Summary')).toBeVisible();
-      console.log('🔍 Verify Start Page');
-
       await this.page.getByRole('button', { name: 'Let\'s start' }).click();
       console.log('✅ Clicked Start');
 
@@ -375,17 +378,14 @@ async performGenerateImage_Summary() {
   } catch (error) {
       console.error('❌ An error occurred during the generate image summary operation:', error);
   }
-
-  console.log('🔍 Before calling checkPointsUsed');
   await this.checkPointsUsed(1000);
-  console.log('✅ After calling checkPointsUsed');
 }
 
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 async deleteGenerateImage_Summary() {
-  console.log('🚀 ------- TCs 8 deleteGenerateImage_Summary -------');
+  console.log('🚀 ============== Testcase 8 deleteGenerateImage_Summary ==============');
 
   try {
       await this.page.getByRole('link', { name: 'Ask' }).click();
@@ -404,13 +404,13 @@ async deleteGenerateImage_Summary() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async performGenerateImage_RemoveObject() {
-  console.log('🖼️ ------- TCs 9 performGenerateImage_RemoveObject -------');
+  console.log('🖼️ ============== Testcase 9 performGenerateImage_RemoveObject ==============');
 
   console.log('🔍 Checking current points...');
   await this.page.waitForTimeout(3000); 
   const pointBeforeFirstChatText = await this.page.locator(config.Locator_GetPoint).innerText();
   const pointBeforeFirstChat = this.convertToPoints(pointBeforeFirstChatText);
-  console.log('🔍 Point before first generate: ', pointBeforeFirstChat);
+  console.log('💰 Point before generate: ', pointBeforeFirstChat);
 
   try {
     await this.page.locator('label').filter({ hasText: 'Upload File (Max 5MB .png | .' }).locator('div').first().click();
@@ -458,9 +458,9 @@ async performGenerateImage_RemoveObject() {
   await this.page.waitForTimeout(15000);
   const pointAfterFirstChatText = await this.page.locator(config.Locator_GetPoint).innerText();
   const pointAfterFirstChat = this.convertToPoints(pointAfterFirstChatText);
-  console.log('🔍 Point after first generate: ', pointAfterFirstChat);
+  console.log('💰 Point after generate: ', pointAfterFirstChat);
   const totalPointUsedFirstChat = pointBeforeFirstChat - pointAfterFirstChat;
-  console.log('💰 Total points used after first generate: ', totalPointUsedFirstChat);
+  console.log('🌟🌟🌟 Total points used after generate: ', totalPointUsedFirstChat);
   
   if (totalPointUsedFirstChat === 1000) {
       console.log('✅ PASS: The points decreased correctly by 1000 after the first chat.');
@@ -472,7 +472,7 @@ async performGenerateImage_RemoveObject() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async deleteGenerateImage_RemoveObject() {
-  console.log('🚀 ------- TCs 10 deleteGenerateImage_RemoveObject -------');
+  console.log('🚀 ============== Testcase 10 deleteGenerateImage_RemoveObject ==============');
 
   try {
       await this.page.getByRole('link', { name: 'Ask' }).click();
@@ -491,34 +491,29 @@ async deleteGenerateImage_RemoveObject() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async performGenerateImage_RemoveText() {
-  console.log('🖼️ ------- TCs 11 performGenerateImage_RemoveText -------');
+  console.log('🖼️ ============== Testcase 11 performGenerateImage_RemoveText ==============');
 
   console.log('🔍 Checking current points...');
   await this.page.waitForTimeout(3000); 
   const pointBeforeFirstChatText = await this.page.locator(config.Locator_GetPoint).innerText();
   const pointBeforeFirstChat = this.convertToPoints(pointBeforeFirstChatText);
-  console.log('🔍 Point before first generate: ', pointBeforeFirstChat);
+  console.log('💰 Point before generate: ', pointBeforeFirstChat);
 
   try {
-      // 1
       await this.page.locator('label').filter({ hasText: 'Upload File (Max 5MB .png | .' }).locator('div').first().click();
       console.log('📂 Clicked to upload file');
 
-      // 2
       const filePath = config.path_generateImage_RemoveText;
       await this.page.setInputFiles('input[type="file"]', filePath);
       console.log('📤 File uploaded');
 
-      // 3
       await this.page.getByRole('button', { name: 'icon action Remove text' }).click();
       console.log('✏️ Clicked button Remove Text');
 
-      // 4
       await this.page.getByRole('button', { name: 'Let\'s start' }).click();
       console.log('🚀 Started Remove');
       console.log('🔍 Verify generate image on this page');
 
-      // 5
       const downloadPromise = this.page.waitForEvent('download');
       await this.page.getByRole('button', { name: 'Download image' }).click();
       const download = await downloadPromise;
@@ -537,10 +532,10 @@ async performGenerateImage_RemoveText() {
 
   const pointAfterFirstChatText = await this.page.locator(config.Locator_GetPoint).innerText();
   const pointAfterFirstChat = this.convertToPoints(pointAfterFirstChatText);
-  console.log('🔍 Point after first generate: ', pointAfterFirstChat);
+  console.log('💰 Point after generate: ', pointAfterFirstChat);
   
   const totalPointUsedFirstChat = pointBeforeFirstChat - pointAfterFirstChat;
-  console.log('💰 Total points used after first generate: ', totalPointUsedFirstChat);
+  console.log('🌟🌟🌟 Total points used after generate: ', totalPointUsedFirstChat);
   
   if (totalPointUsedFirstChat === 1000) {
       console.log('✅ PASS: The points decreased correctly by 1000 after the first chat.');
@@ -552,7 +547,7 @@ async performGenerateImage_RemoveText() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async deleteGenerateImage_RemoveText() {
-  console.log('🚀 ------- TCs 12 deleteGenerateImage_RemoveText -------');
+  console.log('🚀 ============== Testcase 12 deleteGenerateImage_RemoveText ==============');
   try {
     await this.page.getByRole('link', { name: 'Ask' }).click();
     await this.page.getByRole('link', { name: 'Assist' }).click();

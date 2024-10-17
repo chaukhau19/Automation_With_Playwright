@@ -17,7 +17,7 @@ test.afterAll(async () => {
 });
 
 test('Action History', async () => {
-  console.log('------- TCs Action History -------');
+  console.log('============== Testcase Action History ==============');
   await loginUserPage.loginUser(); 
   await historyPage.rateHistory();
   await historyPage.reportHistory();

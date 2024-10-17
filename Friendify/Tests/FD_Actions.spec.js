@@ -26,57 +26,57 @@ test.afterEach(async () => {
 });
 
 test('Perform First and Second Chats', async () => {
-  console.log('------- TCs Perform First and Second Chats -------');
+  console.log('============== Testcase Perform First and Second Chats ==============');
   await actionsPage.loginWithAccount();
-  console.log('------- User Chat with Speed -------');
+  console.log('============== User Chat with Speed ==============');
   await actionsPage.performFirstChat();
-  console.log('------- User Chat with Intelligent -------');
+  console.log('============== User Chat with Intelligent ==============');
   await actionsPage.performSecondChat();
   await actionsPage.performOtherActions();
 });
 
 test('User Create Image Normal', async () => {
-  console.log('------- TCs User Create Image Normal -------');
+  console.log('============== Testcase User Create Image Normal ==============');
   await actionsPage.loginWithAccount();
   await actionsPage.generateImage_1();
 });
 
 test('User Create Image Pro', async () => {
-  console.log('------- TCs User Create Image Pro -------');
+  console.log('============== Testcase User Create Image Pro ==============');
   await actionsPage.loginWithAccount();
   await actionsPage.generateImage_2();
 });
 
 test('Generate Docs', async () => {
-  console.log('------- TCs Generate Docs -------');
+  console.log('============== Testcase Generate Docs ==============');
   await actionsPage.loginWithAccount();
   await actionsPage.generateDoc();
   await actionsPage.deleteGenerateDocs();
 });
 
 test('Generate Audio', async () => {
-  console.log('------- TCs Generate Audio -------');
+  console.log('============== Testcase Generate Audio ==============');
   await actionsPage.loginWithAccount();
   await actionsPage.generateAudio();
   await actionsPage.deleteGenerateAudio();
 });
 
 test('Generate Image Summary', async () => {
-  console.log('------- TCs Generate Image Summary -------');
+  console.log('============== Testcase Generate Image Summary ==============');
   await actionsPage.loginWithAccount();
   await actionsPage.generateImage_Summary();
   await actionsPage.deleteGenerateImage_Summary();
 });
 
 test('Generate Image Object', async () => {
-  console.log('------- TCs Generate Image Object -------');
+  console.log('============== Testcase Generate Image Object ==============');
   await actionsPage.loginWithAccount();
   await actionsPage.generateImage_Object();
   await actionsPage.deleteGenerateImage_Object();
 });
 
 test('Generate Image Text', async () => {
-  console.log('------- TCs Generate Image Text -------');
+  console.log('============== Testcase Generate Image Text ==============');
   await actionsPage.loginWithAccount();
   await actionsPage.generateImage_Text();
   await actionsPage.deleteGenerateImage_Text();

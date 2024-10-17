@@ -17,7 +17,7 @@ test.afterAll(async () => {
 });
 
 test('Create Melody', async () => {
-  console.log('------- TCs Create Melody -------');
+  console.log('============== Testcase Create Melody ==============');
   await loginUserPage.loginUser(); 
   await melodyPage.createMelody();
 });

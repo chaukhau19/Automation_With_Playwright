@@ -53,38 +53,19 @@ class TGHomePage {
 
 async Categories() {
   try {
-    console.log('🔗 Clicking on Tongram Logo link...');
     await this.page.getByRole('link', { name: 'Tongram Logo' }).click();
-    
-    console.log('🎮 Navigating to Games section...');
     await this.page.getByRole('main').getByRole('link', { name: 'Games Games' }).click();
-    
-    console.log('✅ Checking visibility of GamesLatestHigh ratingSort text...');
     await expect(this.page.getByText('GamesLatestHigh ratingSort')).toBeVisible();
-    
-    console.log('🔝 Clicking on High rating button...');
     await this.page.getByRole('button', { name: 'High rating' }).click();
-    
-    console.log('✅ Verifying Latest button is visible...');
     await expect(this.page.getByRole('button', { name: 'Latest' })).toBeVisible();
-    
-    console.log('🆕 Clicking on Latest button...');
     await this.page.getByRole('button', { name: 'Latest' }).click();
     await expect(this.page.getByRole('link', { name: 'Home' })).toBeVisible();
-    
-    console.log('🏠 Clicking on Home link...');
     await this.page.getByRole('link', { name: 'Home' }).click();
     await expect(this.page.getByRole('button', { name: 'Categories' })).toBeVisible();
-    
-    console.log('📁 Clicking on Categories button...');
     await this.page.getByRole('button', { name: 'Categories' }).click();
     await this.page.getByRole('banner').getByRole('link', { name: 'Management Management' }).click();
-    
-    console.log('⏳ Waiting for Management section to be visible...');
     await this.page.locator('section').filter({ hasText: 'ManagementLatestHigh' }).waitFor({ state: 'visible' });
-    
     console.log('✅ Categories navigation completed successfully.');
-  
   } catch (error) {
     console.error('❌ An error occurred during the Categories step:', error);
     throw error;
@@ -96,19 +77,12 @@ async Categories() {
 async changeDEX() {
   try {
     console.log('🔄 Attempting to change DEX...');
-
-    console.log('🖱️ Clicking on the DEX button...');
     const dexButton = this.page.getByRole('button', { name: 'DEX' });
     await dexButton.click();
-
-    console.log('✅ Verifying visibility of TON/GM and Swap...');
     await expect(this.page.locator('div').filter({ hasText: /^TON\/GM$/ }).first()).toBeVisible({ timeout: 5000 });
     await expect(this.page.locator('div').filter({ hasText: /^Swap$/ }).nth(2)).toBeVisible({ timeout: 5000 });
-
-    console.log('🔗 Clicking on the first link in the list...');
     await this.page.locator('a').first().click();
     await expect(this.page.getByRole('link', { name: 'Tongram Logo' })).toBeVisible({ timeout: 5000 });
-
     console.log('✅ DEX change action completed successfully.');
 
   } catch (error) {
@@ -196,5 +170,6 @@ async changeDEX() {
   }
 }
 
-export { TGHomePage };
+// export { TGHomePage };
 
+module.exports = TGHomePage;

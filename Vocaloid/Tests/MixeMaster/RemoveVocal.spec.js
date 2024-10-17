@@ -17,10 +17,10 @@ test.afterAll(async () => {
 });
 
 test('Remove Vocal by Link', async () => {
-  console.log('------- TCs Remove Vocal by Link -------');
+  console.log('============== Testcase Remove Vocal by Link ==============');
   await loginUserPage.loginUser(); 
   await removeVocalPage.removeVocalbyLink();
 });
 test('Remove Vocal by File', async () => {
-  console.log('------- TCs Remove Vocal by File -------');
+  console.log('============== Testcase Remove Vocal by File ==============');
 });

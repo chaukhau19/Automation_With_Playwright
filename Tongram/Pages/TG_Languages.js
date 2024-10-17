@@ -25,9 +25,9 @@ async Login() {
     await this.page.context().addCookies(cookies);
     await this.page.goto(config.tongramUrl);
     await this.page.waitForLoadState('networkidle');
-    console.log('Page loaded successfully with cookies.');
+    console.log('✅ Page loaded successfully with cookies.');
   } catch (error) {
-    console.error('Error during login:', error.message);
+    console.error('❌ Error during login:', error.message);
     throw error;
   }
 }

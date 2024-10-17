@@ -17,7 +17,7 @@ test.afterAll(async () => {
 });
 
 test('Create MV Music', async () => {
-  console.log('------- TCs Create MV Music -------');
+  console.log('============== Testcase Create MV Music ==============');
   await loginUserPage.loginUser(); 
   await mvScriptsPage.MVScripts();
 });

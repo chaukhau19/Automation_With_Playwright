@@ -14,27 +14,28 @@ test.afterAll(async () => {
 });
 
 test('Daily Login', async () => {
-  console.log('------- TCs Daily Login -------');
+  console.log('============== Testcase Daily Login ==============');
   await dailyTaskPage.Login();
   await dailyTaskPage.DailyLogin(); 
 });
 
 test('Daily App Opener', async () => {
-  console.log('------- TCs Daily App Opener -------');
+  console.log('============== Testcase Daily App Opener ==============');
   await dailyTaskPage.Login();
   await dailyTaskPage.AppExplorer(); 
 });
 
 test('Daily App Reviewer', async () => {
-  console.log('------- TCs Daily App Reviewer -------');
+  console.log('============== Testcase Daily App Reviewer ==============');
   await dailyTaskPage.Login();
   await dailyTaskPage.AppReviewer(); 
+  console.log('============== Testcase Delete Reviewer CMS ==============');
   await dailyTaskPage.LoginCMS();
   await dailyTaskPage.DeleteReviewAdmin(); 
 });
 
 test('Daily App Sharer', async () => {
-  console.log('------- TCs Daily App Sharer -------');
+  console.log('============== Testcase Daily App Sharer ==============');
   await dailyTaskPage.Login();
   await dailyTaskPage.AppSharer(); 
 });

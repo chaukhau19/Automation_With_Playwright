@@ -16,6 +16,6 @@ test.afterAll(async () => {
 });
 
 test('Register and Login', async () => {
-  console.log('------- TCs Register and Login -------');
+  console.log('============== Testcase Register and Login ==============');
   await registerPage.registerAndLogin();
 });

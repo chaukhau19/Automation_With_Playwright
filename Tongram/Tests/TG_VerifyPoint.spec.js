@@ -16,7 +16,7 @@ test.afterAll(async () => {
 });
 
 test('Verify Point', async () => {
-  console.log('------- TCs Verify Point -------');
+  console.log('============== Testcase Verify Point ==============');
   await verifyPointFunction.Login();
   await verifyPointFunction.verifyPoint(); 
 });

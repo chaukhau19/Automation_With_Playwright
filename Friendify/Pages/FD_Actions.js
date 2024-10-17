@@ -57,7 +57,7 @@ export class ActionsPage {
         const pointAfterFirstChat = parseInt(await this.page.locator(this.chatPointSelector).innerText(), 10);
         console.log('🔍 Point of Speed after first chat: ', pointAfterFirstChat);
         const totalPointUsedFirstChat = pointBeforeFirstChat - pointAfterFirstChat;
-        console.log('⚡ Total of Speed points used after first chat: ', totalPointUsedFirstChat);
+        console.log('⚡⚡⚡ Total of Speed points used after chat: ', totalPointUsedFirstChat);
         if (totalPointUsedFirstChat === 1) {
             console.log('✅ The points decreased correctly by 1 after the first chat.');
         } else {
@@ -95,7 +95,7 @@ export class ActionsPage {
         const pointAfterSecondChat = parseInt(await this.page.locator(this.chatPointSelector).innerText(), 10);
         console.log('🔍 Point of Intelligent after second chat: ', pointAfterSecondChat);
         const totalPointUsedSecondChat = pointBeforeSecondChat - pointAfterSecondChat;
-        console.log('⚡ Total of Intelligent points used after second chat: ', totalPointUsedSecondChat);
+        console.log('⚡⚡⚡ Total of Intelligent points used after chat: ', totalPointUsedSecondChat);
         if (totalPointUsedSecondChat === 1) {
             console.log('✅ The points decreased correctly by 1 after the second chat.');
         } else {
@@ -138,7 +138,7 @@ export class ActionsPage {
             const pointAfterSecondChat = parseInt(await this.page.locator(this.chatPointSelector).innerText(), 10);
             console.log('🔍 Point of Intelligent after second chat: ', pointAfterSecondChat);
             const totalPointUsedSecondChat = pointBeforeSecondChat - pointAfterSecondChat;
-            console.log('⚡ Total of Intelligent points used after second chat: ', totalPointUsedSecondChat);
+            console.log('⚡⚡⚡ Total of Intelligent points used after second chat: ', totalPointUsedSecondChat);
 
             if (totalPointUsedSecondChat === 5) {
                 console.log('✅ The points decreased correctly by 5 after the second chat.');
@@ -185,7 +185,7 @@ export class ActionsPage {
             const pointAfterSecondChat = parseInt(await this.page.locator(this.chatPointSelector).innerText(), 10);
             console.log('🔍 Point of Intelligent after second chat: ', pointAfterSecondChat);
             const totalPointUsedSecondChat = pointBeforeSecondChat - pointAfterSecondChat;
-            console.log('⚡ Total of Intelligent points used after second chat: ', totalPointUsedSecondChat);
+            console.log('⚡⚡⚡ Total of Intelligent points used after second chat: ', totalPointUsedSecondChat);
 
             if (totalPointUsedSecondChat === 25) {
                 console.log('✅ The points decreased correctly by 25 after the second chat.');
@@ -276,7 +276,7 @@ export class ActionsPage {
         console.log('🔍 Point after generate: ', pointAfterGenerate);
 
         const totalPointUsedGenerate = pointBeforeGenerate - pointAfterGenerate;
-        console.log('⚡ Total points used after generate: ', totalPointUsedGenerate);
+        console.log('⚡⚡⚡ Total points used after generate: ', totalPointUsedGenerate);
 
         if (totalPointUsedGenerate === 5) {
             console.log('✅ The points decreased correctly by 5 after the first chat.');
@@ -329,7 +329,7 @@ export class ActionsPage {
         const pointAfterGenerate = parseInt(await this.page.locator(this.chatPointSelector).innerText(), 10);
         console.log('🔍 Point after audio generation: ', pointAfterGenerate);
         const totalPointUsedGenerate = pointBeforeGenerate - pointAfterGenerate;
-        console.log('⚡ Total points used after generate: ', totalPointUsedGenerate);
+        console.log('⚡⚡⚡ Total points used after generate: ', totalPointUsedGenerate);
 
         if (totalPointUsedGenerate === 5) {
             console.log('✅ The points decreased correctly by 5 after the audio generation.');
@@ -390,7 +390,7 @@ export class ActionsPage {
             const pointAfterGenerate = parseInt(await this.page.locator(this.chatPointSelector).innerText(), 10);
             console.log('🔍 Point after generate: ', pointAfterGenerate);
             const totalPointUsedGenerate = pointBeforeGenerate - pointAfterGenerate;
-            console.log('⚡ Total points used after generate: ', totalPointUsedGenerate);
+            console.log('⚡⚡⚡ Total points used after generate: ', totalPointUsedGenerate);
 
             if (totalPointUsedGenerate === 5) {
                 console.log('✅ The points decreased correctly by 5 after generating the image summary.');
@@ -436,8 +436,6 @@ export class ActionsPage {
             const filePath = config.path_generateImage_RemoveText;
             await this.page.setInputFiles('input[type="file"]', filePath);
             console.log('📤 File uploaded');
-
-            // await expect(this.page.locator('input[type="file"]').locator('input').nth(0)).toHaveValue(filePath);
     
             await this.page.locator('div').filter({ hasText: /^Remove text$/ }).getByRole('button').click();
             console.log('✏️ Clicked button Remove Text');
@@ -467,7 +465,7 @@ export class ActionsPage {
             const pointAfterGenerate = parseInt(await this.page.locator(this.chatPointSelector).innerText(), 10);
             console.log('🔍 Point after generate: ', pointAfterGenerate);
             const totalPointUsedGenerate = pointBeforeGenerate - pointAfterGenerate;
-            console.log('⚡ Total points used after generate: ', totalPointUsedGenerate);
+            console.log('⚡⚡⚡ Total points used after generate: ', totalPointUsedGenerate);
 
             if (totalPointUsedGenerate === 15) {
                 console.log('✅ The points decreased correctly by 15 after generating the image summary.');
@@ -546,7 +544,7 @@ export class ActionsPage {
             const pointAfterGenerate = parseInt(await this.page.locator(this.chatPointSelector).innerText(), 10);
             console.log('🔍 Point after generate: ', pointAfterGenerate);
             const totalPointUsedGenerate = pointBeforeGenerate - pointAfterGenerate;
-            console.log('⚡ Total points used after generate: ', totalPointUsedGenerate);
+            console.log('⚡⚡⚡ Total points used after generate: ', totalPointUsedGenerate);
 
             if (totalPointUsedGenerate === 15) {
                 console.log('✅ The points decreased correctly by 15 after generating the image summary.');

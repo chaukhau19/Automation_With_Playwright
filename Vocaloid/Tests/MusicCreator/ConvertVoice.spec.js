@@ -17,10 +17,10 @@ test.afterAll(async () => {
 });
 
 test('Convert Voice by Link', async () => {
-  console.log('------- TCs Convert Voice by Link -------');
+  console.log('============== Testcase Convert Voice by Link ==============');
   await loginUserPage.loginUser(); 
   await convertVoicePage.convertVoicebyLink();
 });
 test('Convert Voice by File', async () => {
-  console.log('------- TCs Convert Voice by File -------');
+  console.log('============== Testcase Convert Voice by File ==============');
 });

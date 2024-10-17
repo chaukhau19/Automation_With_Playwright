@@ -17,11 +17,11 @@ test.afterAll(async () => {
 });
 
 test('Music Splitter by Link', async () => {
-  console.log('------- TCs Music Splitter by Link -------');
+  console.log('============== Testcase Music Splitter by Link ==============');
   await loginUserPage.loginUser(); 
   await musicSplitterPage.MusicSplitterbyLink();
 });
 
 test('Music Splitter  by File', async () => {
-  console.log('------- TCs Music Splitter by File -------');
+  console.log('============== Testcase Music Splitter by File ==============');
 });

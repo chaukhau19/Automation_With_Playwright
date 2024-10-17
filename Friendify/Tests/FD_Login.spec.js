@@ -17,11 +17,11 @@ test.afterEach(async () => {
 });
 
 test('Login with Account', async () => {
-  console.log('------- TCs Login with Account -------');
+  console.log('============== Testcase Login with Account ==============');
   await login.loginWithAccount(); 
 });
 
 test('Login with Google', async () => {
-  console.log('------- TCs Login with Google -------');
+  console.log('============== Testcase Login with Google ==============');
   await login.loginWithGoogle(true); 
 });

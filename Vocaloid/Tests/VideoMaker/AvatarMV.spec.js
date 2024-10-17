@@ -18,7 +18,7 @@ test.afterAll(async () => {
 });
 
 test('Avatar MV', async () => {
-  console.log('------- TCs Avatar MV -------');
+  console.log('============== Testcase Avatar MV ==============');
   await loginUserPage.loginUser(); 
   await avatarMVPage.generateAvatarMV();
 });

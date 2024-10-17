@@ -17,9 +17,9 @@ class VerifyPointFunction {
       await this.page.context().addCookies(cookies);
       await this.page.goto(config.tongramUrl);
       await this.page.waitForLoadState('networkidle');  
-      console.log('Page loaded successfully with cookies.');
+      console.log('✅ Page loaded successfully with cookies.');
     } catch (error) {
-      console.error('Error during login:', error.message);
+      console.error('❌ Error during login:', error.message);
       throw error;  
     }
   }
@@ -41,33 +41,34 @@ class VerifyPointFunction {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////                 TEST CASE                //////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-async verifyPoint() {
-  try {
+  async verifyPoint() {
+    try {
       const pointText1 = await this.page.locator(config.Point_1).innerText();
       const pointElement1 = this.convertToPoints(pointText1);
-      console.log(`Point page (1): ${pointElement1}`);
-
-      await this.page.locator(config.Point_1).click(); 
+      console.log(`📍 Current points (1): ${pointElement1}`);
+      await this.page.locator(config.Point_1).click();
       await this.page.getByRole('button', { name: 'Earn More' }).click();
 
       const pointText2 = await this.page.locator(config.Point_2).innerText();
       const pointElement2 = this.convertToPoints(pointText2);
-      console.log(`Point page (2): ${pointElement2}`);
+      console.log(`📍 Current points (2): ${pointElement2}`);
 
       const pointText3 = await this.page.locator(config.Point_3).innerText();
       const earnedPoints = pointText3.split(': ')[1];
       const pointElement3 = this.convertToPoints(earnedPoints);
-      console.log(`Point page (3): ${pointElement3}`);
+      console.log(`📍 Current points (3): ${pointElement3}`);
 
       if (pointElement1 === pointElement2 && pointElement2 === pointElement3) {
-          console.log("All the dots match!");
+        console.log("✅ All points match!");
       } else {
-          console.log("Points do not match!");
+        console.error("❌ Points do not match!");
+        throw new Error("Point verification failed."); 
       }
-  } catch (error) {
-      console.error('Error during point check:', error);
+    } catch (error) {
+      console.error('❌ Error during point verification:', error.message);
+      throw error; 
+    }
   }
-}
 
 }
 
