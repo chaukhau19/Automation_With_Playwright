@@ -232,26 +232,26 @@ def sendMessageToTelegram(message) {
 }
 
 def sendBuildStatusMessage(statusBuild) {
-
     TimeZone timeZone = TimeZone.getTimeZone('GMT+7')
-    def currentDateTime = new Date().format("yyyy-MM-dd HH:mm:ss", timeZone)
+    def currentDate = new Date().format("dd-MM-yyyy", timeZone)
+    def currentTime = new Date().format("HH:mm:ss", timeZone)
     def durationMillis = currentBuild.duration ?: 0
     def minutes = (durationMillis / 60000).toInteger()  
     def seconds = ((durationMillis % 60000) / 1000).toInteger()  
-  
+    
     def message = """
-    ══════════════════════
-    🔧 ${statusBuild} 🌟
+    🌟🌟 ${statusBuild} 🌟🌟
     ══════════════════════ 
-    📁 Repository:      ${env.REPO_NAME}       
-    📅 Date:            ${currentDateTime}                              
-    ⏳ Duration:        ${minutes} min ${seconds} sec  
+    📁 Repository: ${env.REPO_NAME}       
+    📅 Date: ${currentDate} 
+    📅 Time: ${currentTime}                                  
+    ⏳ Duration: ${minutes} min ${seconds} sec  
     ══════════════════════
     🔗 ${env.BUILD_URL}         
     ══════════════════════
     🔗 Thank you for your attention! 🚀
     """
-
+    
     sendMessageToTelegram(message)
 }
 

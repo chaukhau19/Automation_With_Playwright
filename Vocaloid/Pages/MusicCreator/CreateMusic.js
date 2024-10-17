@@ -59,6 +59,58 @@ class CreateMusicPage {
         this.logTimeTaken(startTime);
       }
 
+      const successStartTime = Date.now(); 
+      const successDisplayPlaybutton1 = this.page.locator(`(//div[preceding-sibling::div[contains(., 'Success')]]//button[1])[1]`);
+      const successDisplayPlaybutton2 = this.page.locator(`(//div[preceding-sibling::div[contains(., 'Success')]]//button[1])[4]`);
+      const successDisplayDownloadbutton1 = this.page.locator(`(//div[preceding-sibling::div[contains(., 'Success')]]//div[not(preceding-sibling::svg)][2])[1]`);
+      const successDisplayDownloadbutton2 = this.page.locator(`(//div[preceding-sibling::div[contains(., 'Success')]]//div[not(preceding-sibling::svg)][2])[5]`);
+      const successDisplayViewmorebutton1 = this.page.locator(`(//div[preceding-sibling::div[contains(., 'Success')]]//div[not(preceding-sibling::svg)][1])[4]`);
+      const successDisplayViewmorebutton2 = this.page.locator(`(//div[preceding-sibling::div[contains(., 'Success')]]//div[not(preceding-sibling::svg)][1])[14]`);
+      const successDisplayDeletebutton = this.page.locator(`(//div[contains(., 'Create Music')]/following-sibling::div[1])[6]`);
+      
+      try {
+        await this.page.waitForTimeout(5000);
+        await expect(successDisplayPlaybutton1).toBeVisible({ timeout: 120000 });
+        await expect(successDisplayPlaybutton2).toBeVisible({ timeout: 120000 });
+        console.log(`✅ Play Button is displayed`);
+        await successDisplayPlaybutton1.click();
+        await successDisplayPlaybutton2.click();       
+        await this.page.waitForTimeout(5000);
+        await successDisplayPlaybutton1.click();
+        await successDisplayPlaybutton2.click();   
+      } catch (error) {
+        console.error(`❌ Play Audio is not present:`, error);
+        throw new Error('Failed at Step: Check Play Button Visibility');
+      }
+
+      try {
+        await this.page.waitForTimeout(5000);
+        await expect(successDisplayDownloadbutton1).toBeVisible({ timeout: 120000 });
+        await expect(successDisplayDownloadbutton2).toBeVisible({ timeout: 120000 });
+        console.log(`✅ Download Button is displayed`);
+      } catch (error) {
+        console.error(`❌ Download Button is not present:`, error);
+        throw new Error('Failed at Step: Check Download Button Visibility');
+      }
+      try {
+        await this.page.waitForTimeout(5000);
+        await expect(successDisplayViewmorebutton1).toBeVisible({ timeout: 120000 });
+        await expect(successDisplayViewmorebutton2).toBeVisible({ timeout: 120000 });
+        console.log(`✅ ViewMore Button is displayed`);
+      } catch (error) {
+        console.error(`❌ ViewMore Button is not present:`, error);
+        throw new Error('Failed at Step: Check ViewMore Button Visibility');
+      }
+      
+      try {
+        await expect(successDisplayDeletebutton).toBeVisible({ timeout: 120000 });
+        console.log(`✅ Delete Button is displayed`);
+      } catch (error) {
+        console.error(`❌ Delete Button is not present:`, error);
+        throw new Error('Failed at Step: Check Delete Button Visibility');
+      }
+      this.logTimeTaken(successStartTime);
+
       await this.page.getByRole('link', { name: 'History Activities' }).click();
       await this.page.waitForSelector(`//h6[text()='${config.CreateMusics_Name}']`, { state: 'visible' });
       await this.page.waitForSelector(`(//td[.//div[text()='Create Music'] and .//h6[text()='${config.CreateMusics_Name}']])[1]`, { state: 'visible' });

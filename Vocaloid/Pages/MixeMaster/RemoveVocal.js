@@ -53,6 +53,41 @@ class RemoveVocalPage {
         console.error(`❌ Success message is not present:`, error);
         throw new Error('❌ Failed at Step: Check Success Message');
       }
+      const successStartTime = Date.now(); 
+      const successDisplayPlaybutton = this.page.locator(`(//div[contains(@class, 'header')]//div[preceding-sibling::div[contains(., 'Success')]]//div[not(preceding-sibling::svg)])[4]`);
+      const successDisplayDownloadbutton = this.page.locator(`(//div[contains(@class, 'header')]//div[preceding-sibling::div[contains(., 'Success')]]//div[not(preceding-sibling::svg)])[7]`);
+      const successDisplayDeletebutton = this.page.locator(`(//div[contains(@class, 'header')]//div[preceding-sibling::div[contains(., 'Success')]]//div[not(preceding-sibling::svg)])[8]`);
+      
+      try {
+        await this.page.waitForTimeout(5000);
+        await expect(successDisplayPlaybutton).toBeVisible({ timeout: 120000 });
+        console.log(`✅ Play Button is displayed`);
+        await successDisplayPlaybutton.click();
+        await this.page.waitForTimeout(5000);
+        await successDisplayPlaybutton.click();
+      } catch (error) {
+        console.error(`❌ Play Audio is not present:`, error);
+        throw new Error('Failed at Step: Check Play Button Visibility');
+      }
+
+      try {
+        await this.page.waitForTimeout(5000);
+        await expect(successDisplayDownloadbutton).toBeVisible({ timeout: 120000 });
+        console.log(`✅ Download Button is displayed`);
+      } catch (error) {
+        console.error(`❌ Download Button is not present:`, error);
+        throw new Error('Failed at Step: Check Download Button Visibility');
+      }
+
+      try {
+        await expect(successDisplayDeletebutton).toBeVisible({ timeout: 120000 });
+        console.log(`✅ Delete Button is displayed`);
+      } catch (error) {
+        console.error(`❌ Delete Button is not present:`, error);
+        throw new Error('Failed at Step: Check Delete Button Visibility');
+      }
+
+      this.logTimeTaken(successStartTime);
 
       await this.page.getByRole('link', { name: 'History Activities' }).click();
       await this.page.waitForSelector(`//h6[text()='${config.Youtube_Text_8}']`, { state: 'visible' });
