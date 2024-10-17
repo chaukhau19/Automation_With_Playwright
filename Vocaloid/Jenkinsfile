@@ -239,10 +239,9 @@ def sendBuildStatusMessage(statusBuild, totalTests, passedTests) {
     def minutes = (durationMillis / 60000).toInteger()  
     def seconds = ((durationMillis % 60000) / 1000).toInteger()  
 
-    def buildNumber = env.BUILD_NUMBER ?: 'N/A'
     def commitId = env.GIT_COMMIT ?: 'N/A'
     def branchName = env.GIT_BRANCH ?: 'N/A'
-    def passRate = totalTests > 0 ? (passedTests / totalTests) * 100 : 0
+
     def message = """
     🌟🌟 ${statusBuild} 🌟🌟
     ══════════════════════ 
