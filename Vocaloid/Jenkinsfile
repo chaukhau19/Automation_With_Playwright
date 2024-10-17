@@ -231,7 +231,7 @@ def sendMessageToTelegram(message) {
     sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
 }
 
-def sendBuildStatusMessage(statusBuild) {
+def sendBuildStatusMessage(statusBuild, totalTests, passedTests) {
     TimeZone timeZone = TimeZone.getTimeZone('GMT+7')
     def currentDate = new Date().format("dd-MM-yyyy", timeZone)
     def currentTime = new Date().format("HH:mm:ss", timeZone)
@@ -242,20 +242,19 @@ def sendBuildStatusMessage(statusBuild) {
     def buildNumber = env.BUILD_NUMBER ?: 'N/A'
     def commitId = env.GIT_COMMIT ?: 'N/A'
     def branchName = env.GIT_BRANCH ?: 'N/A'
-    def authorName = env.GIT_AUTHOR_NAME ?: 'N/A'
-
+    def passRate = totalTests > 0 ? (passedTests / totalTests) * 100 : 0
     def message = """
     🌟🌟 ${statusBuild} 🌟🌟
     ══════════════════════ 
-    📁 REPOSITORY: ${env.REPO_NAME}           
-    📅 DATE: ${currentDate} 
-    🕒 TIME: ${currentTime}                                  
-    ⏳ DURATION: ${minutes} min ${seconds} sec  
+    📁 Repository: ${env.REPO_NAME}           
+    📅 Date: ${currentDate} 
+    🕒 Time: ${currentTime}                                  
+    ⏳ Duration: ${minutes} min ${seconds} sec  
+    ✔️ Pass Rate: ${passRate.format("%.2f")}% 
     ══════════════════════
-    🌿 BRANCH: ${branchName}       
-    🏷️ COMMIT ID: ${commitId}       
-    👤 AUTHOR: ${authorName}   
-    🔗 ${env.BUILD_URL}       
+    🌿 Branch: ${branchName}       
+    🏷️ Commit ID: ${commitId}       
+    🔗 Jenkins Server: ${env.BUILD_URL}       
     ══════════════════════
     🔗 Thank you for your attention! 🚀
     """
