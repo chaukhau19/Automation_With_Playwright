@@ -237,12 +237,10 @@ def sendBuildStatusMessage(statusBuild) {
     def currentDateTime = new Date().format("yyyy-MM-dd HH:mm:ss", timeZone)
 
     def durationMillis = currentBuild.duration ?: 0
-    def minutes = Math.floor(durationMillis / 60000).toInteger()
-    def seconds = Math.floor((durationMillis % 60000) / 1000).toInteger()
+    def minutes = Math.floor(durationMillis / 60000).toInteger()  
+    def seconds = Math.floor((durationMillis % 60000) / 1000).toInteger()  
 
-
-    echo "Debug: The value of statusBuild is: ${statusBuild}"
-    def buildStatus = statusBuild == "SUCCESS" ? "✅ SUCCESSED" : "❌ FAILED"
+    def buildStatus = statusBuild == "✅ Status: SUCCESS" ? "✅ SUCCESSED" : "❌ FAILED"
 
     def message = """
     🔧 Jenkins Build Automation 🌟
