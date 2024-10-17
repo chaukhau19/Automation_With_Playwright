@@ -237,15 +237,17 @@ def sendBuildStatusMessage(statusBuild) {
     def currentDateTime = new Date().format("yyyy-MM-dd HH:mm:ss", timeZone)
 
     def durationMillis = currentBuild.duration ?: 0
-    def minutes = durationMillis / 60000
-    def seconds = (durationMillis % 60000) / 1000
+    def minutes = Math.floor(durationMillis / 60000).toInteger()
+    def seconds = Math.floor((durationMillis % 60000) / 1000).toInteger()
 
-    def buildStatus = statusBuild == 'SUCCESS' ? 'SUCCESS' : 'FAILED'
+
+    echo "Debug: The value of statusBuild is: ${statusBuild}"
+    def buildStatus = statusBuild == "SUCCESS" ? "✅ SUCCESSED" : "❌ FAILED"
 
     def message = """
     🔧 Jenkins Build Automation 🌟
     ══════════════════════ 
-    ✅ Status:          ${buildStatus}
+    🔴 Status:          ${buildStatus}
     📁 Repository:      ${REPO_NAME}       
     📅 Date:            ${currentDateTime}                              
     ⏳ Duration:        ${minutes} min ${seconds} sec  
@@ -257,4 +259,3 @@ def sendBuildStatusMessage(statusBuild) {
 
     sendMessageToTelegram(message)
 }
-
