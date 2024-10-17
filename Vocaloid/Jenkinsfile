@@ -231,22 +231,22 @@ def sendMessageToTelegram(message) {
     sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
 }
 
+
 def sendBuildStatusMessage(statusBuild) {
     TimeZone timeZone = TimeZone.getTimeZone('GMT+7')
     def currentDateTime = new Date().format("yyyy-MM-dd HH:mm:ss", timeZone)
 
-    def startTime = currentBuild.startTime
-    def duration = startTime ? new Date().getTime() - startTime.getTime() : 0
-    def minutes = duration / 60000
-    def seconds = (duration % 60000) / 1000
+    def durationMillis = currentBuild.duration ?: 0
+    def minutes = durationMillis / 60000
+    def seconds = (durationMillis % 60000) / 1000
 
-    def buildStatus = statusBuild == 'SUCCESS' ? '✅ SUCCESS' : '❌ FAILED'
+    def buildStatus = statusBuild == 'SUCCESS' ? 'SUCCESS' : 'FAILED'
 
     def message = """
     🔧 Jenkins Build Automation 🌟
     ══════════════════════ 
-    📁 Repository:      ${repoName} 
     ✅ Status:          ${buildStatus}
+    📁 Repository:      ${REPO_NAME}       
     📅 Date:            ${currentDateTime}                              
     ⏳ Duration:        ${minutes} min ${seconds} sec  
     ══════════════════════
@@ -257,3 +257,4 @@ def sendBuildStatusMessage(statusBuild) {
 
     sendMessageToTelegram(message)
 }
+
