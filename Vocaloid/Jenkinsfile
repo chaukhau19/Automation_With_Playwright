@@ -231,7 +231,7 @@ def sendMessageToTelegram(message) {
     sh "curl -s -X POST https://api.telegram.org/bot${botToken}/sendMessage -d chat_id=${chatId} -d text='${message}'"
 }
 
-def sendBuildStatusMessage(statusBuild, totalTests, passedTests) {
+def sendBuildStatusMessage(statusBuild) {
     TimeZone timeZone = TimeZone.getTimeZone('GMT+7')
     def currentDate = new Date().format("dd-MM-yyyy", timeZone)
     def currentTime = new Date().format("HH:mm:ss", timeZone)
@@ -241,7 +241,7 @@ def sendBuildStatusMessage(statusBuild, totalTests, passedTests) {
 
     def commitId = env.GIT_COMMIT ?: 'N/A'
     def branchName = env.GIT_BRANCH ?: 'N/A'
-
+    
     def message = """
     🌟🌟 ${statusBuild} 🌟🌟
     ══════════════════════ 
@@ -249,7 +249,6 @@ def sendBuildStatusMessage(statusBuild, totalTests, passedTests) {
     📅 Date: ${currentDate} 
     🕒 Time: ${currentTime}                                  
     ⏳ Duration: ${minutes} min ${seconds} sec  
-    ✔️ Pass Rate: ${passRate.format("%.2f")}% 
     ══════════════════════
     🌿 Branch: ${branchName}       
     🏷️ Commit ID: ${commitId}       
