@@ -240,20 +240,17 @@ def sendBuildStatusMessage(statusBuild) {
     def minutes = duration / 60000
     def seconds = (duration % 60000) / 1000
 
-    def buildStatus = statusBuild == "SUCCESS" ? "SUCCESSED" : "FAILED"
-
-    def repoName = env.REPO_NAME ?: "Unknown Repository"
-    def buildUrl = env.BUILD_URL ?: "No Build URL"
+    def buildStatus = statusBuild == 'SUCCESS' ? '✅ SUCCESS' : '❌ FAILED'
 
     def message = """
-    🔧 Jenkins Build  🌟
+    🔧 Jenkins Build Automation 🌟
     ══════════════════════ 
+    📁 Repository:      ${repoName} 
     ✅ Status:          ${buildStatus}
-    📁 Repository:      ${repoName}       
     📅 Date:            ${currentDateTime}                              
     ⏳ Duration:        ${minutes} min ${seconds} sec  
     ══════════════════════
-    🔗 ${buildUrl}                 
+    🔗 ${env.BUILD_URL}         
     ══════════════════════
     🔗 Thank you for your attention! 🚀
     """
