@@ -78,8 +78,8 @@ environment {
                         fi
                     """
                 }
-        //     }
-        // }
+            }
+        }
         // stage('Setup Dependencies') {
         //     steps {
         //         echo 'Setting up dependencies'
