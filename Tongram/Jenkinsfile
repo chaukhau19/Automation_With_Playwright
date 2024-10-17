@@ -199,24 +199,27 @@ def cleanTemporaryFolder() {
 
 def sendBuildStatusMessage(statusBuild) {
     TimeZone timeZone = TimeZone.getTimeZone('GMT+7')
-    def currentDateTime = new Date().format("yyyy-MM-dd HH:mm:ss", timeZone)
-
+    def currentDate = new Date().format("dd-MM-yyyy", timeZone)
+    def currentTime = new Date().format("HH:mm:ss", timeZone)
+    def durationMillis = currentBuild.duration ?: 0
+    def minutes = (durationMillis / 60000).toInteger()  
+    def seconds = ((durationMillis % 60000) / 1000).toInteger()  
+    
     def message = """
-    🔧 Jenkins Build Status 🌟
+    🌟🌟 ${statusBuild} 🌟🌟
+    ══════════════════════ 
+    📁 Repository: ${env.REPO_NAME}       
+    📅 Date: ${currentDate} 
+    📅 Time: ${currentTime}                                  
+    ⏳ Duration: ${minutes} min ${seconds} sec  
     ══════════════════════
-    📁 Repository:      ${REPO_NAME}                    
-    🔢 Build Number:    #${env.BUILD_NUMBER}            
-    Build Status:       ${statusBuild}  
-    ⏳ Duration:        ${currentBuild.durationString}   
-    📅 Date:            ${currentDateTime}               
-    🔗 Link:            ${env.BUILD_URL}                 
+    🔗 ${env.BUILD_URL}         
     ══════════════════════
     🔗 Thank you for your attention! 🚀
     """
-
+    
     sendMessageToTelegram(message)
 }
-
 
 
 def sendMessageToTelegram(message) {
