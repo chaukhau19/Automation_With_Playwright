@@ -232,23 +232,16 @@ def sendMessageToTelegram(message) {
 }
 
 def sendBuildStatusMessage(statusBuild) {
-    // Setting the timezone
+
     TimeZone timeZone = TimeZone.getTimeZone('GMT+7')
     def currentDateTime = new Date().format("yyyy-MM-dd HH:mm:ss", timeZone)
-
-    // Handling build duration
     def durationMillis = currentBuild.duration ?: 0
     def minutes = (durationMillis / 60000).toInteger()  
     def seconds = ((durationMillis % 60000) / 1000).toInteger()  
-
-    // Checking build status
-    def buildStatus = statusBuild == "SUCCESS" ? "✅ SUCCESSED" : "❌ FAILED"
-
-    // Message format
+  
     def message = """
-    🔧 Jenkins Build Automation 🌟
+    🔧 Jenkins Build ${statusBuild} 🌟
     ══════════════════════ 
-    🔴 Status:          ${buildStatus}
     📁 Repository:      ${env.REPO_NAME}       
     📅 Date:            ${currentDateTime}                              
     ⏳ Duration:        ${minutes} min ${seconds} sec  
