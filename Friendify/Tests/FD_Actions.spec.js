@@ -26,7 +26,6 @@ test.afterEach(async () => {
 });
 
 test('Perform First and Second Chats', async () => {
-  console.log('============== Testcase Perform First and Second Chats ==============');
   await actionsPage.loginWithAccount();
   console.log('============== User Chat with Speed ==============');
   await actionsPage.performFirstChat();
@@ -51,6 +50,7 @@ test('Generate Docs', async () => {
   console.log('============== Testcase Generate Docs ==============');
   await actionsPage.loginWithAccount();
   await actionsPage.generateDoc();
+  console.log('============== Testcase Delete Docs ==============');
   await actionsPage.deleteGenerateDocs();
 });
 
@@ -58,6 +58,7 @@ test('Generate Audio', async () => {
   console.log('============== Testcase Generate Audio ==============');
   await actionsPage.loginWithAccount();
   await actionsPage.generateAudio();
+  console.log('============== Testcase Delete Audio ==============');
   await actionsPage.deleteGenerateAudio();
 });
 
@@ -65,6 +66,7 @@ test('Generate Image Summary', async () => {
   console.log('============== Testcase Generate Image Summary ==============');
   await actionsPage.loginWithAccount();
   await actionsPage.generateImage_Summary();
+  console.log('============== Testcase Delete Image ==============');
   await actionsPage.deleteGenerateImage_Summary();
 });
 
@@ -72,6 +74,7 @@ test('Generate Image Object', async () => {
   console.log('============== Testcase Generate Image Object ==============');
   await actionsPage.loginWithAccount();
   await actionsPage.generateImage_Object();
+  console.log('============== Testcase Delete Image ==============');
   await actionsPage.deleteGenerateImage_Object();
 });
 
@@ -79,5 +82,6 @@ test('Generate Image Text', async () => {
   console.log('============== Testcase Generate Image Text ==============');
   await actionsPage.loginWithAccount();
   await actionsPage.generateImage_Text();
+  console.log('============== Testcase Delete Image ==============');
   await actionsPage.deleteGenerateImage_Text();
 });
