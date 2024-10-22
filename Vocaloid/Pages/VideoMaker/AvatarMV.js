@@ -19,15 +19,10 @@ class AvatarMVPage {
       await expect(validLinkMessage).toBeVisible();
       console.log('✅ Valid YouTube link!');
 
-      // const headerLocator = this.page.locator(`//div[@class='header']//h2[text()='${config.Youtube_Text_7}']`);
-      // const startTime = Date.now(); 
-      // await expect(headerLocator).toBeVisible({ timeout: 100000 });
-
       const headerLocator = this.page.locator(`//div[@class='header']//h2[text()='${config.Youtube_Text_7}']`);
       const startTime = Date.now();
       try {
         await expect(headerLocator).toBeVisible({ timeout: 120000 });
-        // startTime = Date.now();
         console.log(`✅ ${config.Youtube_Text_7} is displayed`);
       } catch (error) {
         console.error(`❌ ${config.Youtube_Text_7} is not present:`, error);
@@ -39,12 +34,13 @@ class AvatarMVPage {
       this.logTimeTaken(startTime);
 
       await this.page.getByRole('link', { name: 'History Activities' }).click();
-        await this.page.waitForSelector(`//h6[text()='${config.Youtube_Text_7}']`, { state: 'visible' });
-        await this.page.waitForSelector(`(//td[.//div[text()='Avatar MV'] and .//h6[text()='${config.Youtube_Text_7}']])[1]`, { state: 'visible' });
-        const successTd = this.page.locator(`//tr[.//h6[text()='${config.Youtube_Text_7}']][1]//p[text()='Success']`);
-        const isSuccessVisible = await successTd.count() > 0 && await successTd.isVisible();
-        const failedTd = this.page.locator(`//tr[.//h6[text()='${config.Youtube_Text_7}']][1]//p[text()='Failed']`);
-        const isFailedVisible = await failedTd.count() > 0 && await failedTd.isVisible();
+      await this.page.waitForSelector(`//h6[text()='${config.Youtube_Text_7}']`, { state: 'visible' });
+      await this.page.waitForSelector(`(//td[.//div[text()='Avatar MV'] and .//h6[text()='${config.Youtube_Text_7}']])[1]`, { state: 'visible' });
+      const successTd = this.page.locator(`//tr[.//h6[text()='${config.Youtube_Text_7}']][1]//p[text()='Success']`);
+      const isSuccessVisible = await successTd.count() > 0 && await successTd.isVisible();
+      const failedTd = this.page.locator(`//tr[.//h6[text()='${config.Youtube_Text_7}']][1]//p[text()='Failed']`);
+
+      const isFailedVisible = await failedTd.count() > 0 && await failedTd.isVisible();
         if (isSuccessVisible) {
           console.log('✅ Test Passed: Song created with Success status on history summary page');
         } else if (isFailedVisible) {

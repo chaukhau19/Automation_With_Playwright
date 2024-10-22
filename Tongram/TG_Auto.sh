@@ -1,6 +1,6 @@
 # @REM Tongram
 
-# npx playwright test TG_Cookies.spec.js --reporter=line --workers=1
+# npx playwright test TG_Cookies.spec.js --reporter=line --workers=1 --headed
 # npx playwright test TG_DailyTask.spec.js --reporter=line --workers=1
 # npx playwright test TG_VerifyPoint.spec.js --reporter=html,json --output=./Results --workers=1
 
