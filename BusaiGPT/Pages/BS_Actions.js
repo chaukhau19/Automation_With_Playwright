@@ -48,24 +48,30 @@ export class ActionsPage {
       const pointsText = await this.page.locator(config.Locator_GetPoint).innerText();
       return this.convertToPoints(pointsText);
     } catch (error) {
-      console.error('Error retrieving points:', error);
+      console.error('❌ Error retrieving points:', error);
       throw error;
     }
   }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  async checkPointsUsed(expectedPointsUsed) {
-    try {
-      const pointBefore = await this.getPoints();
-      console.log(`💰 Point before operation: ${pointBefore}`);
-      await this.page.waitForTimeout(15000);
-      const pointAfter = await this.getPoints();
-      console.log(`💰 Point after operation: ${pointAfter}`);
-      const totalPointsUsed = pointBefore - pointAfter;
-      console.log(`🌟🌟🌟 Total points used to generate : ${totalPointsUsed}`);
-      expect(totalPointsUsed).toBe(expectedPointsUsed);
-    } catch (error) {
-      console.error('Error checking points used:', error);
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+  async checkPointsBeforeChat() {
+    await this.page.waitForTimeout(2000);
+    const points = await this.getPoints();
+    console.log('🔍 Points before chat:', points);
+    return points;
+  }
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  async checkPointsAfterChat(expectedDecrease, pointBeforeChat) {
+    const pointAfterChat = await this.getPoints();
+    const pointUsed = pointBeforeChat - pointAfterChat;
+  
+    console.log('⚡⚡⚡ Total points used after chat:', pointUsed);
+    if (pointUsed === expectedDecrease) {
+      console.log(`✅ Points decreased by ${expectedDecrease} as expected.`);
+    } else {
+      console.error(`❌ Points mismatch. Expected decrease: ${expectedDecrease}, Actual decrease: ${pointUsed}`);
     }
+  
+    return pointAfterChat;
   }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   async performActionsIfElementExists() {
@@ -81,7 +87,7 @@ export class ActionsPage {
     try {
       const fileInput = this.page.locator('input[type="file"]');
       await fileInput.setInputFiles(filePath);
-      console.log('File uploaded');
+      console.log('📂 File uploaded:', filePath);
     } catch (error) {
       console.error('Error uploading file:', error);
       throw error;
@@ -92,92 +98,80 @@ export class ActionsPage {
 //////////////////////////////////////                 TEST CASE                //////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 async performFirstChat(message1) {
-  console.log('📝 ============== Testcase 1: performFirstChat ==============');
+  console.log('🚀 ============== Testcase 1 Chat with Speed ==============');
+  const pointBeforeChat = await this.checkPointsBeforeChat();
 
-  console.log('🔍 Checking current points...');
-  await this.page.waitForTimeout(3000); 
-  const pointBeforeFirstChat = await this.getPoints();
-  console.log('💰 Point before chat:', pointBeforeFirstChat);
-  
   try {
-    console.log('💬 Initiating new chat...');
     await this.page.locator('form div').first().click();
-    await this.page.waitForTimeout(10000); 
-    await this.page.getByPlaceholder('Type something...').fill(message1);
+    await this.page.waitForTimeout(10000);
+
+    try {
+      await this.page.getByPlaceholder('Type something...').fill(message1);
+      console.log('📝 Typed message:', config.message1);
+    } catch (error) {
+      console.error('⚠️ Unable to type message:', config.message1, 'Error:', error);
+    }
+
     await this.page.locator('form').getByRole('button').click();
-    await this.page.waitForTimeout(5000); 
-  
-    await expect(this.page.getByText(config.expect_message1)).toBeVisible();
-    console.log('✅ Message is visible:', config.expect_message1);
+    await this.page.waitForTimeout(5000);
+
+    try {
+      await expect(this.page.getByText(config.expect_message1)).toBeVisible();
+      console.log('✅ Result AI generated is visible:', config.expect_message1);
+    } catch (error) {
+      console.error('❌ Failed to verify Result AI generated visibility:', config.expect_message1, 'Error:', error);
+    }
+
+    try {
+      await this.page.locator('#scrollableDiv').getByRole('img').click();
+      await this.page.getByRole('button', { name: 'Confirm' }).click();
+      await expect(this.page.getByText('Delete sucessfully')).toBeVisible();
+      console.log('✅ Message deleted successfully');
+    } catch (error) {
+      console.error('❌ Failed to delete the message:', error);
+      return; 
+    }
 
   } catch (error) {
-    console.error('❌ Failed to send or verify message:', error);
-    return; 
+    console.error('❌ Error during chat flow:', error);
+    return;
   }
 
-  await this.page.locator('#scrollableDiv').getByRole('img').click();
-  await this.page.getByRole('button', { name: 'Confirm' }).click();
-  
-  try {
-    console.log('🗑️ Deleting the message...');
-    await expect(this.page.getByText('Delete sucessfully')).toBeVisible();
-    console.log('🗑️ Message deleted successfully');
-  } catch (error) {
-    console.error('❌ Failed to delete the message:', error);
-    return; 
-  }
-
-  const pointAfterFirstChat = await this.getPoints();
-  console.log('💰 Point after first chat:', pointAfterFirstChat);
-  
-  const totalPointUsedFirstChat = pointBeforeFirstChat - pointAfterFirstChat;
-  console.log('🌟🌟🌟 Total points used after chat:', totalPointUsedFirstChat);
-  
-  if (totalPointUsedFirstChat === 250) {
-    console.log('✅ PASS: The points decreased correctly by 250 after the first chat.');
-  } else {
-    console.log('❌ FAIL: The points did not decrease correctly after the first chat.');
-  }
+  await this.page.waitForTimeout(5000);
+  await this.checkPointsAfterChat(250, pointBeforeChat);
 }
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async performSecondChat(message2) {
-  console.log('📝 ============== Testcase 2: performSecondChat ==============');
+  console.log('🚀 ============== Testcase 2 Chat with Intelligent ==============');
+  const pointBeforeChat = await this.checkPointsBeforeChat();
 
-  console.log('🔍 Checking current points...');
-  await this.page.waitForTimeout(3000); 
-  const pointBeforeFirstChatText = await this.page.locator(config.Locator_GetPoint).innerText();
-  const pointBeforeFirstChat = this.convertToPoints(pointBeforeFirstChatText);
-  console.log('💰 Point before chat:', pointBeforeFirstChat);
-
+  await this.page.locator('form div').first().click();
+  await this.page.waitForTimeout(10000);
+  await this.page.getByRole('link', { name: 'New chat' }).click();
+  await this.page.locator('//span[text()="Intelligent"]').click();
+    
   try {
-    console.log('💬 Initiating new chat...');
-    await this.page.locator('form div').first().click();
-    await this.page.waitForTimeout(10000);
-    await this.page.getByRole('link', { name: 'New chat' }).click();
-    await this.page.locator('//span[text()="Intelligent"]').click();
-    await this.page.getByPlaceholder('Type something...').fill(message2);
-    await this.page.locator('form').getByRole('button').click();
-    await this.page.waitForTimeout(5000);
-    console.log('✅ Message sent successfully');
+  await this.page.getByPlaceholder('Type something...').fill(message2);
+  console.log('📝 Typed message:', config.message2);
   } catch (error) {
-    console.error('❌ Failed to send message:', error);
-    return; 
+  console.error('⚠️ Unable to type message:', config.message2, 'Error:', error);
   }
+    
+  await this.page.locator('form').getByRole('button').click();
+  await this.page.waitForTimeout(5000);
 
   try {
-    console.log('🔍 Verifying if the message is visible...');
     await expect(this.page.getByText(config.expect_message2)).toBeVisible();
-    console.log('✅ Message is visible:', config.expect_message2);
+    console.log('✅ Result AI generated is visible:', config.expect_message2);
   } catch (error) {
-    console.error('❌ Failed to verify message:', error);
+    console.error('❌ Failed to verify Result AI generated visibility:', error);
     return;
   }
 
   try {
-    console.log('🗑️ Deleting the message...');
     await this.page.locator('#scrollableDiv').getByRole('img').click();
     await this.page.getByRole('button', { name: 'Confirm' }).click();
     await expect(this.page.getByText('Delete sucessfully')).toBeVisible();
@@ -186,45 +180,25 @@ async performSecondChat(message2) {
     console.error('❌ Failed to delete the message:', error);
     return; 
   }
-
-  const pointAfterSecondChatText = await this.page.locator(config.Locator_GetPoint).innerText();
-  const pointAfterSecondChat = this.convertToPoints(pointAfterSecondChatText);
-  console.log('💰 Point after second chat:', pointAfterSecondChat);
-  
-  const totalPointUsedSecondChat = pointBeforeFirstChat - pointAfterSecondChat;
-  console.log('🌟🌟🌟 Total points used after chat:', totalPointUsedSecondChat);
-  
-  if (totalPointUsedSecondChat === 250) {
-    console.log('✅ PASS: The points decreased correctly by 250 after the second chat.');
-  } else {
-    console.log('❌ FAIL: The points did not decrease correctly after the second chat.');
-  }
+  await this.page.waitForTimeout(5000);
+  await this.checkPointsAfterChat(250, pointBeforeChat);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async performGenerateDocs() {
-  console.log('🚀 ============== Testcase 3 performGenerateDocs ==============');
+  console.log('🚀 ============== Testcase 3 Generate Docs ==============');
+  const pointBeforeChat = await this.checkPointsBeforeChat();
 
-  console.log('🔍 Checking current points...');
-  await this.page.waitForTimeout(3000); 
-  const pointBeforeGenerateDocsText = await this.page.locator(config.Locator_GetPoint).innerText();
-  console.log('💰 Current inner text:', pointBeforeGenerateDocsText);
-  const pointBeforeGenerateDocs = this.convertToPoints(pointBeforeGenerateDocsText);
-  console.log('💰 Point before generate docs: ', pointBeforeGenerateDocs);
-  
   try {
-    console.log('📁 Clicking on Assist link...');
     await this.page.getByRole('link', { name: 'Assist' }).click();
     
     const uploadLocator = this.page.locator('label').filter({ hasText: 'Upload File (Max 5MB .pdf)' }).locator('div').first();
     await uploadLocator.waitFor({ state: 'visible', timeout: 10000 });
-    console.log('🖱️ Uploading file...');
     await uploadLocator.click();
 
     const filePath = config.path_generateDocs;
-    await this.page.setInputFiles('input[type="file"]', filePath);
-    console.log('✅ File uploaded');
+    await this.uploadFile(filePath); 
 
     console.log('🚀 Starting Summary...');
     await this.page.getByRole('button', { name: 'Start Summary' }).click();
@@ -233,26 +207,14 @@ async performGenerateDocs() {
   }
 
   try {
-    console.log('🔍 Verifying generated docs...');
     await expect(this.page.getByText(config.expect_text_Docs)).toBeVisible({ timeout: 30000 });
-    console.log('✅ Message is visible:', config.expect_text_Docs);
+    console.log('✅ Result AI generated is visible:', config.expect_text_Docs);
   } catch (error) {
-    console.error('❌ Failed to verify generate docs:', error);
+    console.error('❌ Failed to verify Result AI generated visibility:', error);
   }
 
   await this.page.waitForTimeout(15000);
-  const pointAfterGenerateDocsText = await this.page.locator(config.Locator_GetPoint).innerText();
-  const pointAfterGenerateDocs = this.convertToPoints(pointAfterGenerateDocsText);
-  console.log('💰 Point after generate docs: ', pointAfterGenerateDocs);
-
-  const totalPointUsedGenerateDocs = Math.round(pointBeforeGenerateDocs - pointAfterGenerateDocs);
-  console.log('🌟🌟🌟 Total points used after generate docs: ', totalPointUsedGenerateDocs);
-  
-  if (totalPointUsedGenerateDocs === 1000) {
-    console.log('🎉 PASS: The points decreased correctly by 1000 after generate docs.');
-  } else {
-    console.log('❌ FAIL: The points did not decrease correctly after generate docs.');
-  }
+  await this.checkPointsAfterChat(1000, pointBeforeChat);
 }
 
 
@@ -272,60 +234,40 @@ async deleteGenerateDocs() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async performGenerateAudio() {
-  console.log('🎤 ============== Testcase 5 performGenerateAudio ==============');
-
-  console.log('🔍 Checking current points...');
-  await this.page.waitForTimeout(3000); 
-  const pointBeforeFirstChatText = await this.page.locator(config.Locator_GetPoint).innerText();
-  console.log('💰 Current inner text:', pointBeforeFirstChatText);
-  const pointBeforeFirstChat = this.convertToPoints(pointBeforeFirstChatText);
-  console.log('💰 Point before generate: ', pointBeforeFirstChat);
+  console.log('🚀 ============== Testcase 5 Generate Audio ==============');
+  const pointBeforeChat = await this.checkPointsBeforeChat();
 
   try {
-      await this.page.getByRole('link', { name: 'Assist' }).click();
-      await this.page.getByText('Audio').click();
-      await this.page.locator('div').filter({ hasText: /^Upload File \(Max 5MB \.mp3\) Small or poor-quality sound may limit summarization\.$/ }).nth(1).waitFor({ state: 'visible', timeout: 10000 });
-      await this.page.locator('div').filter({ hasText: /^Upload File \(Max 5MB \.mp3\) Small or poor-quality sound may limit summarization\.$/ }).nth(1).click();
-      
-      const filePath = config.path_generateAudio;
-      await this.page.setInputFiles('input[type="file"]', filePath);
-      console.log('📂 File uploaded');
+    await this.page.getByRole('link', { name: 'Assist' }).click();
+    await this.page.getByText('Audio').click();
 
-      await this.page.getByRole('button', { name: 'Start Summary' }).click();
+    const uploadSection = this.page.locator('div').filter({ hasText: /^Upload File \(Max 5MB \.mp3\) Small or poor-quality sound may limit summarization\.$/ }).nth(1);
+    await uploadSection.waitFor({ state: 'visible', timeout: 10000 });
+    await uploadSection.click();
 
-      // await expect(this.page.locator('div').filter({ hasText: config.expect_title_Audio }).nth(1)).toBeVisible();
+    const filePath = config.path_generateAudio;
+    await this.uploadFile(filePath); 
 
+    await this.page.getByRole('button', { name: 'Start Summary' }).click();
   } catch (error) {
-      console.error('❌ Failed to generate:', error);
+    console.error('❌ Failed to perform audio summary generation steps:', error);
   }
 
   try {
-      await expect(this.page.getByText(config.expect_text_Audio)).toBeVisible({ timeout: 30000 });
-      console.log('✅ Message is visible:', config.expect_text_Audio);
-
+    await expect(this.page.getByText(config.expect_text_Audio)).toBeVisible({ timeout: 30000 });
+    console.log('✅ Result AI generated is visible:', config.expect_text_Audio);
   } catch (error) {
-      console.error('❌ Failed to verify generate:', error);
+    console.error('❌ Failed to verify Result AI generated visibility:', error);
   }
 
   await this.page.waitForTimeout(15000);
-  const pointAfterFirstChatText = await this.page.locator(config.Locator_GetPoint).innerText();
-  const pointAfterFirstChat = this.convertToPoints(pointAfterFirstChatText);
-  console.log('🔍 Point after first generate: ', pointAfterFirstChat);
-  
-  const totalPointUsedFirstChat = Math.round(pointBeforeFirstChat - pointAfterFirstChat);
-  console.log('🌟🌟🌟 Total points used after generate: ', totalPointUsedFirstChat);
-  
-  if (totalPointUsedFirstChat === 1000) {
-      console.log('✅ PASS: The points decreased correctly by 1000 after the first chat.');
-  } else {
-      console.log('❌ FAIL: The points did not decrease correctly after the first chat.');
-  }
+  await this.checkPointsAfterChat(1000, pointBeforeChat);
 }
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 async deleteGenerateAudio() {
-  console.log('🚀 ===== Testcase 6 deleteGenerateAudio ==============');
+  console.log('🚀 ============== Testcase 6 delete Audio ==============');
 
   try {
       await this.page.getByRole('link', { name: 'Ask' }).click();
@@ -345,47 +287,47 @@ async deleteGenerateAudio() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async performGenerateImage_Summary() {
-  console.log('🖼️ ============== Testcase 7 performGenerateImage_Summary ==============');
-
-  console.log('🔍 Checking current points...');
-  await this.page.waitForTimeout(3000); 
-  const pointBefore = await this.getPoints();
-  console.log('🔍 Point before generate: ', pointBefore);
+  console.log('🚀 ============== Testcase 7 Generate Image Summary ==============');
+  const pointBeforeChat = await this.checkPointsBeforeChat();
 
   try {
-      await this.page.getByRole('link', { name: 'Assist' }).click();
-      await this.page.getByText('Image', { exact: true }).click();
-      await expect(this.page.getByText('New features release')).toBeVisible();
+    await this.page.getByRole('link', { name: 'Assist' }).click();
+    await this.page.getByText('Image', { exact: true }).click();
+    await expect(this.page.getByText('New features release')).toBeVisible();
 
-      await this.page.locator('label:has-text("Upload File (Max 5MB .png | .")').waitFor({ state: 'visible', timeout: 10000 });
-      await this.page.locator('label').filter({ hasText: 'Upload File (Max 5MB .png | .' }).locator('div').first().click();
-      
-      const fileInput = this.page.locator('input[type="file"]');
-      await fileInput.setInputFiles(config.path_generateImage_Summary);
-      console.log('📂 File uploaded');
+    await this.page.locator('label:has-text("Upload File (Max 5MB .png | .")').waitFor({ state: 'visible', timeout: 10000 });
+    
+    const filePath = config.path_generateImage_Summary;
+    await this.page.locator('label').filter({ hasText: 'Upload File (Max 5MB .png | .' }).locator('div').first().click();
+    await this.uploadFile(filePath); 
 
-      await this.page.getByRole('button', { name: 'icon action Summary' }).click();
-      await expect(this.page.getByText('points to Summary')).toBeVisible();
-      await this.page.getByRole('button', { name: 'Let\'s start' }).click();
-      console.log('✅ Clicked Start');
+    await this.page.getByRole('button', { name: 'icon action Summary' }).click();
+    await expect(this.page.getByText('points to Summary')).toBeVisible();
+    await this.page.getByRole('button', { name: "Let's start" }).click();
+    console.log('🚀 Summary generation started');
 
+    try {
       await expect(this.page.locator('div').filter({ hasText: /^Image_4KB\.png$/ }).nth(1)).toBeVisible();
-      console.log('🔍 Verify generate image on this page');
-
       await expect(this.page.getByRole('img', { name: 'avt' })).toBeVisible({ timeout: 30000 });
-      console.log('✅ Answer done');
+      console.log('✅ Result AI generated is visible');
+    } catch (error) {
+      console.error('❌ Failed to verify Result AI generated visibility:', error);
+    }
+
 
   } catch (error) {
-      console.error('❌ An error occurred during the generate image summary operation:', error);
+    console.error('❌ An error occurred during the image summary generation:', error);
   }
-  await this.checkPointsUsed(1000);
+
+  await this.page.waitForTimeout(15000);
+  await this.checkPointsAfterChat(1000, pointBeforeChat);
 }
 
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 async deleteGenerateImage_Summary() {
-  console.log('🚀 ============== Testcase 8 deleteGenerateImage_Summary ==============');
+  console.log('🚀 ============== Testcase 8 delete Image Summary ==============');
 
   try {
       await this.page.getByRole('link', { name: 'Ask' }).click();
@@ -404,29 +346,18 @@ async deleteGenerateImage_Summary() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async performGenerateImage_RemoveObject() {
-  console.log('🖼️ ============== Testcase 9 performGenerateImage_RemoveObject ==============');
-
-  console.log('🔍 Checking current points...');
-  await this.page.waitForTimeout(3000); 
-  const pointBeforeFirstChatText = await this.page.locator(config.Locator_GetPoint).innerText();
-  const pointBeforeFirstChat = this.convertToPoints(pointBeforeFirstChatText);
-  console.log('💰 Point before generate: ', pointBeforeFirstChat);
+  console.log('🚀 ============== Testcase 9 Remove Object ==============');
+  const pointBeforeChat = await this.checkPointsBeforeChat();
 
   try {
-    await this.page.locator('label').filter({ hasText: 'Upload File (Max 5MB .png | .' }).locator('div').first().click();
-    console.log('📂 Clicked to upload file');
-
+    await this.page.locator('label:has-text("Upload File (Max 5MB .png | .") div').first().click();
     const filePath = config.path_generateImage_RemoveObject;
-    await this.page.setInputFiles('input[type="file"]', filePath);
-    console.log('📤 File uploaded');
+    await this.uploadFile(filePath); 
 
-    console.log('🔄 Waiting for Remove object button to be visible');
     await this.page.getByRole('button', { name: 'icon action Remove object' }).click();
     await expect(this.page.getByRole('heading', { name: 'Quick tip' })).toBeVisible();
-    console.log('✅ Remove object button clicked and Quick tip is visible');
-
-    await this.page.getByRole('button', { name: 'Let\'s start' }).click();
-    console.log('🚀 Started Remove');
+    await this.page.getByRole('button', { name: "Let's start" }).click();
+    console.log('🚀 Remove object process started');
 
     await this.page.getByRole('slider').fill('100');
     await this.page.locator('canvas').nth(1).click({ position: { x: 186, y: 83 } });
@@ -437,42 +368,34 @@ async performGenerateImage_RemoveObject() {
     await this.page.getByRole('main').getByRole('button').nth(2).click();
     await this.page.locator('canvas').nth(1).click({ position: { x: 185, y: 89 } });
     await this.page.getByRole('button', { name: 'Clean •' }).click();
-    console.log('🧹 Clean action executed');
+    console.log('🧹 Clean action executed successfully');
 
     const downloadPromise = this.page.waitForEvent('download');
     await this.page.getByRole('button', { name: 'Download image' }).click();
     const download = await downloadPromise;
-    console.log('📥 Download successfully initiated');
+    console.log('📥 Download successful:', download.suggestedFilename());
 
   } catch (error) {
-      console.error('❌ Failed to generate image with remove object:', error);
+    console.error('❌ Failed to generate image with "Remove Object":', error);
+    return; 
   }
 
   try {
-      await expect(this.page.getByRole('img', { name: 'Image result' })).toBeVisible({ timeout: 30000 });
-      console.log('✅ Answer done');
+    await expect(this.page.getByRole('img', { name: 'Image result' })).toBeVisible({ timeout: 30000 });
+    console.log('✅ Result AI generated is visible');
   } catch (error) {
-      console.error('❌ Failed to verify image visibility:', error);
+    console.error('❌ Failed to verify Result AI generated visibility:', error);
   }
 
   await this.page.waitForTimeout(15000);
-  const pointAfterFirstChatText = await this.page.locator(config.Locator_GetPoint).innerText();
-  const pointAfterFirstChat = this.convertToPoints(pointAfterFirstChatText);
-  console.log('💰 Point after generate: ', pointAfterFirstChat);
-  const totalPointUsedFirstChat = pointBeforeFirstChat - pointAfterFirstChat;
-  console.log('🌟🌟🌟 Total points used after generate: ', totalPointUsedFirstChat);
-  
-  if (totalPointUsedFirstChat === 1000) {
-      console.log('✅ PASS: The points decreased correctly by 1000 after the first chat.');
-  } else {
-      console.log('❌ FAIL: The points did not decrease correctly after the first chat.');
-  }
+  await this.checkPointsAfterChat(1000, pointBeforeChat);
 }
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async deleteGenerateImage_RemoveObject() {
-  console.log('🚀 ============== Testcase 10 deleteGenerateImage_RemoveObject ==============');
+  console.log('🚀 ============== Testcase 10 Remove Object ==============');
 
   try {
       await this.page.getByRole('link', { name: 'Ask' }).click();
@@ -491,63 +414,44 @@ async deleteGenerateImage_RemoveObject() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async performGenerateImage_RemoveText() {
-  console.log('🖼️ ============== Testcase 11 performGenerateImage_RemoveText ==============');
-
-  console.log('🔍 Checking current points...');
-  await this.page.waitForTimeout(3000); 
-  const pointBeforeFirstChatText = await this.page.locator(config.Locator_GetPoint).innerText();
-  const pointBeforeFirstChat = this.convertToPoints(pointBeforeFirstChatText);
-  console.log('💰 Point before generate: ', pointBeforeFirstChat);
+  console.log('🚀 ============== Testcase 11 Remove Text ==============');
+  const pointBeforeChat = await this.checkPointsBeforeChat();
 
   try {
-      await this.page.locator('label').filter({ hasText: 'Upload File (Max 5MB .png | .' }).locator('div').first().click();
-      console.log('📂 Clicked to upload file');
+    const filePath = config.path_generateImage_RemoveText;
+    await this.page.locator('label:has-text("Upload File (Max 5MB .png | .") div').first().click();
+    await this.uploadFile(filePath); 
 
-      const filePath = config.path_generateImage_RemoveText;
-      await this.page.setInputFiles('input[type="file"]', filePath);
-      console.log('📤 File uploaded');
+    await this.page.getByRole('button', { name: 'icon action Remove text' }).click();
+    await this.page.getByRole('button', { name: "Let's start" }).click();
+    console.log('🚀 Remove Text operation started');
 
-      await this.page.getByRole('button', { name: 'icon action Remove text' }).click();
-      console.log('✏️ Clicked button Remove Text');
-
-      await this.page.getByRole('button', { name: 'Let\'s start' }).click();
-      console.log('🚀 Started Remove');
-      console.log('🔍 Verify generate image on this page');
-
-      const downloadPromise = this.page.waitForEvent('download');
-      await this.page.getByRole('button', { name: 'Download image' }).click();
-      const download = await downloadPromise;
-      console.log('📥 Download Successfully');
+    const downloadPromise = this.page.waitForEvent('download');
+    await this.page.getByRole('button', { name: 'Download image' }).click();
+    const download = await downloadPromise;
+    console.log('📥 Download successful:', download.suggestedFilename());
 
   } catch (error) {
-      console.error('❌ Failed to generate image with remove text:', error);
+    console.error('❌ Failed to generate image with "Remove Text":', error);
+    return; 
   }
 
   try {
-      await expect(this.page.getByRole('img', { name: 'Image result' })).toBeVisible({ timeout: 30000 });
-      console.log('✅ Answer done');
+    await expect(this.page.getByRole('img', { name: 'Image result' })).toBeVisible({ timeout: 30000 });
+    console.log('✅ Result AI generated is visible');
   } catch (error) {
-      console.error('❌ Failed to verify image visibility:', error);
+    console.error('❌ Failed to verify Result AI generated visibility:', error);
   }
 
-  const pointAfterFirstChatText = await this.page.locator(config.Locator_GetPoint).innerText();
-  const pointAfterFirstChat = this.convertToPoints(pointAfterFirstChatText);
-  console.log('💰 Point after generate: ', pointAfterFirstChat);
-  
-  const totalPointUsedFirstChat = pointBeforeFirstChat - pointAfterFirstChat;
-  console.log('🌟🌟🌟 Total points used after generate: ', totalPointUsedFirstChat);
-  
-  if (totalPointUsedFirstChat === 1000) {
-      console.log('✅ PASS: The points decreased correctly by 1000 after the first chat.');
-  } else {
-      console.log('❌ FAIL: The points did not decrease correctly after the first chat.');
-  }
+  await this.page.waitForTimeout(15000);
+  await this.checkPointsAfterChat(1000, pointBeforeChat);
 }
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async deleteGenerateImage_RemoveText() {
-  console.log('🚀 ============== Testcase 12 deleteGenerateImage_RemoveText ==============');
+  console.log('🚀 ============== Testcase 12 Remove Text ==============');
   try {
     await this.page.getByRole('link', { name: 'Ask' }).click();
     await this.page.getByRole('link', { name: 'Assist' }).click();

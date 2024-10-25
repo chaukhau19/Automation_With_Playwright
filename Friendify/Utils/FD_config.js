@@ -1,5 +1,4 @@
 
-// /Utils/FD_config.js
 export const config = {
   //URL
   signupUrl: 'https://app.friendify.ai/auth/signup',
@@ -10,7 +9,7 @@ export const config = {
   email: 'khauntc@gmail.com',
   password: 'Chaukhau2000!',
   googleEmail: 'chaukhau2000@playgroundvina.com',
-  googlePassword: 'Khautester2000',
+  googlePassword: 'Khautester111222!',
   
   //Register
   defaultPassword: 'Tester25082024',
@@ -46,5 +45,4 @@ export const config = {
   path_generateImage_RemoveObject: './Data/Image_4KB.png',
   path_generateImage_RemoveText: './Data/Image_2KB.jpg',
   
-
 };

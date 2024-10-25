@@ -1,5 +1,5 @@
 import { test } from '@playwright/test';
-import { ActionsPage } from '../Pages/BS_Actions'; // Đảm bảo đường dẫn chính xác
+import { ActionsPage } from '../Pages/BS_Actions';
 import { config } from '../Utils/BS_config';
 
 test.describe('Busai Actions', () => {
