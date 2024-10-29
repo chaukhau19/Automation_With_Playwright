@@ -156,7 +156,7 @@ async AppExplorer() {
 
       console.log('🖱️ Selecting the search result and opening the app...');
       await this.page.getByRole('banner').getByRole('link', { name: config.Search_Query_Data_1 }).click();
-      await this.page.locator("//button[text()='Open']").click();
+      await this.page.locator(`//button[text()='Open']`).click();
 
       const page2Promise = this.page.waitForEvent('popup');
       await this.page.getByRole('button', { name: 'Launch' }).click();
