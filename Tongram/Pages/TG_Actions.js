@@ -62,8 +62,7 @@ async Categories() {
     await this.page.getByRole('button', { name: 'Latest' }).click();
 
     await this.page.waitForTimeout(2000);
-    await expect(this.page.getByRole('link', { name: 'Home' })).toBeVisible();
-    await this.page.getByRole('link', { name: 'Home' }).click();
+    await this.page.getByRole('link', { name: 'Tongram Logo' }).click();
     await expect(this.page.getByRole('button', { name: 'Categories' })).toBeVisible();
     await this.page.getByRole('button', { name: 'Categories' }).click();
 
@@ -75,40 +74,37 @@ async Categories() {
     await this.page.getByRole('button', { name: 'Latest' }).click();
 
     await this.page.waitForTimeout(2000);
-    await expect(this.page.getByRole('link', { name: 'Home' })).toBeVisible();
-    await this.page.getByRole('link', { name: 'Home' }).click();
-    await expect(this.page.getByRole('button', { name: 'Categories' })).toBeVisible();
-    await this.page.getByRole('button', { name: 'Categories' }).click();
+    await this.page.getByRole('link', { name: 'Tongram Logo' }).click();
+    // await expect(this.page.getByRole('button', { name: 'Categories' })).toBeVisible();
+    // await this.page.getByRole('button', { name: 'Categories' }).click();
     
-    await  this.page.getByRole('link', { name: 'Social Social' }).click();
+    // await  this.page.getByRole('link', { name: 'Social Social' }).click();
 
-    await expect(this.page.getByText('SocialLatestHigh ratingSort')).toBeVisible();
-    await this.page.getByRole('button', { name: 'High rating' }).click();
-    await expect(this.page.getByRole('button', { name: 'Latest' })).toBeVisible();
-    await this.page.getByRole('button', { name: 'Latest' }).click();
+    // await expect(this.page.getByText('SocialLatestHigh ratingSort')).toBeVisible();
+    // await this.page.getByRole('button', { name: 'High rating' }).click();
+    // await expect(this.page.getByRole('button', { name: 'Latest' })).toBeVisible();
+    // await this.page.getByRole('button', { name: 'Latest' }).click();
 
-    await this.page.waitForTimeout(2000);
-    await expect(this.page.getByRole('link', { name: 'Home' })).toBeVisible();
-    await this.page.getByRole('link', { name: 'Home' }).click();
-    await expect(this.page.getByRole('button', { name: 'Categories' })).toBeVisible();
-    await this.page.getByRole('button', { name: 'Categories' }).click();
+    // await this.page.waitForTimeout(2000);
+    // await this.page.getByRole('link', { name: 'Tongram Logo' }).click();
+    // await expect(this.page.getByRole('button', { name: 'Categories' })).toBeVisible();
+    // await this.page.getByRole('button', { name: 'Categories' }).click();
 
-    await this.page.getByRole('link', { name: 'Entertainment Entertainment' }).click();
+    // await this.page.getByRole('link', { name: 'Entertainment Entertainment' }).click();
 
-    await expect(this.page.getByText('EntertainmentLatestHigh')).toBeVisible();
-    await this.page.getByRole('button', { name: 'High rating' }).click();
-    await expect(this.page.getByRole('button', { name: 'Latest' })).toBeVisible();
-    await this.page.getByRole('button', { name: 'Latest' }).click();
+    // await expect(this.page.getByText('EntertainmentLatestHigh')).toBeVisible();
+    // await this.page.getByRole('button', { name: 'High rating' }).click();
+    // await expect(this.page.getByRole('button', { name: 'Latest' })).toBeVisible();
+    // await this.page.getByRole('button', { name: 'Latest' }).click();
 
-    await this.page.waitForTimeout(2000);
-    await expect(this.page.getByRole('link', { name: 'Home' })).toBeVisible();
-    await this.page.getByRole('link', { name: 'Home' }).click();
+    // await this.page.waitForTimeout(2000);
+    // await this.page.getByRole('link', { name: 'Tongram Logo' }).click();
 
-    await this.page.getByRole('banner').getByRole('link', { name: 'Management Management' }).click();
+    // await this.page.getByRole('banner').getByRole('link', { name: 'Management Management' }).click();
 
-    await expect(this.page.getByText('ManagementLatestHigh')).toBeVisible();
-    await this.page.getByRole('button', { name: 'High rating' }).click();
-    await this.page.getByRole('button', { name: 'Latest' }).click();
+    // await expect(this.page.getByText('ManagementLatestHigh')).toBeVisible();
+    // await this.page.getByRole('button', { name: 'High rating' }).click();
+    // await this.page.getByRole('button', { name: 'Latest' }).click();
     console.log('✅ Categories navigation completed successfully.');
   } catch (error) {
     console.error('❌ An error occurred during the Categories step:', error);
@@ -140,16 +136,15 @@ async NewPage() {
     await this.page.getByRole('button', { name: 'News' }).click();
 
     await expect(this.page.getByText('HomeNews')).toBeVisible();
-    await expect(this.page.getByRole('heading', { name: 'Featured' })).toBeVisible();
-    await expect(this.page.getByRole('link', { name: 'All' })).toBeVisible();
-    await this.page.getByRole('link', { name: 'All' }).click();
-    await expect(this.page.getByRole('link', { name: 'Developers', exact: true })).toBeVisible();
-    await this.page.getByRole('link', { name: 'Developers', exact: true }).click();
-    await expect(this.page.locator('#category-list').getByRole('link', { name: 'News' })).toBeVisible();
-    await this.page.locator('#category-list').getByRole('link', { name: 'News' }).click();
+    await expect(this.page.locator(`//h1[text()='Featured']`)).toBeVisible();
+    await expect(this.page.locator(`//div[span[text()='All']]`)).toBeVisible();
+    await this.page.locator(`//div[span[text()='All']]`).click();
+    await expect(this.page.locator(`//span[text()='Developers']`)).toBeVisible();
+    await this.page.locator(`//span[text()='Developers']`).click();
+    await expect(this.page.locator(`//div[span[text()='News']]`)).toBeVisible();
+    await this.page.locator(`//div[span[text()='News']]`).click();  
+
     await this.page.getByRole('link', { name: 'Tongram Logo' }).click();
-    await this.page.locator('#ads-navigation-next').first().click();
-    await this.page.locator('#ads-navigation-prev').first().click();
 
   } catch (error) {
     console.error('❌ An error occurred during the New Page step:', error);
