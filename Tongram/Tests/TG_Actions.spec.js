@@ -28,6 +28,12 @@ test('Interact with DEX', async () => {
   await tgHomePage.changeDEX(); 
 });
 
+test('News Page', async () => {
+  console.log('============== Testcase News Page ==============');
+  await tgHomePage.Login(); 
+  await tgHomePage.NewPage(); 
+});
+
 test('Open Game', async () => {
   console.log('============== Testcase Open Game ==============');
 });
@@ -42,10 +48,6 @@ test('Share Game', async () => {
 
 test('Join Telegram', async () => {
   console.log('============== Testcase Join Telegram ==============');
-});
-
-test('News Page', async () => {
-  console.log('============== Testcase News Page ==============');
 });
 
 test('Submit App', async () => {

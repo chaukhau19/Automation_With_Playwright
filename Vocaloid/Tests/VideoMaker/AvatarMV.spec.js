@@ -18,7 +18,11 @@ test.afterAll(async () => {
 });
 
 test('Avatar MV', async () => {
-  console.log('============== Testcase Avatar MV ==============');
   await loginUserPage.loginUser(); 
+  console.log('============== Avatar MV ==============');
   await avatarMVPage.generateAvatarMV();
+  // console.log('============== Tutorial ==============');
+  // await avatarMVPage.Tutorial();
+  console.log('============== Delete History ==============');
+  await avatarMVPage.DeleteHistory();
 });

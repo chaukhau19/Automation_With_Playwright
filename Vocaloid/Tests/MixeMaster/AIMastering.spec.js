@@ -17,7 +17,11 @@ test.afterAll(async () => {
 });
 
 test('AI Mastering', async () => {
-  console.log('============== Testcase AI Mastering ==============');
   await loginUserPage.loginUser(); 
+  console.log('============== AI Mastering ==============');
   await AImasteringPage.AIMastering();
+  console.log('============== Tutorial ==============');
+  await AImasteringPage.Tutorial();
+  console.log('============== Delete History ==============');
+  await AImasteringPage.DeleteHistory();
 });

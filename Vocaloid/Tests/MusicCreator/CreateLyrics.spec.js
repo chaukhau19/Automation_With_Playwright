@@ -17,7 +17,11 @@ test.afterAll(async () => {
 });
 
 test('Create Lyrics', async () => {
-  console.log('============== Testcase Create Lyrics ==============');
   await loginUserPage.loginUser(); 
+  console.log('============== Create Lyrics ==============');
   await createLyricsPage.createLyrics();
+  console.log('============== Tutorial ==============');
+  await createLyricsPage.Tutorial();
+  console.log('============== Delete History ==============');
+  await createLyricsPage.DeleteHistory();
 });

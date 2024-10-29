@@ -17,9 +17,13 @@ test.afterAll(async () => {
 });
 
 test('Convert Voice by Link', async () => {
-  console.log('============== Testcase Convert Voice by Link ==============');
   await loginUserPage.loginUser(); 
+  console.log('============== Convert Voice by Link ==============');
   await convertVoicePage.convertVoicebyLink();
+  console.log('============== Tutorial ==============');
+  await convertVoicePage.Tutorial();
+  console.log('============== Delete History ==============');
+  await convertVoicePage.DeleteHistory();
 });
 test('Convert Voice by File', async () => {
   console.log('============== Testcase Convert Voice by File ==============');

@@ -17,9 +17,13 @@ test.afterAll(async () => {
 });
 
 test('Music Splitter by Link', async () => {
-  console.log('============== Testcase Music Splitter by Link ==============');
   await loginUserPage.loginUser(); 
+  console.log('============== Music Splitter by Link ==============');
   await musicSplitterPage.MusicSplitterbyLink();
+  console.log('============== Tutorial ==============');
+  await musicSplitterPage.Tutorial();
+  console.log('============== Delete History ==============');
+  await musicSplitterPage.DeleteHistory();
 });
 
 test('Music Splitter  by File', async () => {

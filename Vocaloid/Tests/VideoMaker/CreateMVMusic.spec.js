@@ -17,7 +17,11 @@ test.afterAll(async () => {
 });
 
 test('Create MV Music', async () => {
-  console.log('============== Testcase Create MV Music ==============');
   await loginUserPage.loginUser(); 
+  console.log('============== Create MV Music ==============');
   await mvScriptsPage.MVScripts();
+  // console.log('============== Tutorial ==============');
+  // await mvScriptsPage.Tutorial();
+  console.log('============== Delete History ==============');
+  await mvScriptsPage.DeleteHistory();
 });

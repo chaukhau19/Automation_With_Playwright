@@ -17,9 +17,13 @@ test.afterAll(async () => {
 });
 
 test('Remove Vocal by Link', async () => {
-  console.log('============== Testcase Remove Vocal by Link ==============');
   await loginUserPage.loginUser(); 
+  console.log('============== Remove Vocal by Link ==============');
   await removeVocalPage.removeVocalbyLink();
+  console.log('============== Tutorial ==============');
+  await removeVocalPage.Tutorial();
+  console.log('============== Delete History ==============');
+  await removeVocalPage.DeleteHistory();
 });
 test('Remove Vocal by File', async () => {
   console.log('============== Testcase Remove Vocal by File ==============');

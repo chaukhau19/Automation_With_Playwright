@@ -17,7 +17,11 @@ test.afterAll(async () => {
 });
 
 test('Create Melody', async () => {
-  console.log('============== Testcase Create Melody ==============');
   await loginUserPage.loginUser(); 
+  console.log('============== Create Melody ==============');
   await melodyPage.createMelody();
+  console.log('============== Tutorial ==============');
+  await melodyPage.Tutorial();
+  console.log('============== Delete History ==============');
+  await melodyPage.DeleteHistory();
 });
