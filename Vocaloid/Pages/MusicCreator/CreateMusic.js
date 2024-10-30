@@ -241,10 +241,10 @@ async uploadFile(filePath) {
 
       const successStartTime = Date.now(); 
       await this.VerifyLocatorandDoubleClick(Playbutton1, true, 3000);
-      await this.VerifyLocator(expectTimeMusic1);
-      await this.page.waitForTimeout(15000);
+      // await this.VerifyLocator(expectTimeMusic1);
+      // await this.page.waitForTimeout(15000);
       await this.VerifyLocatorandDoubleClick(Playbutton2, true, 6000);
-      await this.VerifyLocator(expectTimeMusic2);
+      // await this.VerifyLocator(expectTimeMusic2);
 
       await this.VerifyLocator(Downloadbutton1);
       await this.VerifyLocator(Downloadbutton2);

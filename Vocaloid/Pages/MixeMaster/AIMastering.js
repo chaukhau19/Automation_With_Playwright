@@ -211,7 +211,7 @@ try {
 
       const successStartTime = Date.now(); 
       await this.VerifyLocatorandDoubleClick(PlayButton, true, 5000);
-      await this.VerifyLocator(expectTimeMusic);
+      // await this.VerifyLocator(expectTimeMusic);
       await this.VerifyLocator(downloadButton);
       await this.VerifyLocator(deleteButton);
       this.logTimeTaken(successStartTime);

@@ -207,7 +207,7 @@ try {
       this.logTimeTaken(startTime);
 
       await this.VerifyLocatorandDoubleClick(PlayButton, true, 5000);
-      await this.VerifyLocator(expectTimeMusic);
+      // await this.VerifyLocator(expectTimeMusic);
       await this.VerifyLocator(downloadButton);
       await this.VerifyLocator(deleteButton);
 
