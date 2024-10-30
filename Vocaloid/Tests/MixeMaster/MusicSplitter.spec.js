@@ -20,9 +20,9 @@ test('Music Splitter by Link', async () => {
   await loginUserPage.loginUser(); 
   console.log('============== Music Splitter by Link ==============');
   await musicSplitterPage.MusicSplitterbyLink();
-  console.log('============== Tutorial ==============');
+  console.log('============== Splitter Tutorial ==============');
   await musicSplitterPage.Tutorial();
-  console.log('============== Delete History ==============');
+  console.log('============== Splitter Delete History ==============');
   await musicSplitterPage.DeleteHistory();
 });
 

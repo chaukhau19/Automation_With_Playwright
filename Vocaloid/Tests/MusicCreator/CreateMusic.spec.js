@@ -20,8 +20,8 @@ test('Create Music', async () => {
   await loginUserPage.loginUser(); 
   console.log('============== Create Music ==============');
   await createMusicPage.createMusic();
-  console.log('============== Tutorial ==============');
+  console.log('============== Music Tutorial ==============');
   await createMusicPage.Tutorial();
-  console.log('============== Delete History ==============');
+  console.log('============== Music Delete History ==============');
   await createMusicPage.DeleteHistory();
 });

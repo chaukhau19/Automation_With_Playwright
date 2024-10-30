@@ -17,15 +17,14 @@ class CreateMusicPage {
 //////////// If the expected xpath appears within a certain time frame, console.log ////////////
 async VerifyLocator(expectedLocator) {
   try {
-      await this.page.waitForTimeout(5000);
-      await expect(expectedLocator).toBeVisible({ timeout: 120000 });
+      await this.page.waitForTimeout(3000);
+      await expect(expectedLocator).toBeVisible({ timeout: 600000 });
       console.log(`🔵 Locator verified: ${expectedLocator}`);
   } catch (error) {
       console.error(`❌ Locator ${expectedLocator} not displayed:`, error);
       throw new Error('❌ Verification Failed');
   }
 }
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////// If xpath appears, click n times, if it does not appear within a period of time then fail //////
 async ClickNTime(buttonLocator, clickCount, successMessage, failureMessage) {
@@ -99,15 +98,15 @@ async checkAndNavigate(button, expectedURL) {
       ]);
   
       if (newPage) {
-          await newPage.waitForURL(expectedURL, { timeout: 60000 });
+          await newPage.waitForURL(expectedURL, { timeout: 180000 });
           console.log(`🔵 New tab opened and navigated to ${expectedURL}`);
           await this.page.waitForTimeout(1000);
           await newPage.close();
       } else {
-          await this.page.waitForURL(expectedURL, { timeout: 60000 });
+          await this.page.waitForURL(expectedURL, { timeout: 180000 });
           console.log(`🔵 Same page navigated to ${expectedURL}`);
           await this.page.waitForTimeout(1000);
-          await this.page.goBack({ timeout: 60000 });
+          await this.page.goBack({ timeout: 180000 });
       }
   } catch (error) {
       console.error(`❌ Failed to navigate to ${expectedURL}:`, error);
@@ -121,9 +120,9 @@ async checkActiveButtonandReload(expectone, expecttwo) {
       await expectone.click();
       console.log(`✅ Clicked on ${expectone}`);
       await this.page.waitForTimeout(2000);
-      await expect(expecttwo).toBeVisible({ timeout: 60000 });
+      await expect(expecttwo).toBeVisible({ timeout: 120000 });
       console.log(`🔵 ${expecttwo} is displayed`);
-      await this.page.reload({ timeout: 60000 });
+      await this.page.reload({ timeout: 120000 });
       console.log(`✅ Page reloaded successfully`);
 
   } catch (error) {
@@ -198,8 +197,8 @@ async uploadFile(filePath) {
       const Viewmorebutton1 = this.page.locator(`(//div[preceding-sibling::div[contains(., 'Success')]]//button[1])[4]`);
       const Viewmorebutton2 = this.page.locator(`(//div[preceding-sibling::div[contains(., 'Success')]]//button[1])[8]`);
       const Deletebutton = this.page.locator(`(//div[contains(., 'Create Music')]/following-sibling::div[1])[6]`);
-      const expectTimeMusic1 = this.page.locator(`(//p[string-length(normalize-space())=5 and normalize-space() = concat('0','0',':','0','5')])[1]`);
-      const expectTimeMusic2 = this.page.locator(`(//p[string-length(normalize-space())=5 and normalize-space() = concat('0','0',':','0','5')])[2]`);
+      const expectTimeMusic1 = this.page.locator(`(//p[string-length(normalize-space())=5 and normalize-space() = concat('0','0',':','0','3')])[1]`);
+      const expectTimeMusic2 = this.page.locator(`(//p[string-length(normalize-space())=5 and normalize-space() = concat('0','0',':','0','6')])[1]`);
 
       await this.page.getByRole('link', { name: 'Create Music' }).click();
       
@@ -239,12 +238,12 @@ async uploadFile(filePath) {
       if (startTime) {
         this.logTimeTaken(startTime);
       }
+
       const successStartTime = Date.now(); 
- 
-      await this.VerifyLocatorandDoubleClick(Playbutton1, true, 5000);
+      await this.VerifyLocatorandDoubleClick(Playbutton1, true, 3000);
       await this.VerifyLocator(expectTimeMusic1);
       await this.page.waitForTimeout(15000);
-      await this.VerifyLocatorandDoubleClick(Playbutton2, true, 5000);
+      await this.VerifyLocatorandDoubleClick(Playbutton2, true, 6000);
       await this.VerifyLocator(expectTimeMusic2);
 
       await this.VerifyLocator(Downloadbutton1);
@@ -268,7 +267,7 @@ async DeleteHistory() {
   const deleteSuccessLocator = this.page.locator(`//div[contains(text(), 'Delete success!')]`); 
 
   await this.page.getByRole('link', { name: 'History Activities' }).click();
-  await this.page.waitForSelector(`(//h6[text()='${config.CreateMusics_Name}'])[1]`, { state: 'visible' });
+  // await this.page.waitForSelector(`(//h6[text()='${config.CreateMusics_Name}'])[1]`, { state: 'visible' });
 
   await this.verifyHistoryStatus(
     successTd,

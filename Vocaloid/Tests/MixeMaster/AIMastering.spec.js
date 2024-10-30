@@ -20,8 +20,8 @@ test('AI Mastering', async () => {
   await loginUserPage.loginUser(); 
   console.log('============== AI Mastering ==============');
   await AImasteringPage.AIMastering();
-  console.log('============== Tutorial ==============');
+  console.log('============== Mastering Tutorial ==============');
   await AImasteringPage.Tutorial();
-  console.log('============== Delete History ==============');
+  console.log('============== Mastering Delete History ==============');
   await AImasteringPage.DeleteHistory();
 });

@@ -20,8 +20,8 @@ test('Create Melody', async () => {
   await loginUserPage.loginUser(); 
   console.log('============== Create Melody ==============');
   await melodyPage.createMelody();
-  console.log('============== Tutorial ==============');
+  console.log('============== Melody Tutorial ==============');
   await melodyPage.Tutorial();
-  console.log('============== Delete History ==============');
+  console.log('============== Melody Delete History ==============');
   await melodyPage.DeleteHistory();
 });

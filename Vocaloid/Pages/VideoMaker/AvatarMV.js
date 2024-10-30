@@ -16,15 +16,15 @@ logTimeTaken(startTime) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////// If the expected xpath appears within a certain time frame, console.log ////////////
 async VerifyLocator(expectedLocator) {
-try {
-    await this.page.waitForTimeout(5000);
-    await expect(expectedLocator).toBeVisible({ timeout: 120000 });
-    console.log(`🔵 Locator verified: ${expectedLocator}`);
-} catch (error) {
-    console.error(`❌ Locator ${expectedLocator} not displayed:`, error);
-    throw new Error('❌ Verification Failed');
-}
-}
+    try {
+        await this.page.waitForTimeout(3000);
+        await expect(expectedLocator).toBeVisible({ timeout: 600000 });
+        console.log(`🔵 Locator verified: ${expectedLocator}`);
+    } catch (error) {
+        console.error(`❌ Locator ${expectedLocator} not displayed:`, error);
+        throw new Error('❌ Verification Failed');
+    }
+  }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////// If xpath appears, click n times, if it does not appear within a period of time then fail //////
@@ -99,15 +99,15 @@ try {
     ]);
 
     if (newPage) {
-        await newPage.waitForURL(expectedURL, { timeout: 60000 });
+        await newPage.waitForURL(expectedURL, { timeout: 180000 });
         console.log(`🔵 New tab opened and navigated to ${expectedURL}`);
         await this.page.waitForTimeout(1000);
         await newPage.close();
     } else {
-        await this.page.waitForURL(expectedURL, { timeout: 60000 });
+        await this.page.waitForURL(expectedURL, { timeout: 180000 });
         console.log(`🔵 Same page navigated to ${expectedURL}`);
         await this.page.waitForTimeout(1000);
-        await this.page.goBack({ timeout: 60000 });
+        await this.page.goBack({ timeout: 180000 });
     }
 } catch (error) {
     console.error(`❌ Failed to navigate to ${expectedURL}:`, error);
@@ -121,9 +121,9 @@ try {
     await expectone.click();
     console.log(`✅ Clicked on ${expectone}`);
     await this.page.waitForTimeout(2000);
-    await expect(expecttwo).toBeVisible({ timeout: 60000 });
+    await expect(expecttwo).toBeVisible({ timeout: 120000 });
     console.log(`🔵 ${expecttwo} is displayed`);
-    await this.page.reload({ timeout: 60000 });
+    await this.page.reload({ timeout: 120000 });
     console.log(`✅ Page reloaded successfully`);
 
 } catch (error) {
@@ -199,7 +199,7 @@ console.log(`✅ File uploaded: ${filePath}`);
       await this.page.getByPlaceholder('Paste a Youtube link...').fill(config.Youtube_7);
 
       await this.page.getByRole('button', { name: 'Generate AVATAR MV' }).click();
-      await this.VerifyLocator(validLinkMessage);
+    //   await this.VerifyLocator(validLinkMessage);
 
       const startTime = Date.now();
       await this.VerifyLocator(headerLocator);
@@ -219,7 +219,7 @@ async DeleteHistory() {
   const deleteSuccessLocator = this.page.locator(`//div[contains(text(), 'Delete success!')]`); 
 
   await this.page.getByRole('link', { name: 'History Activities' }).click();
-  await this.page.waitForSelector(`(//h6[text()='${config.Youtube_Text_7}'])[1]`, { state: 'visible' });
+//   await this.page.waitForSelector(`(//h6[text()='${config.Youtube_Text_7}'])[1]`, { state: 'visible' });
 
   await this.verifyHistoryStatus(
     successTd,

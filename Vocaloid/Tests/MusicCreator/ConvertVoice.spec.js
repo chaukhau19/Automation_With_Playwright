@@ -20,11 +20,11 @@ test('Convert Voice by Link', async () => {
   await loginUserPage.loginUser(); 
   console.log('============== Convert Voice by Link ==============');
   await convertVoicePage.convertVoicebyLink();
-  console.log('============== Tutorial ==============');
+  console.log('============== Convert Voice Tutorial ==============');
   await convertVoicePage.Tutorial();
-  console.log('============== Delete History ==============');
+  console.log('============== Convert Voice Delete History ==============');
   await convertVoicePage.DeleteHistory();
 });
 test('Convert Voice by File', async () => {
-  console.log('============== Testcase Convert Voice by File ==============');
+  console.log('============== Convert Voice by File ==============');
 });

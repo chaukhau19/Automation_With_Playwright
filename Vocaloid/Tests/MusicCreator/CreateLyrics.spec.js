@@ -20,8 +20,8 @@ test('Create Lyrics', async () => {
   await loginUserPage.loginUser(); 
   console.log('============== Create Lyrics ==============');
   await createLyricsPage.createLyrics();
-  console.log('============== Tutorial ==============');
+  console.log('============== Lyrics Tutorial ==============');
   await createLyricsPage.Tutorial();
-  console.log('============== Delete History ==============');
+  console.log('============== Lyrics Delete History ==============');
   await createLyricsPage.DeleteHistory();
 });
