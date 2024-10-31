@@ -97,18 +97,40 @@ try {
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////// If the xpath appears, click it, wait, then click it again ////////////
-async VerifyLocatorandDoubleClick(expectedLocator, clickAction = false, timeout) {
-try {
-    await this.VerifyLocator(expectedLocator);
-    if (clickAction) {
-        await expectedLocator.click();
-        await this.page.waitForTimeout(timeout); 
-        await expectedLocator.click();
-    }
-} catch (error) {
-    console.error(`❌ ${expectedLocator} is not clickable or not displayed:`, error);
-    throw new Error('❌ Failed');
-}
+// async VerifyLocatorandDoubleClick(expectedLocator, clickAction = false, timeout) {
+// try {
+//     await this.VerifyLocator(expectedLocator);
+//     if (clickAction) {
+//         await expectedLocator.click();
+//         await this.page.waitForTimeout(timeout); 
+//         await expectedLocator.click();
+//     }
+// } catch (error) {
+//     console.error(`❌ ${expectedLocator} is not clickable or not displayed:`, error);
+//     throw new Error('❌ Failed');
+// }
+// }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+async VerifyLocatorandDoubleClick(expectedLocator, clickAction = false, timeout, verificationLocator = null) {
+  try {
+      await this.VerifyLocator(expectedLocator);
+      
+      if (clickAction) {
+          await expectedLocator.click();
+          await this.page.waitForTimeout(timeout); 
+          await expectedLocator.click();
+      }
+
+
+      if (verificationLocator) {
+          await this.VerifyLocator(verificationLocator); 
+          console.log(`✅ Verification successful for locator: ${verificationLocator}`);
+      }
+      
+  } catch (error) {
+      console.error(`❌ ${expectedLocator} is not clickable or not displayed:`, error);
+      throw new Error('❌ Failed');
+  }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////// If the xpath appears, click it, verify the new page URL, then go back to the previous page ////////////

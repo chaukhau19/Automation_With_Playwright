@@ -82,18 +82,40 @@ try {
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////// If the xpath appears, click it, wait, then click it again ////////////
-async VerifyLocatorandDoubleClick(expectedLocator, clickAction = false, timeout) {
-try {
-  await this.VerifyLocator(expectedLocator);
-  if (clickAction) {
-      await expectedLocator.click();
-      await this.page.waitForTimeout(timeout); 
-      await expectedLocator.click();
+// async VerifyLocatorandDoubleClick(expectedLocator, clickAction = false, timeout) {
+// try {
+//   await this.VerifyLocator(expectedLocator);
+//   if (clickAction) {
+//       await expectedLocator.click();
+//       await this.page.waitForTimeout(timeout); 
+//       await expectedLocator.click();
+//   }
+// } catch (error) {
+//   console.error(`❌ ${expectedLocator} is not clickable or not displayed:`, error);
+//   throw new Error('❌ Failed');
+// }
+// }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+async VerifyLocatorandDoubleClick(expectedLocator, clickAction = false, timeout, verificationLocator = null) {
+  try {
+      await this.VerifyLocator(expectedLocator);
+      
+      if (clickAction) {
+          await expectedLocator.click();
+          await this.page.waitForTimeout(timeout); 
+          await expectedLocator.click();
+      }
+
+
+      if (verificationLocator) {
+          await this.VerifyLocator(verificationLocator); 
+          console.log(`✅ Verification successful for locator: ${verificationLocator}`);
+      }
+      
+  } catch (error) {
+      console.error(`❌ ${expectedLocator} is not clickable or not displayed:`, error);
+      throw new Error('❌ Failed');
   }
-} catch (error) {
-  console.error(`❌ ${expectedLocator} is not clickable or not displayed:`, error);
-  throw new Error('❌ Failed');
-}
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////// If the xpath appears, click it, verify the new page URL, then go back to the previous page ////////////
@@ -238,9 +260,9 @@ async clickButton(expectButton) {
     const expectTimeMusic = [expectTimeMusic1, expectTimeMusic2, expectTimeMusic3, expectTimeMusic4, expectTimeMusic5, expectTimeMusic6, expectTimeMusic7];
     for (let i = 0; i < playButtons.length; i++) {
         await this.page.waitForTimeout(1000);
-        await this.VerifyLocatorandDoubleClick(playButtons[i], true, 5000);
-        await this.page.waitForTimeout(1000);
-        await this.VerifyLocator(expectTimeMusic[i]);
+        await this.VerifyLocatorandDoubleClick(playButtons[i], true, 5000, expectTimeMusic[i]);
+        // await this.page.waitForTimeout(1000);
+        // await this.VerifyLocator();
     }
 
     const Downloadbuttons = [Downloadbutton1, Downloadbutton2, Downloadbutton3, Downloadbutton4, Downloadbutton5, Downloadbutton6, Downloadbutton7];

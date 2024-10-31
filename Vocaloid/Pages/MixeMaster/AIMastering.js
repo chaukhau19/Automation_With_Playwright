@@ -104,18 +104,40 @@ async clickAndVerify(clickLocator, successLocator, successMessage) {
   }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////// If the xpath appears, click it, wait, then click it again ////////////
-async VerifyLocatorandDoubleClick(expectedLocator, clickAction = false, timeout) {
-try {
-    await this.VerifyLocator(expectedLocator);
-    if (clickAction) {
-        await expectedLocator.click();
-        await this.page.waitForTimeout(timeout); 
-        await expectedLocator.click();
-    }
-} catch (error) {
-    console.error(`❌ ${expectedLocator} is not clickable or not displayed:`, error);
-    throw new Error('❌ Failed');
-}
+// async VerifyLocatorandDoubleClick(expectedLocator, clickAction = false, timeout) {
+// try {
+//     await this.VerifyLocator(expectedLocator);
+//     if (clickAction) {
+//         await expectedLocator.click();
+//         await this.page.waitForTimeout(timeout); 
+//         await expectedLocator.click();
+//     }
+// } catch (error) {
+//     console.error(`❌ ${expectedLocator} is not clickable or not displayed:`, error);
+//     throw new Error('❌ Failed');
+// }
+// }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+async VerifyLocatorandDoubleClick(expectedLocator, clickAction = false, timeout, verificationLocator = null) {
+  try {
+      await this.VerifyLocator(expectedLocator);
+      
+      if (clickAction) {
+          await expectedLocator.click();
+          await this.page.waitForTimeout(timeout); 
+          await expectedLocator.click();
+      }
+
+
+      if (verificationLocator) {
+          await this.VerifyLocator(verificationLocator); 
+          console.log(`✅ Verification successful for locator: ${verificationLocator}`);
+      }
+      
+  } catch (error) {
+      console.error(`❌ ${expectedLocator} is not clickable or not displayed:`, error);
+      throw new Error('❌ Failed');
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -209,12 +231,13 @@ try {
       await this.VerifyLocator(successLocator);
       this.logTimeTaken(startTime);
 
-      const successStartTime = Date.now(); 
-      await this.VerifyLocatorandDoubleClick(PlayButton, true, 5000);
-      await this.VerifyLocator(expectTimeMusic);
+     
+      await this.VerifyLocatorandDoubleClick(PlayButton, true, 5000, expectTimeMusic);
+      // await this.VerifyLocatorandDoubleClick(PlayButton, true, 5000);
+      // await this.VerifyLocator(expectTimeMusic);
       await this.VerifyLocator(downloadButton);
       await this.VerifyLocator(deleteButton);
-      this.logTimeTaken(successStartTime);
+  
 
     } catch (error) {
       console.error('❌ Error during Generate process:', error);
