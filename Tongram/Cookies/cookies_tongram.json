@@ -1,61 +1,61 @@
 [
   {
     "name": "_ga_LL3CFL35SX",
-    "value": "GS1.1.1730079225.1.0.1730079225.0.0.0",
+    "value": "GS1.1.1730338421.1.0.1730338421.0.0.0",
     "domain": ".tongram.app",
     "path": "/",
-    "expires": 1764639225.535686,
+    "expires": 1764898421.841658,
     "httpOnly": false,
     "secure": false,
     "sameSite": "Lax"
   },
   {
     "name": "_ga",
-    "value": "GA1.1.89694867.1730079226",
+    "value": "GA1.1.837307168.1730338422",
     "domain": ".tongram.app",
     "path": "/",
-    "expires": 1764639225.536401,
+    "expires": 1764898421.842315,
     "httpOnly": false,
     "secure": false,
     "sameSite": "Lax"
   },
   {
     "name": "stel_ssid",
-    "value": "e524f3eb1ee38af259_12080145805169950933",
+    "value": "de12a832a22fb2e1de_9480504953211896220",
     "domain": "oauth.telegram.org",
     "path": "/",
-    "expires": 1761656800.561566,
+    "expires": 1761571907.017604,
     "httpOnly": true,
     "secure": true,
     "sameSite": "None"
   },
   {
     "name": "__cf_bm",
-    "value": "Wd2fpUL38zgcta5j33AEfGp2BAO4WwY69h8dbONFetc-1730079225-1.0.1.1-HfleUliMA3kdiRGKADMImbLDIjwTirbyGi.RZzMcZTKywcLAxHUHe.TMhctlJ9FeGPjzOcMXWPL4.masmalAXg",
+    "value": "Qi.BtgxWwuR8a80KGOd9J6c0dyYeQdvnhE45C_0Oy6M-1730338422-1.0.1.1-.Y1qllq52Mt41S1qZemlWJwPjbwuH5tTJVoiaj4yzOgHZvwZlTLtonjr4s7gXdXQ5ztV.N48rCfPjDF2mvO3Fw",
     "domain": ".wallet.tg",
     "path": "/",
-    "expires": 1730081025.891133,
+    "expires": 1730340222.264687,
     "httpOnly": true,
     "secure": true,
     "sameSite": "None"
   },
   {
-    "name": "stel_token",
-    "value": "8a5b45f13225769bed45aff19111bcd28a5b45e68a5a4a76d7c88c4abc710ce713e8f",
+    "name": "stel_tsession_84339824931",
+    "value": "bn5DxN0au_qjZEv8CIfEUZt_",
     "domain": "oauth.telegram.org",
     "path": "/",
-    "expires": 1761237058.324583,
+    "expires": -1,
     "httpOnly": true,
     "secure": true,
     "sameSite": "None"
   },
   {
-    "name": "token",
-    "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NmNjODRmNTUxZDFmM2U1YjQyOGUzM2QiLCJyb2xlSWQiOiI2NjdiN2I4MzQ2MmEzNWQwZmJlNWQyNTEiLCJuYW1lIjoiQsOpICIsImlhdCI6MTczMDA3OTIzNCwiZXhwIjoxNzMwOTQzMjM0LCJpc3MiOiJwbGF5Z3JvdW5keCJ9.R0QbKyH_ymNpfWJt4wuRV1Qltv6JuU86OfifeVR3r24",
-    "domain": "tongram.app",
+    "name": "stel_tsession",
+    "value": "bn5DxN0au_qjZEv8CIfEUZt_",
+    "domain": "oauth.telegram.org",
     "path": "/",
-    "expires": 1730252034.913474,
-    "httpOnly": false,
+    "expires": -1,
+    "httpOnly": true,
     "secure": true,
     "sameSite": "None"
   }

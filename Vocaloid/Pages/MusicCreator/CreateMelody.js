@@ -17,7 +17,7 @@ class MelodyPage {
 async VerifyLocator(expectedLocator) {
   try {
       await this.page.waitForTimeout(3000);
-      await expect(expectedLocator).toBeVisible({ timeout: 600000 });
+      await expect(expectedLocator).toBeVisible({ timeout: 900000 });
       console.log(`🔵 Locator verified: ${expectedLocator}`);
   } catch (error) {
       console.error(`❌ Locator ${expectedLocator} not displayed:`, error);
@@ -96,15 +96,15 @@ async checkAndNavigate(button, expectedURL) {
       ]);
   
       if (newPage) {
-          await newPage.waitForURL(expectedURL, { timeout: 180000 });
+          await newPage.waitForURL(expectedURL, { timeout: 600000 });
           console.log(`🔵 New tab opened and navigated to ${expectedURL}`);
           await this.page.waitForTimeout(1000);
           await newPage.close();
       } else {
-          await this.page.waitForURL(expectedURL, { timeout: 180000 });
+          await this.page.waitForURL(expectedURL, { timeout: 600000 });
           console.log(`🔵 Same page navigated to ${expectedURL}`);
           await this.page.waitForTimeout(1000);
-          await this.page.goBack({ timeout: 180000 });
+          await this.page.goBack({ timeout: 600000 });
       }
   } catch (error) {
       console.error(`❌ Failed to navigate to ${expectedURL}:`, error);

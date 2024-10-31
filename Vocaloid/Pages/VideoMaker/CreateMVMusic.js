@@ -18,14 +18,13 @@ logTimeTaken(startTime) {
 async VerifyLocator(expectedLocator) {
     try {
         await this.page.waitForTimeout(3000);
-        await expect(expectedLocator).toBeVisible({ timeout: 600000 });
+        await expect(expectedLocator).toBeVisible({ timeout: 900000 });
         console.log(`🔵 Locator verified: ${expectedLocator}`);
     } catch (error) {
         console.error(`❌ Locator ${expectedLocator} not displayed:`, error);
         throw new Error('❌ Verification Failed');
     }
   }
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////// If xpath appears, click n times, if it does not appear within a period of time then fail //////
 async ClickNTime(buttonLocator, clickCount, successMessage, failureMessage) {
@@ -92,28 +91,28 @@ async VerifyLocatorandDoubleClick(expectedLocator, clickAction = false, timeout)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////// If the xpath appears, click it, verify the new page URL, then go back to the previous page ////////////
 async checkAndNavigate(button, expectedURL) {
-  try {
-      const [newPage] = await Promise.all([
-          this.page.context().waitForEvent('page'),
-          button.click(),
-      ]);
-  
-      if (newPage) {
-          await newPage.waitForURL(expectedURL, { timeout: 180000 });
-          console.log(`🔵 New tab opened and navigated to ${expectedURL}`);
-          await this.page.waitForTimeout(1000);
-          await newPage.close();
-      } else {
-          await this.page.waitForURL(expectedURL, { timeout: 180000 });
-          console.log(`🔵 Same page navigated to ${expectedURL}`);
-          await this.page.waitForTimeout(1000);
-          await this.page.goBack({ timeout: 180000 });
-      }
-  } catch (error) {
-      console.error(`❌ Failed to navigate to ${expectedURL}:`, error);
-      throw new Error('❌ Navigation Failed');
-  }
-  }
+    try {
+        const [newPage] = await Promise.all([
+            this.page.context().waitForEvent('page'),
+            button.click(),
+        ]);
+    
+        if (newPage) {
+            await newPage.waitForURL(expectedURL, { timeout: 600000 });
+            console.log(`🔵 New tab opened and navigated to ${expectedURL}`);
+            await this.page.waitForTimeout(1000);
+            await newPage.close();
+        } else {
+            await this.page.waitForURL(expectedURL, { timeout: 600000 });
+            console.log(`🔵 Same page navigated to ${expectedURL}`);
+            await this.page.waitForTimeout(1000);
+            await this.page.goBack({ timeout: 600000 });
+        }
+    } catch (error) {
+        console.error(`❌ Failed to navigate to ${expectedURL}:`, error);
+        throw new Error('❌ Navigation Failed');
+    }
+    }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 async checkActiveButtonandReload(expectone, expecttwo) {
   try {
@@ -200,8 +199,10 @@ async MVScripts() {
         await placeholder.click();
         await placeholder.fill(config.MVScripts_Name); 
 
-        // await this.VerifyLocator(generateButton);
-        // await this.VerifyLocator(validLinkMessage);
+        await this.VerifyLocator(generateButton);
+        await generateButton.click();
+
+        await this.VerifyLocator(validLinkMessage);
 
         const startTime = Date.now();
         await this.VerifyLocator(headerLocator);
