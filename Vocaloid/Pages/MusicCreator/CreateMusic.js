@@ -74,42 +74,42 @@ async clickAndVerify(clickLocator, successLocator, successMessage) {
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////// If the xpath appears, click it, wait, then click it again ////////////
-// async VerifyLocatorandDoubleClick(expectedLocator, clickAction = false, timeout) {
-//   try {
-//       await this.VerifyLocator(expectedLocator);
-//       if (clickAction) {
-//           await this.page.waitForTimeout(1000);
-//           await expectedLocator.click();
-//           await this.page.waitForTimeout(timeout); 
-//           await expectedLocator.click();
-//       }
-//   } catch (error) {
-//       console.error(`❌ ${expectedLocator} is not clickable or not displayed:`, error);
-//       throw new Error('❌ Failed');
-//   }
-// }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-async VerifyLocatorandDoubleClick(expectedLocator, clickAction = false, timeout, verificationLocator = null) {
+async VerifyLocatorandDoubleClick(expectedLocator, clickAction = false, timeout) {
   try {
       await this.VerifyLocator(expectedLocator);
-      
       if (clickAction) {
+          await this.page.waitForTimeout(1000);
           await expectedLocator.click();
           await this.page.waitForTimeout(timeout); 
           await expectedLocator.click();
       }
-
-
-      if (verificationLocator) {
-          await this.VerifyLocator(verificationLocator); 
-          console.log(`✅ Verification successful for locator: ${verificationLocator}`);
-      }
-      
   } catch (error) {
       console.error(`❌ ${expectedLocator} is not clickable or not displayed:`, error);
       throw new Error('❌ Failed');
   }
 }
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// async VerifyLocatorandDoubleClick(expectedLocator, clickAction = false, timeout, verificationLocator = null) {
+//   try {
+//       await this.VerifyLocator(expectedLocator);
+      
+//       if (clickAction) {
+//           await expectedLocator.click();
+//           await this.page.waitForTimeout(timeout); 
+//           await expectedLocator.click();
+//       }
+
+
+//       if (verificationLocator) {
+//           await this.VerifyLocator(verificationLocator); 
+//           console.log(`✅ Verification successful for locator: ${verificationLocator}`);
+//       }
+      
+//   } catch (error) {
+//       console.error(`❌ ${expectedLocator} is not clickable or not displayed:`, error);
+//       throw new Error('❌ Failed');
+//   }
+// }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////// If the xpath appears, click it, verify the new page URL, then go back to the previous page ////////////
 async checkAndNavigate(button, expectedURL) {
@@ -262,13 +262,13 @@ async uploadFile(filePath) {
       }
 
       const successStartTime = Date.now(); 
-      // await this.VerifyLocatorandDoubleClick(Playbutton1, true, 3000);
+      await this.VerifyLocatorandDoubleClick(Playbutton1, true, 3000);
       // await this.VerifyLocator(expectTimeMusic1);
-      await this.VerifyLocatorandDoubleClick(Playbutton1, true, 3000, expectTimeMusic1);
+      // await this.VerifyLocatorandDoubleClick(Playbutton1, true, 3000, expectTimeMusic1);
       await this.page.waitForTimeout(5000);
-      // await this.VerifyLocatorandDoubleClick(Playbutton2, true, 6000);
+      await this.VerifyLocatorandDoubleClick(Playbutton2, true, 6000);
       // await this.VerifyLocator(expectTimeMusic2);
-      await this.VerifyLocatorandDoubleClick(Playbutton2, true, 6000, expectTimeMusic2);
+      // await this.VerifyLocatorandDoubleClick(Playbutton2, true, 6000, expectTimeMusic2);
 
       await this.VerifyLocator(Downloadbutton1);
       await this.VerifyLocator(Downloadbutton2);
