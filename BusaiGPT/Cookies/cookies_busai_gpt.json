@@ -1,20 +1,20 @@
 [
   {
     "name": "stel_ssid",
-    "value": "72c1bbf406a7985c44_565522386461710131",
+    "value": "d99c5478a9bf3fdf1f_14750365398557070580",
     "domain": "oauth.telegram.org",
     "path": "/",
-    "expires": 1762197945.443695,
+    "expires": 1762081912.954458,
     "httpOnly": true,
     "secure": true,
     "sameSite": "None"
   },
   {
     "name": "stel_token",
-    "value": "7b26edeca345ba2e1c018226d0d5dce57b26edfb7b27e5610d495c5c6a847385dbca1",
+    "value": "dd43290d1fce5d89ba69e0a1c609d02edd43291add422f07510742da05f4b35105aa1",
     "domain": "oauth.telegram.org",
     "path": "/",
-    "expires": 1762068215.185736,
+    "expires": 1761682162.863364,
     "httpOnly": true,
     "secure": true,
     "sameSite": "None"
@@ -24,47 +24,47 @@
     "value": "{\"_id\":\"66ca1d74c1406f2906df9549\",\"telegram_id\":6262959786,\"first_name\":\"Bé\",\"email\":\"\",\"phone_number\":\"\",\"photo_url\":\"https://t.me/i/userpic/320/CIiNDL14SsNxkFRvVs-7otWP4cZ74KrlDUzM4HCiJZEbLhqtesB4_KGfD2dZz3Qq.jpg\",\"createdAt\":\"2024-08-05T10:17:52.664Z\",\"updatedAt\":\"2024-08-05T10:17:52.664Z\",\"__v\":0}",
     "domain": ".busai.me",
     "path": "/",
-    "expires": 1762173772,
+    "expires": 1762393389,
     "httpOnly": false,
     "secure": false,
     "sameSite": "Lax"
   },
   {
     "name": "token",
-    "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2Y2ExZDc0YzE0MDZmMjkwNmRmOTU0OSIsImlhdCI6MTczMDYzNzc3MiwiZXhwIjoxNzMwODEwNTcyfQ.Fb136r7bWhy3RxjP18iw5cLoAB_PSk0ecq2xXaISThg",
+    "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2Y2ExZDc0YzE0MDZmMjkwNmRmOTU0OSIsImlhdCI6MTczMDg1NzM5MCwiZXhwIjoxNzMxMDMwMTkwfQ.TG6ikl3QNEtKVw9aVcU6ZJJgEdzelDxCauZms2Ne9go",
     "domain": ".busai.me",
     "path": "/",
-    "expires": 1762173772,
+    "expires": 1762393389,
     "httpOnly": false,
     "secure": false,
     "sameSite": "Lax"
   },
   {
     "name": "IDE",
-    "value": "AHWqTUm7O4YOGNTy8NxPq0GLUrMDWcsj17OL4qu--rhtW-xEiEBq4-V3j2Lermr_d7o",
+    "value": "AHWqTUm4AtEEGmSIx2kwsBE1t8szOCOguHBduqwCGZ_dqtMs3BU71KGgyNBRaljBNSs",
     "domain": ".doubleclick.net",
     "path": "/",
-    "expires": 1765197773.56649,
+    "expires": 1765417391.810784,
     "httpOnly": true,
     "secure": true,
     "sameSite": "None"
   },
   {
     "name": "_ga",
-    "value": "GA1.2.80131971.1730637775",
+    "value": "GA1.2.527362553.1730857393",
     "domain": ".busai.me",
     "path": "/",
-    "expires": 1765197774.573014,
+    "expires": 1765417393.053435,
     "httpOnly": false,
     "secure": false,
     "sameSite": "Lax"
   },
   {
     "name": "_gid",
-    "value": "GA1.2.2035973440.1730637775",
+    "value": "GA1.2.1510972447.1730857393",
     "domain": ".busai.me",
     "path": "/",
-    "expires": 1730724174,
+    "expires": 1730943793,
     "httpOnly": false,
     "secure": false,
     "sameSite": "Lax"
@@ -74,7 +74,7 @@
     "value": "1",
     "domain": ".busai.me",
     "path": "/",
-    "expires": 1730637834,
+    "expires": 1730857453,
     "httpOnly": false,
     "secure": false,
     "sameSite": "Lax"
