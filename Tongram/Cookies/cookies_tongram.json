@@ -1,60 +1,60 @@
 [
   {
     "name": "_ga_LL3CFL35SX",
-    "value": "GS1.1.1730857346.1.0.1730857346.0.0.0",
+    "value": "GS1.1.1731040375.1.0.1731040375.0.0.0",
     "domain": ".tongram.app",
     "path": "/",
-    "expires": 1765417346.825413,
+    "expires": 1765600375.439623,
     "httpOnly": false,
     "secure": false,
     "sameSite": "Lax"
   },
   {
     "name": "_ga",
-    "value": "GA1.1.1751047090.1730857347",
+    "value": "GA1.1.316924883.1731040375",
     "domain": ".tongram.app",
     "path": "/",
-    "expires": 1765417346.826388,
+    "expires": 1765600375.440141,
     "httpOnly": false,
     "secure": false,
     "sameSite": "Lax"
   },
   {
     "name": "stel_ssid",
-    "value": "c3a47bc5ad34f345e1_7326914562552128621",
+    "value": "e3fe7e03cae5bd8863_18108783548241821912",
     "domain": "oauth.telegram.org",
     "path": "/",
-    "expires": 1762076736.927276,
+    "expires": 1762199194.169158,
     "httpOnly": true,
     "secure": true,
     "sameSite": "None"
   },
   {
     "name": "__cf_bm",
-    "value": "rmvk.kSw8Sn_TMNFAoShTdB4Kux0k7ZB5PdB_lHCVrw-1730857347-1.0.1.1-G3Fs2pWN0tYomtvswac2Pkzdgm.t6HZ_iBiYS9.VhuYXiWBnENlMTDLhoB_bgQ_EPpfGeszIbRlNW6IbbRFADg",
+    "value": "SsruoXUl425jWQ9wH4Ev_nMnE5uEwkYxh.eBL3jeSAI-1731040376-1.0.1.1-VzG.NUj5073TyYnGgg8nq_bqHZ9Bfh4eQwQtmKFYI9vV_js._qsmmvWalvwmy.96lpWA9MOUPCy5NXprMfP3kA",
     "domain": ".wallet.tg",
     "path": "/",
-    "expires": 1730859147.197329,
+    "expires": 1731042176.38808,
     "httpOnly": true,
     "secure": true,
     "sameSite": "None"
   },
   {
     "name": "stel_token",
-    "value": "9d893e1dc7c5b7effaa3f79186c3c73e9d893e0a9d883b0bf0764c012d71943d43005",
+    "value": "544ee147951df152336375c74f041864544ee150544fe7978d83ef6c824de85b2ff46",
     "domain": "oauth.telegram.org",
     "path": "/",
-    "expires": 1761901742.678049,
+    "expires": 1762243667.426582,
     "httpOnly": true,
     "secure": true,
     "sameSite": "None"
   },
   {
     "name": "token",
-    "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NmNjODRmNTUxZDFmM2U1YjQyOGUzM2QiLCJyb2xlSWQiOiI2NjdiN2I4MzQ2MmEzNWQwZmJlNWQyNTEiLCJuYW1lIjoiQsOpICIsImlhdCI6MTczMDg1NzM1OCwiZXhwIjoxNzMxNzIxMzU4LCJpc3MiOiJwbGF5Z3JvdW5keCJ9.qpHgqVbVG5Kw7f2mSqZSZ45bCJtdBZcKxiP8ScQVjXA",
+    "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NmNjODRmNTUxZDFmM2U1YjQyOGUzM2QiLCJyb2xlSWQiOiI2NjdiN2I4MzQ2MmEzNWQwZmJlNWQyNTEiLCJuYW1lIjoiQsOpICIsImlhdCI6MTczMTA0MDM4NiwiZXhwIjoxNzMxOTA0Mzg2LCJpc3MiOiJwbGF5Z3JvdW5keCJ9.ZP8GNpPreLlz-2ohmxlhcI3aNb1Uf5L-JIaTLIJ1wZQ",
     "domain": "tongram.app",
     "path": "/",
-    "expires": 1731030158.080775,
+    "expires": 1731213187.288529,
     "httpOnly": false,
     "secure": true,
     "sameSite": "None"
