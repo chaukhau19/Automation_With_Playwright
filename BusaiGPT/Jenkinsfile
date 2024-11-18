@@ -14,7 +14,7 @@ pipeline {
         botToken = '8085219018:AAHSTNao6k9OucZc15LQ476N-039N8NR7WI'
         // No need, because already setup Jenkins Credentials (usernamePassword credential)
         // GITHUB_USER = 'chaukhau2000@gmail.com'
-        // GITHUB_TOKEN = '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'
+        GITHUB_TOKEN = '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'
     }
     triggers {
         cron('0 17 * * *')
@@ -24,21 +24,33 @@ pipeline {
         stage('CI: Checkout Code') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
-                        sh """
-                            if [ ! -d "${REPO_NAME}" ]; then
-                                git clone https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/chaukhau19/${REPO_NAME}.git
-                            fi
-                            cd ${REPO_NAME}
-                            git fetch --all
-                            git reset --hard origin/${BRANCH_NAME}
-                        """
+                    def changes = sh(script: "git diff --name-only origin/${BRANCH_NAME}..${BRANCH_NAME}", returnStdout: true).trim()
+                    if (changes) {
+                        echo "Changes detected. Checking out code..."
+                        withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
+                            git branch: "${BRANCH_NAME}",
+                                credentialsId: "${JENKINS_CREDENTIALS_ID}",
+                                url: "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/chaukhau19/Automation_With_Playwright.git"
+                        }
+                        echo "Code checked out from ${BRANCH_NAME}"
+                    } else {
+                        echo "No changes detected. Skipping checkout."
                     }
-                    echo "Code checked out and ready at ${env.REPO_PATH}"
+
+                    env.REPO_PATH = sh(script: "find . -type d -name '${REPO_NAME}'", returnStdout: true).trim()
+                    if (env.REPO_PATH) {
+                        echo "Found ${REPO_NAME} at: ${env.REPO_PATH}"
+                    } else {
+                        error "Repository directory ${REPO_NAME} not found."
+                    }
                 }
+                sh """
+                    cd ${env.REPO_PATH}
+                    pwd
+                    ls -la
+                """
             }
         }
-
 
 
 
