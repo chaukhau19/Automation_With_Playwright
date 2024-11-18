@@ -13,8 +13,8 @@ pipeline {
         chatId = '-1002308985537'  
         botToken = '8085219018:AAHSTNao6k9OucZc15LQ476N-039N8NR7WI'
         // No need, because already setup Jenkins Credentials (usernamePassword credential)
-        GITHUB_USER = 'chaukhau19'
-        GITHUB_TOKEN = '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'
+        // GITHUB_USER = 'chaukhau19'
+        // GITHUB_TOKEN = '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'
     }
     triggers {
         cron('0 17 * * *')
@@ -24,21 +24,24 @@ pipeline {
         stage('CI: Checkout Code') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: "${GITHUB_USER}", passwordVariable: "${GITHUB_TOKEN}")]) {
-                        sh """
-                            git status
-                            git fetch --no-tags --force origin ${BRANCH_NAME}:${BRANCH_NAME}
-                        """
-                        def changes = sh(script: "git diff --name-only origin/${BRANCH_NAME}..HEAD", returnStdout: true).trim()
-                        if (changes) {
-                            echo "Changes detected. Checking out code..."
+                    sh "git remote set-head origin master"
+                    sh "git status"
+                    sh "git remote -v"
+                    sh "git branch -r"
+                    sh "git remote set-head origin master"
+                    sh "git diff --name-only master origin/master"
+                    sh "git diff --name-only origin/master master"
+                    def changes = sh(script: "git diff --name-only ${BRANCH_NAME}..origin/${BRANCH_NAME}", returnStdout: true).trim()
+                    if (changes) {
+                        echo "Changes detected. Checking out code..."
+                        withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
                             git branch: "${BRANCH_NAME}",
                                 credentialsId: "${JENKINS_CREDENTIALS_ID}",
                                 url: "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/chaukhau19/Automation_With_Playwright.git"
-                            echo "Code checked out from ${BRANCH_NAME}"
-                        } else {
-                            echo "No changes detected. Skipping checkout."
                         }
+                        echo "Code checked out from ${BRANCH_NAME}"
+                    } else {
+                        echo "No changes detected. Skipping checkout."
                     }
 
                     env.REPO_PATH = sh(script: "find . -type d -name '${REPO_NAME}'", returnStdout: true).trim()
@@ -55,6 +58,7 @@ pipeline {
                 """
             }
         }
+
 
 
 
