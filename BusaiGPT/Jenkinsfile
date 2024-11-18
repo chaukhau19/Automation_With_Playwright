@@ -24,37 +24,18 @@ pipeline {
         stage('CI: Checkout Code') {
             steps {
                 script {
-                    sh "git status"
-                    sh "git remote -v"
-                    sh "git --version"
-                    sh "git fetch origin"
-                    def changes = sh(script: "git diff --name-only origin/HEAD..origin/${BRANCH_NAME}", returnStdout: true).trim()
-                    if (changes) {
-                        echo "Changes detected. Checking out code..."
-                        withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
-                            git branch: "${BRANCH_NAME}",
-                                credentialsId: "${JENKINS_CREDENTIALS_ID}",
-                                url: "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/chaukhau19/Automation_With_Playwright.git"
-
-                        }
-                        echo "Code checked out from ${BRANCH_NAME}"
-                    } else {
-                        echo "Error running git diff: ${e.message}"
-                        echo "No changes detected. Skipping checkout."
+                    withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
+                        sh """
+                            if [ ! -d "${REPO_NAME}" ]; then
+                                git clone https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/chaukhau19/${REPO_NAME}.git
+                            fi
+                            cd ${REPO_NAME}
+                            git fetch --all
+                            git reset --hard origin/${BRANCH_NAME}
+                        """
                     }
-
-                    env.REPO_PATH = sh(script: "find . -type d -name '${REPO_NAME}'", returnStdout: true).trim()
-                    if (env.REPO_PATH) {
-                        echo "Found ${REPO_NAME} at: ${env.REPO_PATH}"
-                    } else {
-                        error "Repository directory ${REPO_NAME} not found."
-                    }
+                    echo "Code checked out and ready at ${env.REPO_PATH}"
                 }
-                sh """
-                    cd ${env.REPO_PATH}
-                    pwd
-                    ls -la
-                """
             }
         }
 
