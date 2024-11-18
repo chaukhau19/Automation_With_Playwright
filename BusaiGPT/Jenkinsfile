@@ -24,53 +24,25 @@ pipeline {
         stage('CI: Checkout Code') {
             steps {
                 script {
-                    try {
-                        // Kiểm tra danh sách nhánh từ xa
-                        def remoteBranches = sh(script: "git branch -r", returnStdout: true).trim()
-                        
-                        // Kiểm tra nhánh chính (master hoặc main)
-                        def branchExists = remoteBranches.contains("origin/${BRANCH_NAME}")
-                        if (!branchExists) {
-                            error "Branch '${BRANCH_NAME}' does not exist in the remote repository."
-                        }
+                    // Fetch branches to ensure references are available
+                    sh "git fetch --all"
 
-                        // Đồng bộ dữ liệu với remote
-                        sh "git fetch origin"
-
-                        // Lấy danh sách file thay đổi
-                        def changes = sh(script: "git diff --name-only origin/${BRANCH_NAME}..${BRANCH_NAME}", returnStdout: true).trim()
-                        if (changes) {
-                            echo "Changes detected. Checking out code..."
-                            withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
-                                git branch: "${BRANCH_NAME}",
-                                    credentialsId: "${JENKINS_CREDENTIALS_ID}",
-                                    url: "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/chaukhau19/Automation_With_Playwright.git"
-                            }
-                            echo "Code checked out from ${BRANCH_NAME}"
-                        } else {
-                            echo "No changes detected. Skipping checkout."
+                    // Check for changes
+                    def changes = sh(script: "git diff --name-only origin/${BRANCH_NAME}..${BRANCH_NAME}", returnStdout: true).trim()
+                    if (changes) {
+                        echo "Changes detected. Checking out code..."
+                        withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
+                            git branch: "${BRANCH_NAME}",
+                                credentialsId: "${JENKINS_CREDENTIALS_ID}",
+                                url: "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/chaukhau19/Automation_With_Playwright.git"
                         }
-
-                        // Tìm đường dẫn repository
-                        env.REPO_PATH = sh(script: "find . -type d -name '${REPO_NAME}'", returnStdout: true).trim()
-                        if (env.REPO_PATH) {
-                            echo "Found ${REPO_NAME} at: ${env.REPO_PATH}"
-                        } else {
-                            error "Repository directory ${REPO_NAME} not found."
-                        }
-                    } catch (e) {
-                        echo "Error during checkout process: ${e.message}"
-                        error "Exiting pipeline due to checkout error."
+                        echo "Code checked out from ${BRANCH_NAME}"
+                    } else {
+                        echo "No changes detected. Skipping checkout."
                     }
                 }
-                sh """
-                    cd ${env.REPO_PATH}
-                    pwd
-                    ls -la
-                """
             }
         }
-    
 
 
         stage('Setup Dependencies') {
