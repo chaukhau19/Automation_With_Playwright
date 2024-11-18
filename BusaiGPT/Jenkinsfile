@@ -28,7 +28,7 @@ pipeline {
                     sh "git fetch origin master:refs/remotes/origin/master"
                     sh "git diff origin/master"
                     sh "git symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/master"
-                    def changes = sh(script: """git diff --name-only ${BRANCH_NAME}..origin/${BRANCH_NAME} | grep -E '(.*)\\.(jsx|js)$'""", returnStdout: true).trim()
+                    def changes = sh(script: "git diff --name-only ${BRANCH_NAME}..origin/${BRANCH_NAME}", returnStdout: true).trim()
                     if (changes) {
                         echo "Changes detected. Checking out code..."
                         withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
