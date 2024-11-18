@@ -31,7 +31,6 @@ pipeline {
                     sh "git branch -r"
                     sh "git remote set-head origin master"
                    
-                    sh "git diff --name-only origin/master master"
                     sh "git diff --name-only origin/master origin/master"
                     sh "git diff --name-only master master"
                     def changes = sh(script: "git diff --name-only ${BRANCH_NAME}..origin/${BRANCH_NAME}", returnStdout: true).trim()
