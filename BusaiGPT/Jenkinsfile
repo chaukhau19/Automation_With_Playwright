@@ -13,7 +13,7 @@ pipeline {
         chatId = '-1002308985537'  
         botToken = '8085219018:AAHSTNao6k9OucZc15LQ476N-039N8NR7WI'
         // No need, because already setup Jenkins Credentials (usernamePassword credential)
-        // GITHUB_USER = 'chaukhau2000@gmail.com'
+        GITHUB_USER = 'chaukhau19'
         GITHUB_TOKEN = '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'
     }
     triggers {
@@ -24,7 +24,7 @@ pipeline {
         stage('CI: Checkout Code') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
+                    withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: "${GITHUB_USER}", passwordVariable: "${GITHUB_TOKEN}")]) {
                         sh """
                             git status
                             git fetch --no-tags --force origin ${BRANCH_NAME}:${BRANCH_NAME}
