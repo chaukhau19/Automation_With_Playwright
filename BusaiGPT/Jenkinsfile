@@ -24,25 +24,34 @@ pipeline {
         stage('CI: Checkout Code') {
             steps {
                 script {
-                    // Fetch branches to ensure references are available
-                    sh "git fetch --all"
+                    // Use credentials for secure access
+                    withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
 
-                    // Check for changes
-                    def changes = sh(script: "git diff --name-only origin/${BRANCH_NAME}..${BRANCH_NAME}", returnStdout: true).trim()
-                    if (changes) {
-                        echo "Changes detected. Checking out code..."
-                        withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
-                            git branch: "${BRANCH_NAME}",
-                                credentialsId: "${JENKINS_CREDENTIALS_ID}",
-                                url: "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/chaukhau19/Automation_With_Playwright.git"
+                        // Set remote URL with credentials
+                        sh """
+                            git remote set-url origin https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/chaukhau19/Automation_With_Playwright.git
+                            git fetch --all
+                        """
+
+                        // Check for changes between remote branch and local branch
+                        def changes = sh(script: "git diff --name-only origin/${BRANCH_NAME}..${BRANCH_NAME}", returnStdout: true).trim()
+
+                        if (changes) {
+                            echo "Changes detected. Checking out code..."
+                            // Checkout the specified branch
+                            sh """
+                                git checkout ${BRANCH_NAME}
+                                git reset --hard origin/${BRANCH_NAME}
+                            """
+                            echo "Code checked out from ${BRANCH_NAME}"
+                        } else {
+                            echo "No changes detected. Skipping checkout."
                         }
-                        echo "Code checked out from ${BRANCH_NAME}"
-                    } else {
-                        echo "No changes detected. Skipping checkout."
                     }
                 }
             }
         }
+
 
 
         stage('Setup Dependencies') {
