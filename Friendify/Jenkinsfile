@@ -21,6 +21,11 @@ pipeline {
         stage('CI: Checkout Code') {
             steps {
                 script {
+                    sh "git checkout master"
+                    sh "git remote set-head origin master"
+                    sh "git status"
+                    sh "git remote -v"
+                    sh "git branch -r"
                     def changes = sh(script: "git diff --name-only origin/${BRANCH_NAME}..${BRANCH_NAME}", returnStdout: true).trim()
                     if (changes) {
                         echo "Changes detected. Checking out code..."
