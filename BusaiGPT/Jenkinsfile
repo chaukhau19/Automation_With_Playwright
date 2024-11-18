@@ -24,34 +24,31 @@ pipeline {
         stage('CI: Checkout Code') {
             steps {
                 script {
-                    // Use credentials for secure access
-                    withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
-
-                        // Encode email if necessary
-                        def safeUser = GITHUB_USER.replaceAll('@', '%40')
-
-                        // Set remote URL with credentials
-                        sh '''
-                            git remote set-url origin https://${safeUser}:${GITHUB_TOKEN}@github.com/chaukhau19/Automation_With_Playwright.git
-                            git fetch --all
-                        '''
-
-                        // Check for changes between remote branch and local branch
-                        def changes = sh(script: "git diff --name-only origin/${BRANCH_NAME}..${BRANCH_NAME}", returnStdout: true).trim()
-
-                        if (changes) {
-                            echo "Changes detected. Checking out code..."
-                            // Checkout the specified branch
-                            sh '''
-                                git checkout ${BRANCH_NAME}
-                                git reset --hard origin/${BRANCH_NAME}
-                            '''
-                            echo "Code checked out from ${BRANCH_NAME}"
-                        } else {
-                            echo "No changes detected. Skipping checkout."
+                    def changes = sh(script: "git diff --name-only origin/${BRANCH_NAME}..${BRANCH_NAME}", returnStdout: true).trim()
+                    if (changes) {
+                        echo "Changes detected. Checking out code..."
+                        withCredentials([usernamePassword(credentialsId: "${JENKINS_CREDENTIALS_ID}", usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
+                            git branch: "${BRANCH_NAME}",
+                                credentialsId: "${JENKINS_CREDENTIALS_ID}",
+                                url: "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/chaukhau19/Automation_With_Playwright.git"
                         }
+                        echo "Code checked out from ${BRANCH_NAME}"
+                    } else {
+                        echo "No changes detected. Skipping checkout."
+                    }
+
+                    env.REPO_PATH = sh(script: "find . -type d -name '${REPO_NAME}'", returnStdout: true).trim()
+                    if (env.REPO_PATH) {
+                        echo "Found ${REPO_NAME} at: ${env.REPO_PATH}"
+                    } else {
+                        error "Repository directory ${REPO_NAME} not found."
                     }
                 }
+                sh """
+                    cd ${env.REPO_PATH}
+                    pwd
+                    ls -la
+                """
             }
         }
 
