@@ -15,7 +15,7 @@ environment {
         RESULTS_FILE = "${env.REPO_PATH}/Results/test_results.json" 
     }
     triggers {
-        cron('0 19 * * *')
+        cron('0 1 * * *')
     }
     
     stages {
